@@ -1,0 +1,5 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/guides/requirement-id-conventions.md", "reason": "改 docs/ 需求文档必须遵守的 ID 语法、三个 regex 陷阱、630 计数不变量与四组校验命令"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "前端目录骨架（src/routes 7 领域、components、stores）需符合既有前端结构约定"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Rust crate 目录骨架需符合既有后端结构约定"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "本任务定义 crate 间 trait 缝（S1-S5），属跨层边界设计"}

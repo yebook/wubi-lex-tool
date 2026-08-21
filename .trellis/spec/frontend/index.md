@@ -20,6 +20,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 | [State Management](./state-management.md) | Local state, global state, server state | To fill |
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
 | [Type Safety](./type-safety.md) | Type patterns, validation | To fill |
+| [Tailwind v4 令牌约定](./tailwind-v4-tokens.md) | `@theme inline` 的必要性、v3→v4 对照、具名令牌清单 | **已定案** |
 
 ---
 

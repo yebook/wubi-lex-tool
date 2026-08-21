@@ -1,0 +1,5 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/guides/requirement-id-conventions.md", "reason": "验收核心：§3 计数、§4 悬空引用、§5 占位符三组校验必须全部通过且与基线一致"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "前端结构与命名的质量检查基准"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "后端 crate 划分与命名的质量检查基准"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "检查 crate README 的依赖声明是否与 02 §1 分层表逐字一致，避免两处漂移"}
