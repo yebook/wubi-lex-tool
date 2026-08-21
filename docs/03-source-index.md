@@ -39,7 +39,7 @@
 | `lib/style.aardio` | 134 | M7 / UX | [→](#libstyleaardio) |
 | `lib/tsfInput.aardio` | 146 | M4 | [→](#libtsfinputaardio) |
 | `lib/tsfUtil.aardio` | 235 | M4 / M1 | [→](#libtsfutilaardio) |
-| `lib/app/hotkey.aardio` | 303 | **P3** | [→](#libapphotkeyaardiop3) |
+| `lib/app/hotkey.aardio` | 303 | **P3** | [→](#已废弃文件p3) |
 | `lib/app/lexContents.aardio` | 365 | M1 / M6 | [→](#libapplexcontentsaardio) |
 | `lib/app/lexNetContents.aardio` | 227 | M6 | [→](#libapplexnetcontentsaardio) |
 | `lib/ui/chineseNumber.aardio` | 4 | **P3** | [→](#已废弃文件p3) |
@@ -118,7 +118,7 @@
 
 ## `lib/style.aardio`
 
-UI 皮肤令牌。**新项目改用 Tailwind，本文件仅作配色参考**（见 [`21-ui-ux.md#原项目配色参考`](./21-ui-ux.md#原项目配色参考)）。
+UI 皮肤令牌。**新项目改用 Tailwind v4，本文件仅作配色参考**；新色板见 [`21-ui-ux.md#43-色板`](./21-ui-ux.md#43-色板)。
 
 | 行 | 令牌 | 用途 |
 |---|---|---|

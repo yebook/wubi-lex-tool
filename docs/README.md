@@ -1,6 +1,6 @@
 # WubiLexTool — 需求文档集
 
-> 面向 **Rust + Tauri + Tailwind CSS** 重写版本的需求规格。
+> 面向 **Rust + Tauri 2 + React 19 + Tailwind CSS v4** 重写版本的需求规格。
 > 分析对象：`wubi-lex/`（aardio 实现的 WubiLex 五笔助手 v12.1，32 个源文件 / 7,574 行）。
 
 ---
@@ -23,7 +23,7 @@
 |---|---|---|
 | [`00-overview.md`](./00-overview.md) | 背景、目标、原项目现状、**源文件覆盖表**、模块地图、术语表、优先级定义 | 所有人 |
 | [`01-data-formats.md`](./01-data-formats.md) | `.lex` / EUDP 二进制布局、文本码表方言、词频文件、拆字数据表、版本探测算法 | 后端 / codec 实现者 |
-| [`02-architecture.md`](./02-architecture.md) | Rust+Tauri 分层、crate 划分、command/event 契约、依赖选型、**风险登记册** | 架构 / 全体 |
+| [`02-architecture.md`](./02-architecture.md) | Rust+Tauri 分层、crate 划分、**接口缝**、command/event 契约、**技术选型定案**、**目录结构定案**、**风险登记册** | 架构 / 全体 |
 | [`03-source-index.md`](./03-source-index.md) | **旧项目源码反向索引**：按文件 → 行号区块 → 对应需求。实现时对照原实现用 | 全体 |
 
 ### 模块需求层

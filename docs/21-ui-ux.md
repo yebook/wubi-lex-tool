@@ -168,10 +168,10 @@
 | `UX-TOKEN-005` | 8 px 基准间距系统（4 / 8 / 12 / 16 / 24 / 32 / 48 / 64） | P1 | |
 | `UX-TOKEN-006` | 圆角三档：`sm 4px`（输入、徽标）/ `md 8px`（卡片、按钮）/ `lg 12px`（浮层、对话框） | P1 | |
 | `UX-TOKEN-007` | 字体三栈：UI 无衬线 / 等宽（编码、码表、日志）/ 字根专用（PUA） | P0 | 见 [§4.4](#44-字体) |
-| `UX-TOKEN-008` | 动效时长两档：`fast 120ms`（悬停、焦点）/ `base 200ms`（展开、切换）；缓动统一 `ease-out` | P2 | |
+| `UX-TOKEN-008` | 动效时长两档：`fast 120ms`（悬停、焦点）/ `base 200ms`（展开、切换）；缓动统一 `ease-out` | P2 | 时长令牌落 `:root`，Tailwind v4 的 duration 命名空间归属待 S1 核对 |
 | `UX-TOKEN-009` | 支持深色 / 浅色 / 跟随系统三种主题 | P0 | 解决 F6 |
 | `UX-TOKEN-010` | 主题切换即时生效，无闪白（首帧前注入主题类） | P1 | |
-| `UX-TOKEN-011` | **样式实现基于 Tailwind CSS**，`darkMode: 'class'`，令牌经 `theme.extend` 引用 CSS 变量 | P0 | 见 [§4.6](#46-tailwind-约定) |
+| `UX-TOKEN-011` | **样式实现基于 Tailwind CSS v4（CSS-first）**：深色由 `dark` 类驱动，令牌经 `@theme inline` 引用 CSS 变量；不存在 `tailwind.config.ts` | P0 | 见 [§4.6](#46-tailwind-约定) |
 | `UX-TOKEN-012` | 提供**紧凑 / 标准**两档密度，影响行高与内边距 | P2 | 码表表格在紧凑模式下每屏多显示约 40% 行 |
 | `UX-TOKEN-013` | 全部文本对比度满足 [`NFR-A11Y-003`](./20-nonfunctional.md)，深浅色各自验证 | P1 | |
 | `UX-TOKEN-014` | 五区配色作为**具名令牌**独立维护，深浅色各一组 | P1 | 见 [§4.5](#45-五区配色) |
@@ -235,42 +235,75 @@
 
 ### 4.6 Tailwind 约定
 
+**版本定案：Tailwind CSS v4（CSS-first）** —— 见 [`02-architecture.md` §7 决策 D9](./02-architecture.md#7-关键设计决策)。
+
+v4 取消了 JS 配置文件，令牌与变体全部写在 CSS 里。**项目中不存在 `tailwind.config.ts`**；令牌的单一事实来源是 `src/styles/theme.css`。
+
 | 约定 | 说明 |
 |---|---|
-| 单一事实来源 | 令牌在 `tailwind.config.ts` 定义一次，组件不写魔法值 |
-| 主题切换 | `darkMode: 'class'`；跟随系统时由 JS 监听 `prefers-color-scheme` 同步 `<html>` 的 `dark` 类 |
-| 语义色 | CSS 变量承载语义色，Tailwind 配置引用变量 → 同一套工具类在两主题自动取值 |
+| 单一事实来源 | 令牌在 `src/styles/theme.css` 的 `@theme` 中定义一次，组件不写魔法值 |
+| 构建接入 | Vite 插件 `@tailwindcss/vite`，无 `postcss.config.js` |
+| 主题切换 | `@custom-variant dark (&:where(.dark, .dark *))`；跟随系统时由 JS 监听 `prefers-color-scheme` 同步 `<html>` 的 `dark` 类 |
+| 语义色 | CSS 变量承载语义色，`@theme inline` 引用变量 → 同一套工具类在两主题自动取值 |
+| 透明度 | 原生支持 `bg-primary/50`，不需要 v3 那种占位符语法 |
 | 五区色 | 具名颜色 `wubi-zone-1` … `wubi-zone-5` |
 | 组件层 | 复用样式用 `@layer components` 抽 `.btn-primary` 等，避免长类名在 JSX 中重复 |
-| 类名排序 | `prettier-plugin-tailwindcss` 统一顺序 |
-| 密度 | 紧凑模式用 `data-density="compact"` 属性选择器覆盖行高与内边距 |
+| 密度 | `@custom-variant compact (&:where([data-density="compact"], [data-density="compact"] *))` 覆盖行高与内边距 |
+| 类名排序 | `prettier-plugin-tailwindcss`，配置项用 `tailwindStylesheet: "./src/styles/theme.css"` |
 
-```ts
-// tailwind.config.ts 片段
-darkMode: 'class',
-theme: {
-  extend: {
-    colors: {
-      primary: 'rgb(var(--color-primary) / <alpha-value>)',
-      surface: {
-        DEFAULT: 'rgb(var(--surface-1) / <alpha-value>)',
-        2: 'rgb(var(--surface-2) / <alpha-value>)',
-        3: 'rgb(var(--surface-3) / <alpha-value>)',
-      },
-      'wubi-zone-1': 'rgb(var(--zone-1) / <alpha-value>)',  // 横 GFDSA
-      'wubi-zone-2': 'rgb(var(--zone-2) / <alpha-value>)',  // 竖 HJKLM
-      'wubi-zone-3': 'rgb(var(--zone-3) / <alpha-value>)',  // 撇 TREWQ
-      'wubi-zone-4': 'rgb(var(--zone-4) / <alpha-value>)',  // 捺 YUIOP
-      'wubi-zone-5': 'rgb(var(--zone-5) / <alpha-value>)',  // 折 NBVCX
-    },
-    fontFamily: {
-      mono: ['Cascadia Code', 'JetBrains Mono', 'Consolas', 'monospace'],
-      etymon: ['WubiLexEtymon', 'Cascadia Code', 'monospace'],
-    },
-    transitionDuration: { fast: '120ms', base: '200ms' },
-  },
+**`@theme inline` 是深浅色能生效的前提**。不带 `inline` 的 `@theme` 会把变量的**值**烘死进生成的工具类；加 `inline` 后工具类在**使用处**解析变量，切换 `.dark` 才能改变已渲染元素的取色。这一处写错的表现是「主题切换按钮点了没反应」，且很难从现象反推原因。
+
+```css
+/* src/styles/theme.css */
+@import "tailwindcss";
+
+@custom-variant dark    (&:where(.dark, .dark *));
+@custom-variant compact (&:where([data-density="compact"], [data-density="compact"] *));
+
+@theme inline {
+  --color-primary:     var(--wl-primary);
+  --color-surface-1:   var(--wl-surface-1);
+  --color-surface-2:   var(--wl-surface-2);
+  --color-wubi-zone-1: var(--wl-zone-1);   /* 横 GFDSA */
+  --color-wubi-zone-2: var(--wl-zone-2);   /* 竖 HJKLM */
+  --color-wubi-zone-3: var(--wl-zone-3);   /* 撇 TREWQ */
+  --color-wubi-zone-4: var(--wl-zone-4);   /* 捺 YUIOP */
+  --color-wubi-zone-5: var(--wl-zone-5);   /* 折 NBVCX */
+
+  --font-mono:   "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  --font-etymon: "WubiLexEtymon", "Cascadia Code", monospace;
+}
+
+:root {
+  --wl-primary:   #1E3A5F;
+  --wl-surface-1: #FFFFFF;
+  --wl-surface-2: #F7F8FA;
+  /* 其余取 §4.3 色板的「浅色」列、§4.5 五区配色的浅色组 */
+
+  --wl-duration-fast: 120ms;   /* UX-TOKEN-008 */
+  --wl-duration-base: 200ms;
+}
+
+.dark {
+  --wl-primary:   #7DA7D9;
+  --wl-surface-1: #16191D;
+  --wl-surface-2: #1D2126;
+  /* 其余取 §4.3 色板的「深色」列、§4.5 五区配色的深色组 */
 }
 ```
+
+#### 从 v3 写法迁移
+
+本节早期版本写的是 v3 机制。若在旧分支、旧截图或外部资料中看到左列写法，一律按右列替换：
+
+| v3 写法（已废弃） | v4 定案写法 |
+|---|---|
+| `tailwind.config.ts` + `theme.extend.colors` | `@theme inline { --color-*: var(--wl-*) }` |
+| `darkMode: 'class'` | `@custom-variant dark (&:where(.dark, .dark *))` |
+| `rgb(var(--x) / <alpha-value>)` | 直接写颜色值；透明度用 `bg-primary/50` |
+| PostCSS 插件链 + `postcss.config.js` | `@tailwindcss/vite` |
+| `data-density="compact"` 属性选择器 | `@custom-variant compact (…)` |
+| `prettier-plugin-tailwindcss` 的 `tailwindConfig` 选项 | `tailwindStylesheet` 选项 |
 
 ---
 

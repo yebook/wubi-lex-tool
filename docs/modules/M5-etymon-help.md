@@ -428,7 +428,7 @@
 | `CHART`（单键图） | `dlg/spelling.aardio:56-74` | 与 [M3](./M3-reverse-lookup.md) 共享 |
 | `TEXT` | `dlg/help/etymon.aardio:81-234` | **文本字根集合 + 5 套字根歌诀全文**（已转录至[附录 A](#3-字根歌诀数据附录-a)） |
 | `TEXT`（结构化） | `lib/wubi/table.aardio:4-274` | **8 套字根数据 + 6 套一级简码 + 小鹤韵母映射** |
-| `TIPS`（五笔） | `dlg/help/wubi.aardio:19-39` | 8 条，已转录至[附录 B](#附录-b微软五笔使用技巧-wubiaardio19-39) |
+| `TIPS`（五笔） | `dlg/help/wubi.aardio:19-39` | 8 条，已转录至[附录 B](#附录-b微软五笔使用技巧wubiaardio19-39) |
 | `TIPS`（Windows） | `dlg/help/sys.aardio:12-39` | 26 条 |
 | `ABOUT` | `dlg/help/wubi.aardio:42-92` | 链接 / 更新状态 / 系统版本 |
 | 页面容器 | `dlg/help/help.aardio:14-43` | 二级导航，归 [M7](./M7-app-shell.md) |
