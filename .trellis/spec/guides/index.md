@@ -23,6 +23,7 @@ These guides help you **ask the right questions before coding**.
 |-------|---------|-------------|
 | [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md) | Identify patterns and reduce duplication | When you notice repeated patterns |
 | [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md) | Think through data flow across layers | Features spanning multiple layers |
+| [需求 ID 契约与文档集校验](./requirement-id-conventions.md) | `docs/` 需求 ID 语法、计数不变量、校验命令 | 增删改任何 `docs/` 需求条目前 |
 
 ---
 
@@ -50,6 +51,15 @@ These guides help you **ask the right questions before coding**.
 - [ ] Multiple branches update the same derived state from `kind` / `action`
 
 → Read [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md)
+
+### When Touching `docs/` Requirement Entries
+
+- [ ] Adding, deleting, or renumbering any `M*` / `NFR-*` / `UX-*` requirement
+- [ ] Adding a new module (→ every `M[1-N]` range in validation scripts must be widened)
+- [ ] Writing any script that greps requirement IDs ← **域段可能含数字，`[A-Z]+` 会静默漏计**
+- [ ] Justifying a requirement with "原项目就是这么做的" ← not a valid reason on its own
+
+→ Read [需求 ID 契约与文档集校验](./requirement-id-conventions.md)
 
 ### When Verifying AI Cross-Review Results
 

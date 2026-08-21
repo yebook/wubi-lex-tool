@@ -9,7 +9,8 @@ docs/
 ├── README.md                    索引 + 阅读路径 + 文档维护约定
 ├── 00-overview.md               总览：背景 / 目标 / 原项目现状 / 模块地图 / 术语 / 优先级定义
 ├── 01-data-formats.md           数据格式规格（跨模块共享的技术契约）
-├── 02-architecture.md           Rust+Tauri 架构映射 + 依赖选型 + 风险登记册
+├── 02-architecture.md           首要原则 + Rust+Tauri 架构映射 + 依赖选型 + 风险登记册
+├── 03-source-index.md           源码反向索引（文件 → 行号区块 → 需求 ID）+ 已知缺陷清单〔R10〕
 ├── modules/
 │   ├── M1-lex-table.md          码表管理
 │   ├── M2-phrase.md             短语词库
@@ -17,7 +18,8 @@ docs/
 │   ├── M4-ime-control.md        输入法控制与系统设置
 │   ├── M5-etymon-help.md        字根图与帮助资料
 │   ├── M6-resource-sync.md      资源分发与网络同步
-│   └── M7-app-shell.md          应用外壳
+│   ├── M7-app-shell.md          应用外壳
+│   └── M8-self-learning.md      自学习（语料导入 / 输入采集）〔R14〕
 ├── 20-nonfunctional.md          非功能需求
 ├── 21-ui-ux.md                  UI/UX 需求
 └── 22-roadmap.md                优先级汇总 + 里程碑
@@ -35,7 +37,8 @@ docs/
 | M4 | 输入法启停、双拼、注册表设置、TSF 重启 | `lib/tsfInput.aardio`、`lib/tsfUtil.aardio`、`dlg/setting.aardio`、`lib/ui/doublePinyinMenu.aardio`、`lib/winex/msCandidate.aardio` |
 | M5 | 字根图、帮助文本、关于与更新入口 | `dlg/help/*.aardio`、`lib/wubi/table.aardio`（字根歌诀数据） |
 | M6 | 在线目录、下载、解压、缓存 | `lib/app/lexNetContents.aardio`、`lib/app/lexContents.aardio`（下载分支）、各模块的资源下载逻辑 |
-| M7 | 单实例、窗口、托盘、热键、配置、事件总线 | `main.aardio`、`lib/config.aardio`、`lib/style.aardio`、`dlg/dict/dict.aardio`、`dlg/help/help.aardio` |
+| M7 | 单实例、窗口、托盘、热键、快捷键自定义、配置、事件总线 | `main.aardio`、`lib/config.aardio`、`lib/style.aardio`、`dlg/dict/dict.aardio`、`dlg/help/help.aardio` |
+| M8 | 自学习：语料导入 / 输入采集 → 词频回写 | 【新增】原项目无对应实现，行为规格取自 M1-WEIGHT 的词频写入链路 |
 
 `lib/wubi/table.aardio` 同时被 M3（虚拟键盘字根）与 M5（字根歌诀展示）使用 —— 数据定义放在 `01-data-formats.md`，两个模块各自引用，不重复正文。
 
@@ -50,8 +53,9 @@ docs/
 
 格式：`<模块>-<域>-<三位序号>`，例如 `M1-PARSE-004`、`M4-REG-011`。
 
-- 模块段：`M1`..`M7`
+- 模块段：`M1`..`M8`；横切文档另用 `NFR`（非功能）与 `UX`（UI/UX）两个前缀
 - 域段：模块内的功能分组缩写（如 M1 的 `LIST` / `PARSE` / `EDIT` / `XFORM` / `SLIM` / `WEIGHT` / `COIN` / `SPLIT` / `INSTALL` / `IO`）
+  - ⚠️ 域段**可能含数字**（如 `NFR-A11Y-003`）。写校验脚本时必须用 `[A-Z0-9]+` 匹配域段，用 `[A-Z]+` 会静默漏计。
 - 序号：模块内域段下**永不复用**，删除的需求保留 ID 并标注「已废弃」
 
 ID 一经写入即冻结，`22-roadmap.md` 的汇总表以 ID 为主键做交叉引用。
