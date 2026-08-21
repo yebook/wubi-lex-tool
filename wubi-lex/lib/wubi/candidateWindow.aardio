@@ -1,0 +1,7 @@
+﻿//candidateWindow 候选窗口
+import winex.msCandidate;
+
+namespace wubi;
+
+//Deprecated
+candidateWindow = winex.msCandidate;

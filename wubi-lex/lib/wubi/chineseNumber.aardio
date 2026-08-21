@@ -1,0 +1,5 @@
+//chineseNumber 大写数值
+import win.dlg.chineseNumber;
+
+namespace wubi;
+chineseNumber = ..win.dlg.chineseNumber; //@Deprecated

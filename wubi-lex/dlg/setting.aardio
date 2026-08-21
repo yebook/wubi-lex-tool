@@ -1,0 +1,330 @@
+import fonts.fontAwesome;
+import win.ui;
+/*DSG{{*/
+var winform = win.form(text="设置";right=984;bottom=589;bgcolor=16777215)
+winform.add(
+bk={cls="bk";left=1;top=549;right=992;bottom=591;bgcolor=14935259;db=1;dl=1;dr=1;z=1};
+btnOpenIcon={cls="plus";text='\uF115';left=815;top=411;right=844;bottom=434;color=2960685;dr=1;font=LOGFONT(h=-16;name='FontAwesome');notify=1;z=16};
+btnSave={cls="plus";text='\uF0C7   更新设置';left=636;top=497;right=838;bottom=533;bgcolor=11580047;dr=1;font=LOGFONT(h=-16;name='FontAwesome');notify=1;tabstop=1;z=5};
+chkDefaultModeEn={cls="plus";text="默认英文模式（ 可短按 Shift 键切换 )";left=156;top=131;right=769;bottom=162;align="left";dl=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=3};
+chkEnableMsPinyin={cls="plus";text="启用微软拼音";left=642;top=555;right=770;bottom=586;align="left";db=1;dr=1;font=LOGFONT(h=-15);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=23};
+chkEnableMsWubi={cls="plus";text="启用微软五笔";left=502;top=555;right=629;bottom=586;align="left";db=1;dr=1;font=LOGFONT(h=-15);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=22};
+chkEnableSystemRun={cls="plus";text="允许开机启动 WubiLex （ 启动时不再需要确认管理权限，建议开启 ）";left=156;top=296;right=732;bottom=327;align="left";dl=1;dr=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=11};
+chkEnableWubiUdp={cls="plus";text="允许自定义短语";left=156;top=243;right=412;bottom=274;align="left";dl=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=7};
+chkHalfWidthInputModeByDefault={cls="plus";text="英文标点默认使用半角输入模式（ 可按 Shift + 空格键 切换 ）";left=156;top=168;right=741;bottom=199;align="left";dl=1;dr=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=13};
+chkUsKeyboard={cls="plus";text="启用英文键盘";left=361;top=555;right=488;bottom=586;align="left";db=1;dr=1;font=LOGFONT(h=-15);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=24};
+chkUseEnglishPunctuationsInChineseInputMode={cls="plus";text="中文输入时使用英文标点（ Win10 2004 以上中文模式下 Ctrl + . 切换 ）";left=156;top=206;right=730;bottom=237;align="left";dl=1;dr=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=14};
+chkWubiAutoFinalize={cls="plus";text="四码唯一时自动上屏（ 拼音混输时不建议开启 ）";left=156;top=93;right=596;bottom=124;align="left";dl=1;dr=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF0C8 ';notify=1;textPadding={left=24};z=10};
+cmbDoublePiny={cls="plus";text="选择双拼方案";left=784;top=555;right=929;bottom=586;align="left";db=1;dr=1;font=LOGFONT(h=-15);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome');padding={left=9}};iconText='\uF15D';notify=1;paddingLeft=1;textPadding={left=31};z=25};
+editMaxCandidates={cls="plus";left=284;top=447;right=326;bottom=476;align="left";border={bottom=1;color=-16744448};dr=1;font=LOGFONT(h=-16);notify=1;tabstop=1;textPadding={top=6;bottom=1};z=20};
+editWubiDescription={cls="plus";left=284;top=352;right=565;bottom=385;align="left";border={bottom=1;color=-16744448};dl=1;dr=1;editable=1;font=LOGFONT(h=-16);tabstop=1;textPadding={top=6;bottom=1};z=9};
+editWubiIcon={cls="plus";left=284;top=398;right=810;bottom=431;align="left";border={bottom=1;color=-16744448};dl=1;dr=1;editable=1;font=LOGFONT(h=-16);tabstop=1;textPadding={top=6;bottom=1};z=8};
+plus={cls="plus";left=160;top=333;right=684;bottom=343;border={bottom=1;color=-4144960};dl=1;dr=1;z=21};
+plus2={cls="plus";left=160;top=73;right=684;bottom=83;border={bottom=1;color=-4144960};dl=1;dr=1;z=12};
+plus3={cls="plus";left=160;top=273;right=684;bottom=283;border={bottom=1;color=-4144960};dl=1;dr=1;z=15};
+plusOpenMsSetting={cls="plus";text='\uF17A   打开系统五笔设置';left=421;top=497;right=622;bottom=533;bgcolor=14935259;dr=1;font=LOGFONT(h=-16;name='FontAwesome');notify=1;tabstop=1;z=6};
+radioPinyinMixDisable={cls="plus";text="纯形码输入";left=156;top=12;right=318;bottom=43;align="left";dl=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF111 ';notify=1;textPadding={left=24};z=2};
+radioPinyinMixEnable={cls="plus";text="形码拼音混输";left=156;top=46;right=318;bottom=77;align="left";dl=1;font=LOGFONT(h=-16);iconStyle={align="left";font=LOGFONT(h=-15;name='FontAwesome')};iconText='\uF111 ';notify=1;textPadding={left=24};z=4};
+static={cls="static";text="输入法显示名称:";left=135;top=366;right=275;bottom=393;align="right";dl=1;font=LOGFONT(h=-16;name='FontAwesome');transparent=1;z=17};
+static2={cls="static";text="输入法显示图标:";left=135;top=412;right=275;bottom=439;align="right";dl=1;font=LOGFONT(h=-16;name='FontAwesome');transparent=1;z=18};
+static4={cls="static";text="候选词每页显示数:";left=134;top=458;right=275;bottom=485;align="right";dr=1;font=LOGFONT(h=-16;name='FontAwesome');transparent=1;z=19};
+winLang={cls="static";text="系统默认显示语言：";left=10;top=555;right=342;bottom=586;align="right";center=1;db=1;dl=1;dr=1;transparent=1;z=26}
+)
+/*}}*/
+
+import style;
+winform.radioPinyinMixEnable.skin(style.radio)
+winform.radioPinyinMixDisable.skin(style.radio)
+winform.chkDefaultModeEn.skin(style.checkBox)  
+winform.chkEnableWubiUdp.skin(style.checkBox)
+winform.chkEnableSystemRun.skin(style.checkBox)
+winform.chkWubiAutoFinalize.skin(style.checkBox)
+winform.chkHalfWidthInputModeByDefault.skin(style.checkBox)
+winform.chkUseEnglishPunctuationsInChineseInputMode.skin(style.checkBox)
+winform.chkEnableMsWubi.skin(style.checkBox)
+winform.chkEnableMsPinyin.skin(style.checkBox)
+winform.chkUsKeyboard.skin(style.checkBox)
+winform.btnSave.skin(style.primaryButton)
+winform.btnOpenIcon.skin( style.plainButton )
+winform.plusOpenMsSetting.skin(style.button)
+winform.cmbDoublePiny.skin(style.transButton)
+
+import win.reg;
+var regSettings = win.reg("HKEY_CURRENT_USER\Software\Microsoft\InputMethod\Settings\CHS");
+var setting = regSettings.queryValueTable({
+	["Default Mode"] = 1;
+	["Enable Wubi EUDP"] = 1;
+	["WubiAutoFinalizeForMixEnable"] = 1;
+	["Wubi Auto-finalize Enable"] = 1;
+	["HalfWidthInputModeByDefault"] = 1;
+	["UseEnglishPunctuationsInChineseInputMode"] = 0;
+})
+regSettings.close();
+
+winform.radioPinyinMixEnable.checked = setting["PinyinMixEnable"];
+winform.radioPinyinMixDisable.checked = !setting["PinyinMixEnable"];
+winform.chkDefaultModeEn.checked = setting["Default Mode"];
+winform.chkEnableWubiUdp.checked = setting["Enable Wubi EUDP"];
+winform.chkUseEnglishPunctuationsInChineseInputMode.checked = setting["UseEnglishPunctuationsInChineseInputMode"];
+winform.chkHalfWidthInputModeByDefault.checked = setting["HalfWidthInputModeByDefault"];
+subscribe("wubi.system.lex.changed",function(){
+	var regSettings = win.reg("HKEY_CURRENT_USER\Software\Microsoft\InputMethod\Settings\CHS");
+	winform.radioPinyinMixDisable.checked = !regSettings.queryValue("PinyinMixEnable")
+	regSettings.close();
+} )
+
+if(winform.radioPinyinMixEnable.checked){
+	winform.chkWubiAutoFinalize.checked = setting["WubiAutoFinalizeForMixEnable"]
+}
+else {
+	winform.chkWubiAutoFinalize.checked = setting["Wubi Auto-finalize Enable"]
+}
+
+var reg = win.reg("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\CTF\TIP\{6a498709-e00b-4c45-a018-8f9e4081ae40}\LanguageProfile\0x00000804\{82590C13-F4DD-44f4-BA1D-8667246FDF8E}");	
+var wubiDisplayDescription = reg.queryValue("Display Description")
+var wubiIconFile = reg.queryValue("IconFile")
+var wubiIconIndex = reg.queryValue("IconIndex")
+reg.close();
+
+if(wubiDisplayDescription!="@%SystemRoot%\SYSTEM32\input.dll,-5302"){
+	winform.editWubiDescription.text = wubiDisplayDescription;	
+}
+
+if(wubiIconFile!="%SystemRoot%\system32\InputMethod\Shared\ResourceDll.dll"){
+	winform.editWubiIcon.text = wubiIconFile +","+wubiIconIndex;
+}
+
+winform.editWubiDescription.setCueBannerText("默认名称"); 
+
+winform.editMaxCandidates.createEditBox( 
+	cls = "edit";
+	num = 1;  
+	limit = 2;
+);
+
+var reg = win.reg("HKEY_CURRENT_USER\Software\Microsoft\InputMethod\CandidateWindow\CHS\2");
+ 
+winform.editMaxCandidates.text = reg.queryValue("MaxCandidates") : "7";
+if(!reg.queryValue("EnableFixedCandidateCountMode")){
+	winform.editMaxCandidates.text = 0;
+}
+reg.close();
+
+import sys.runAsTask;
+import config;
+import win.reg;
+import tsfUtil;
+import key.ime;
+import tsfInput;
+winform.btnSave.oncommand = function(id,event){
+    var maxCandidates = winform.editMaxCandidates.text + 0;
+    if(maxCandidates){
+  		if(maxCandidates<3){
+			maxCandidates=3;
+			winform.editMaxCandidates.editBox.showWarningTip("WubiLex","候选词数目不能小于3")
+			return;
+		}
+		if(maxCandidates>9){
+			maxCandidates=9;
+			winform.editMaxCandidates.editBox.showWarningTip("WubiLex","候选词数目不能大于9")
+			return;
+		}  	
+    } 
+	
+	winform.btnSave.disabledText = {'\uF254';'\uF251';'\uF252';'\uF253';'\uF250'}
+	
+	var reg = win.reg("HKEY_CURRENT_USER\Software\Microsoft\InputMethod\CandidateWindow\CHS\2");
+  
+	if(maxCandidates){
+		reg.setDwValue("MaxCandidates",maxCandidates);
+		reg.setDwValue("EnableFixedCandidateCountMode",1);
+	}
+	else {
+		reg.setDwValue("MaxCandidates",0);
+		reg.setDwValue("EnableFixedCandidateCountMode",0);
+	}
+	
+	
+	reg.close();
+	
+	var regSettings = win.reg("HKEY_CURRENT_USER\Software\Microsoft\InputMethod\Settings\CHS");
+	regSettings.setDwValue("Floating Icon Time Key",0);
+	regSettings.setDwValue("PinyinMixEnable",winform.radioPinyinMixEnable.checked?1:0);
+	regSettings.setDwValue("Default Mode",winform.chkDefaultModeEn.checked?1:0);
+	regSettings.setDwValue("Enable Wubi EUDP",winform.chkEnableWubiUdp.checked?1:0);
+	
+	regSettings.setDwValue("HalfWidthInputModeByDefault",winform.chkHalfWidthInputModeByDefault.checked?1:0);
+	regSettings.setDwValue("UseEnglishPunctuationsInChineseInputMode",winform.chkUseEnglishPunctuationsInChineseInputMode.checked?1:0)
+	
+	if(winform.radioPinyinMixEnable.checked){
+		regSettings.setDwValue("WubiAutoFinalizeForMixEnable",winform.chkWubiAutoFinalize.checked?1:0);
+	}
+	else {
+		regSettings.setDwValue("Wubi Auto-finalize Enable",winform.chkWubiAutoFinalize.checked?1:0);
+	}
+	regSettings.close();
+	
+	var reg = win.reg("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\CTF\TIP\{6a498709-e00b-4c45-a018-8f9e4081ae40}\LanguageProfile\0x00000804\{82590C13-F4DD-44f4-BA1D-8667246FDF8E}");	
+	if(#winform.editWubiDescription.text){
+		reg.setSzValue("Display Description",winform.editWubiDescription.text); 
+	}
+	else {
+		reg.setSzValue("Display Description","@%SystemRoot%\SYSTEM32\input.dll,-5302"); 
+	}
+	
+	var iconPath = string.trim(winform.editWubiIcon.text);
+	if(#iconPath){
+		var iconFile,iconIndex = string.match(iconPath,"(.+),(\d+)") 
+		if(!(iconFile && iconIndex)){
+			iconFile = iconPath;
+			iconIndex = 0;
+		}
+		reg.setSzValue("IconFile",iconFile) 
+	 	reg.setDwValue("IconIndex",iconIndex+0) 
+		
+	}
+	else {
+		reg.setSzValue("IconFile","%SystemRoot%\system32\InputMethod\Shared\ResourceDll.dll") 
+		reg.setDwValue("IconIndex",1) 
+	}
+	reg.close();
+	
+	if(winform.chkEnableMsWubi.checked){ 
+		tsfInput.enableWubi(true);	
+		tsfUtil.reset();
+	}
+		
+	if(!_STUDIO_INVOKED){
+		var task = sys.runAsTask("WubiLex( 五笔助手 ) 启动任务","用于微软五笔的辅助工具。");
+		config.settings.systemStartup = winform.chkEnableSystemRun.checked;
+		
+		if(winform.chkEnableSystemRun.checked){
+			task.register("/tray");
+		}
+		else {
+			task.delete();
+		}	
+	}
+
+	winform.msgOk('更新成功，如果不能输入或设置未生效，\n请按 Alt + Shift 来回切换一下输入法即可',2000);
+	winform.btnSave.disabledText = null;
+}
+winform.chkEnableSystemRun.checked = config.settings.systemStartup;
+
+import process;
+winform.plusOpenMsSetting.oncommand = function(id,event){
+	process.execute("ms-settings:regionlanguage-chsime-wubi");
+}
+
+import fsys.dlg;
+winform.btnOpenIcon.oncommand = function(id,event){
+	var path = fsys.dlg.open("*.ico|*.ico|*.exe:*.dll|*.exe:*.dll||")
+	if(path){
+		if(!string.endWith(path,".ico",true)){
+			path = path + ",1";
+		}
+		
+		winform.editWubiIcon.text = path;
+	}
+}
+
+winform.editMaxCandidates.editBox.translateAccelerator = function(msg){ 
+    if( msg.message != 0x100/*_WM_KEYDOWN*/) return;
+    
+    var vk = msg.wParam;
+ 	if( vk == 0x26/*_VK_UP*/ ){
+		var maxCandidates = winform.editMaxCandidates.text+1;
+		if(maxCandidates>9){
+			maxCandidates = 9;
+		}
+		elseif(maxCandidates<3){
+			maxCandidates = 3;
+		}
+		 
+		winform.editMaxCandidates.text = maxCandidates;
+		return true;
+	}	
+	elseif( vk == 0x28/*_VK_DOWN*/){
+		var maxCandidates = winform.editMaxCandidates.text-1;
+		if(maxCandidates>9){
+			maxCandidates = 9;
+		}
+		elseif(maxCandidates<3){
+			maxCandidates = 0;
+		}
+		 
+		winform.editMaxCandidates.text = maxCandidates;
+		return true;
+	}
+}
+
+import win.ui.tooltip; 
+var tooltipCtrl = win.ui.tooltip( winform );
+tooltipCtrl.addTool(winform.editMaxCandidates.editBox,"可以按上下方向键增减数字,数字必须在3到9之间,0表示固定宽度" )
+tooltipCtrl.addTool(winform.btnOpenIcon,"点这里选择输入法显示图标" ) 
+
+winform.updateTsfStatus = function(){
+	var imStatus = tsfInput.getStatus();
+	if(imStatus){
+		winform.chkEnableMsWubi.checked = imStatus.wubi;
+		winform.chkEnableMsPinyin.checked = imStatus.pinyin;
+		winform.chkUsKeyboard.checked = imStatus.en;;
+	}	
+}
+ 
+subscribe("wubi.system.lex.changed",function(...){
+	winform.updateTsfStatus();
+})
+
+subscribe("wubi.system.phrase.changed",function(...){
+	winform.updateTsfStatus();
+})
+
+subscribe("wubi.setting.eudp.changed",function(eudp){
+	winform.chkEnableWubiUdp.checked = eudp
+} )
+
+import win.rt.bcp47;
+var updateWinLang = function(){
+	var langs,name = win.rt.bcp47.getUserLanguages();
+	if(#langs){
+		name = win.rt.bcp47.getName(langs[1])
+	}
+	
+	winform.winLang.text = name ? "Windows 显示语言：" + name : "";
+}
+
+winform.updateTsfStatus();
+updateWinLang();
+
+winform.chkEnableMsPinyin.oncommand = function(id,event){
+	tsfInput.enablePinyin(winform.chkEnableMsPinyin.checked);
+	updateWinLang();
+}
+
+winform.chkEnableMsWubi.oncommand = function(id,event){
+	tsfInput.enableWubi(winform.chkEnableMsWubi.checked);
+	winform.btnSave.disabled = !winform.chkEnableMsWubi.checked; 
+	updateWinLang();
+}
+
+winform.chkUsKeyboard.oncommand = function(id,event){
+	tsfInput.enableUsKeyboard(winform.chkUsKeyboard.checked);	
+	updateWinLang();
+}
+
+import ui.doublePinyinMenu;
+winform.cmbDoublePiny.oncommand = function(id,event){
+	var x,y,cx,cy = winform.cmbDoublePiny.getPos();
+	var menu = ui.doublePinyinMenu(winform);
+	winform.setTimeout( 
+		function(){
+			menu.getPos( id )
+		}
+	);
+	menu.popup(x,y,,0x20/*_TPM_BOTTOMALIGN*/);
+}
+
+winform.show();
+win.loopMessage();
+return winform;

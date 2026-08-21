@@ -1,0 +1,6 @@
+{"file": "docs/README.md", "reason": "文档集索引、需求 ID 规则、首要原则速查。任何接手实现的 agent 必读的第一份"}
+{"file": "docs/02-architecture.md", "reason": "§0 首要原则（旧项目是行为规格非实现范本）+ 12 条行为契约 + 24 项已定案更优实现。决定哪些必须逐位一致、哪些自由改进"}
+{"file": "docs/01-data-formats.md", "reason": ".lex / EUDP 二进制逐字节规格、6 种文本方言、版本探测算法。codec 层的验收规格"}
+{"file": "docs/03-source-index.md", "reason": "旧项目行为查证索引（32 文件 → 行号区块 → 需求 ID），含 8 处已知缺陷清单。用于查证行为，不是移植清单"}
+{"file": "docs/22-roadmap.md", "reason": "8 个实施阶段与依赖关系、208 条 P0 清单。决定当前该做哪一段"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "本项目 M1/M2/M4 存在明显跨层数据流（码表模型 → TSF 写入 → 注册表 → 事件广播），边界处最易出错"}

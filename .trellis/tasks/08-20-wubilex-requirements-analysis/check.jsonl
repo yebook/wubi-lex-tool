@@ -1,0 +1,5 @@
+{"file": "docs/22-roadmap.md", "reason": "§1.1 汇总表是计数一致性的基准：模块 414 + 非功能 101 + UI/UX 115 = 630。校验时逐项比对"}
+{"file": "docs/README.md", "reason": "需求 ID 规则、可追溯性约定、维护约定。用于校验 ID 唯一性与来源标注是否合规"}
+{"file": "docs/00-overview.md", "reason": "§4 源文件覆盖表（32 个 .aardio 文件）。用于校验零遗漏，含 P3 废弃项的显式标注"}
+{"file": "docs/02-architecture.md", "reason": "§0.1 行为契约清单 + §8 必须覆盖的原项目缺陷回归。校验测试策略是否覆盖到位"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "校验文档集内是否有重复描述（数据格式应只在 01 定义，模块文档引用而非复制）"}

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project ver="10" name="WubiLex" libEmbed="true" icon="\app.ico" ui="win" output="WubiLex.exe" CompanyName="aardio" FileDescription="WubiLex ( 五笔助手 )" LegalCopyright="Copyright (C) aardio 2021" ProductName="WubiLex ( 五笔助手 )" InternalName="WubiLex.exe" FileVersion="12.1.0.0" ProductVersion="12.1.0.0" publishDir="/dist/" dstrip="true" local="false" ignored="false">
+	<file name="main.aardio" path="main.aardio" comment="main.aardio"/>
+	<folder name="资源文件" path="res" embed="true" local="false" ignored="false"/>
+	<folder name="界面" path="dlg" comment="目录" embed="true" local="false" ignored="false">
+		<file name="setting.aardio" path="dlg\setting.aardio" comment="dlg\setting.aardio"/>
+		<file name="spelling.aardio" path="dlg\spelling.aardio" comment="dlg\spelling.aardio"/>
+		<folder name="dict" path="dlg\dict" comment="dlg\dict" local="false" embed="true" ignored="false">
+			<file name="dict.aardio" path="dlg\dict\dict.aardio" comment="dlg\dict\dict.aardio"/>
+			<file name="lex.aardio" path="dlg\dict\lex.aardio" comment="dlg\dict\lex.aardio"/>
+			<file name="phrase.aardio" path="dlg\dict\phrase.aardio" comment="dlg\dict\phrase.aardio"/>
+			<file name="phraseHelp.aardio" path="dlg\dict\phraseHelp.aardio" comment="dlg\dict\phraseHelp.aardio"/>
+			<file name="wordWeight.aardio" path="dlg\dict\wordWeight.aardio" comment="dlg\dict\wordWeight.aardio"/>
+		</folder>
+		<folder name="help" path="dlg\help" comment="dlg\help" local="false" embed="false" ignored="false">
+			<file name="etymon.aardio" path="dlg\help\etymon.aardio" comment="dlg\help\etymon.aardio"/>
+			<file name="help.aardio" path="dlg\help\help.aardio" comment="dlg\help\help.aardio"/>
+			<file name="sys.aardio" path="dlg\help\sys.aardio" comment="dlg\help\sys.aardio"/>
+			<file name="wubi.aardio" path="dlg\help\wubi.aardio" comment="dlg\help\wubi.aardio"/>
+		</folder>
+	</folder>
+</project>
