@@ -40,3 +40,24 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 2: S0-00 路线图与开发规范校正
+
+**Date**: 2026-08-22
+**Task**: S0-00 路线图与开发规范校正
+**Branch**: `main`
+
+### Summary
+
+校正 P0 总数、六项缺陷的 S0/S4 阶段归属与 S1 技术预研门槛；建立 backend/frontend 六份英文规范基线并同步 crate README。验证需求计数 414/101/115/630、P0 208、重复与悬空引用 0、锚点 0。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `3cfbd94` | (see git log) |
+
+### Status
+
+[OK] **Completed**
