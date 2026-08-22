@@ -1,0 +1,5 @@
+[package]
+name = "wubilex-codec"
+version.workspace = true
+edition.workspace = true
+publish = false
