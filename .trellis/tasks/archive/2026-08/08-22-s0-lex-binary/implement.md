@@ -51,7 +51,7 @@ git status --short
 ## 6. Finish
 
 - [x] 用真实 `.lex` parser/writer 证据更新 backend 规范，保持 `00-bootstrap-guidelines` 继续进行直至 S0 集成。
-- [ ] 提交并归档子任务，在父任务中把 `s0-lex-binary` 标为完成。
+- [x] 提交并归档子任务，在父任务中把 `s0-lex-binary` 标为完成。
 
 ## Rollback Points
 
