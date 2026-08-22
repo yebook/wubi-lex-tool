@@ -1,0 +1,8 @@
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Keep codec document models inside the pure synchronous crate boundary and leave indexed domain state in wubilex-core."}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Implement typed library errors with preserved byte or text location while leaving AppError and Chinese UI mapping to the application boundary."}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Apply parser resource-limit, checked-arithmetic, malformed-input, dependency-boundary, and Rust quality contracts to the shared model foundation."}
+{"file": "docs/01-data-formats.md", "reason": "Preserve binary/text format invariants needed by shared lexicon, phrase, scheme, encoding, weight, candidate, and error-location types."}
+{"file": ".trellis/tasks/08-22-s0-codec-model/research/codec-model-contracts.md", "reason": "Apply the curated architecture boundary, compatibility, error, dependency, and resource-limit decisions without truncated source context."}
+{"file": "docs/20-nonfunctional.md", "reason": "Use the 300 MB memory target, malformed-input location requirement, no-panic rule, and codec test obligations to shape defaults and tests."}
+{"file": "docs/modules/M1-lex-table.md", "reason": "Preserve lexicon order, duplicates, optional weight semantics, lowercase code constraints, and the future separation from reverse indexes."}
+{"file": "docs/modules/M2-phrase.md", "reason": "Preserve phrase candidate ordering, nonempty codes/text, UTF-16 emoji length semantics, and empty EUDP document behavior."}

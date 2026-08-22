@@ -1,0 +1,8 @@
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Verify module placement and that no Tauri, Windows, network, Tokio, or core responsibility crosses into codec."}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Verify stable error kinds, actionable location context, no panic paths, and no codec dependency on application errors."}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Verify model boundaries, resource-limit tests, strict Clippy, workspace tests, and absence of forbidden parsing patterns or dependencies."}
+{"file": "docs/01-data-formats.md", "reason": "Cross-check code/text length semantics, duplicate/order preservation, UTF-16 units, empty documents, and format hard boundaries."}
+{"file": ".trellis/tasks/08-22-s0-codec-model/research/codec-model-contracts.md", "reason": "Verify the curated codec/core boundary, compatibility, structured-error, dependency, and resource-limit contracts without truncated source context."}
+{"file": "docs/20-nonfunctional.md", "reason": "Verify limits are defensible against performance/reliability requirements and failures preserve line or byte positions."}
+{"file": "docs/modules/M1-lex-table.md", "reason": "Verify the lexicon document API can support M1 parsing/serialization without implementing M1 core operations or silently truncating data."}
+{"file": "docs/modules/M2-phrase.md", "reason": "Verify phrase types cover EUDP/text contracts without storing stale derived counts or implementing system/file behavior."}
