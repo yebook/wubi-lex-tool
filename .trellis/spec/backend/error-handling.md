@@ -4,9 +4,9 @@
 
 ---
 
-## Baseline Status
+## Current Status
 
-The error contracts are fixed by the architecture and reliability requirements. Concrete enum names and conversion examples must be added after the first S0 Rust implementation exists.
+The library-side contract is established by `wubilex_codec::{CodecError, CodecErrorKind, SourceLocation}`. The application-side `AppError` conversion remains pending until Tauri command work begins.
 
 ## Error Ownership
 
@@ -34,6 +34,23 @@ The shared application error contract contains:
 - Cancellation is represented as the approved cancelled error category, not disguised as I/O or an empty successful result.
 - Preserve the original source and add context at layer boundaries; do not discard a lower-layer error and replace it with a generic message.
 
+## Established Codec Pattern
+
+Codec failures separate a stable, matchable kind from an optional source location. A parser records expected and actual wire evidence in the kind, then attaches the byte or text position independently:
+
+```rust
+use wubilex_codec::{CodecError, CodecErrorKind, FieldValue};
+
+let error = CodecError::new(CodecErrorKind::MalformedField {
+    field: "eudp.entry.cb_size",
+    expected: FieldValue::Unsigned(16),
+    actual: FieldValue::Unsigned(12),
+})
+.at_byte_offset(64);
+```
+
+Use the dedicated structured variants for magic bytes, EOF byte counts, malformed fields, offset ranges, invalid UTF-16 surrogates, selected text encoding, unsupported variants, overflow context, and resource limits. Tests inspect `kind()` and `location()`; they must not parse `Display` output. Model constructors return the same error type without a location, allowing a future parser to attach the position it owns.
+
 ## Common Mistakes To Reject
 
 - Returning `null`, an empty collection, or a Boolean after an operation failed.
@@ -47,5 +64,6 @@ The shared application error contract contains:
 - [`docs/02-architecture.md` sections 3.3 and 5.1](../../../docs/02-architecture.md)
 - [`NFR-REL-001..009`](../../../docs/20-nonfunctional.md)
 - [`src-tauri/README.md`](../../../src-tauri/README.md)
+- [`wubilex-codec` error contract](../../../crates/wubilex-codec/src/error.rs)
 
-Real error enums and conversion examples remain pending until S0 implementation exists.
+The codec enum is established. Add the `AppError` conversion example when the command boundary is implemented rather than inventing it in advance.

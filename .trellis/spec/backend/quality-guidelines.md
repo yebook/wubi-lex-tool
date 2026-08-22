@@ -31,6 +31,13 @@ The approved CI sequence also checks generated IPC bindings and documentation co
 | `wubilex-resource` | Mocked HTTP and hostile archive tests, including path traversal |
 | `wubilex-app` | Serialization contract tests for commands and shared errors |
 
+## Established S0 Codec Evidence
+
+- `crates/wubilex-codec/tests/model_contracts.rs` fixes the validated model boundaries, ordered duplicate-preserving documents, nonzero weight/candidate ranges, UTF-16 code-unit behavior, scheme shape, and encoding/BOM contract.
+- `crates/wubilex-codec/tests/error_and_limits.rs` fixes structured error evidence and the 64 MiB / 500,000 default limits. Assertions match error kinds and locations rather than rendered messages.
+- The crate's only direct dependency at this stage is the exact `thiserror = 2.0.20` contract. Parser, encoding, platform, async, serialization, and network dependencies are introduced only by the task that uses them.
+- Root-level user samples are not fixtures. Tests must use committed synthetic data or reproducibly fetched files under `crates/wubilex-codec/tests/fixtures/`; they must never depend on a machine-local `resource/` directory.
+
 The remaining three known defect regressions belong to S4: EUDP drag-and-drop dispatch, duplicate Zhengma word generation, and the non-incrementing `unique()` loop.
 
 ## Review Checklist
@@ -48,5 +55,6 @@ The remaining three known defect regressions belong to S4: EUDP drag-and-drop di
 - [`docs/02-architecture.md` sections 0, 8, and 8.5](../../../docs/02-architecture.md)
 - [`NFR-REL-004`, `NFR-MAINT-001..006`](../../../docs/20-nonfunctional.md)
 - [`docs/22-roadmap.md` S0 and S4](../../../docs/22-roadmap.md)
+- [`wubilex-codec` contract tests](../../../crates/wubilex-codec/tests/model_contracts.rs)
 
-Real source examples remain pending until S0 implementation exists.
+These model, error, and limit tests are established examples. Parser round trips, real fixtures, and coverage evidence remain obligations for the later S0 format tasks.
