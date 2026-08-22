@@ -1,0 +1,2 @@
+{"file":".trellis/spec/guides/requirement-id-conventions.md","reason":"Preserve requirement counts, references, placeholders, and anchor contracts while correcting the roadmap."}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Keep S0 commands and initial quality guidance aligned with Volta, pnpm, and Rust toolchain decisions."}

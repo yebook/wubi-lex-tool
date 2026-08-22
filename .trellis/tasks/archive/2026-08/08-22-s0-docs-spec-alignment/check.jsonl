@@ -1,0 +1,2 @@
+{"file":".trellis/spec/guides/requirement-id-conventions.md","reason":"Verify requirement totals, definition uniqueness, references, placeholders, and anchors after documentation edits."}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Verify that new S0 guidance does not reintroduce forbidden package-manager or version-source patterns."}
