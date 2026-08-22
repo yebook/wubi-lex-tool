@@ -1,6 +1,7 @@
 //! Binary and text codec primitives for WubiLex.
 
 pub mod error;
+pub mod lex;
 pub mod limits;
 pub mod model;
 

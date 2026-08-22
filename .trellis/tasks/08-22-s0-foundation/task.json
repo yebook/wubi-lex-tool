@@ -21,7 +21,8 @@
   "children": [
     "08-22-s0-docs-spec-alignment",
     "08-22-s0-workspace-toolchain",
-    "08-22-s0-codec-model"
+    "08-22-s0-codec-model",
+    "08-22-s0-lex-binary"
   ],
   "parent": null,
   "relatedFiles": [],

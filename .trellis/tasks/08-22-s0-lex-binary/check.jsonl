@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify all production changes stay inside the codec format boundary and no resource/core responsibility leaks into the parser."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Verify malformed fields preserve stable evidence and exact byte locations without panic, lossy decode, or partial success."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Verify explicit bounds checks, test independence, no forbidden patterns, dependency limits, and no root resource fixture dependency."}
+{"file":".trellis/tasks/08-22-s0-lex-binary/research/lex-binary-contracts.md","reason":"Verify implementation and tests match the measured canonical sample shape and recorded compatibility decisions."}
+{"file":"docs/01-data-formats.md","reason":"Verify every header, alpha-index, record, UTF-16, ordering, and implicit-weight contract against the authoritative format spec."}

@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep raw .lex byte conversion in wubilex-codec and exclude file I/O, compression, domain indexes, platform APIs, async, and network work."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Apply stable binary error kinds with precise byte offsets and never return partial or lossy decode results."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Apply explicit bounds-checked parsing, no ABI mapping, malformed-input tests, dependency boundaries, and machine-local fixture rules."}
+{"file":".trellis/tasks/08-22-s0-lex-binary/research/lex-binary-contracts.md","reason":"Use the curated wire contract, local sample measurements, compatibility policy, and layer decisions without redoing broad discovery."}
+{"file":"docs/01-data-formats.md","reason":"Implement the authoritative .lex header, alpha index, record layout, weight rule, and binary acceptance behavior."}
