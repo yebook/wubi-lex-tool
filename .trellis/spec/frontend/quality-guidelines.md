@@ -6,7 +6,7 @@
 
 ## Required Gates
 
-Frontend changes use pnpm only and must pass the TypeScript compiler with no emit, ESLint, and Vitest. Installation in CI uses the frozen lockfile. Node and pnpm versions come from the `package.json` Volta fields; do not introduce npm, yarn, corepack, `.nvmrc`, or a competing `packageManager` version source.
+Frontend changes use pnpm only and must pass the TypeScript compiler with no emit, ESLint, and Vitest. Installation in CI uses the frozen lockfile. Node comes from `package.json.volta.node`; pnpm uses the global command and must match `package.json.engines.pnpm`. Do not introduce a Volta project-level pnpm pin, `VOLTA_FEATURE_PNPM`, npm, yarn, npx, corepack, `.nvmrc`, or a competing `packageManager` version source.
 
 When a change touches IPC, `xtask bindings --check` is part of the frontend gate even if TypeScript compilation succeeds.
 

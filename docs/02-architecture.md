@@ -747,13 +747,13 @@ struct AppError {
 
 **代价**：占位判断是运行期而非编译期，未实现功能的前端代码不会被 tree-shake。相对于「占位状态不一致」这个用户可见缺陷，体积代价可接受。
 
-### D17：工具链固定 —— Volta pin Node 与 pnpm，Rust 走 `rust-toolchain.toml`
+### D17：工具链固定 —— Volta 只 pin Node，pnpm 使用全局安装，Rust 走 `rust-toolchain.toml`
 
 **背景**：工具链版本若不固定，Tauri 构建产物会随机器漂移，而这类问题往往在发布前才暴露。开发机已用 Volta 管理 Node。
 
-**决策**：见 [§8.5](#85-构建工具链与打包流水线) 的工具链表。要点：Node 与 pnpm 由 `package.json` 的 `volta` 字段固定，Rust 由 `rust-toolchain.toml` 固定，CI 从同一个 `volta` 字段取版本。
+**决策**：见 [§8.5](#85-构建工具链与打包流水线) 的工具链表。要点：Node 由 `package.json.volta.node` 固定；pnpm 直接使用机器的全局安装，期望版本只写在 `package.json.engines.pnpm`；Rust 由 `rust-toolchain.toml` 固定。CI 从同一组仓库字段读取版本，不另写常量。
 
-**明确不用**：`.nvmrc`（与 Volta 重复，两处必漂移）、`packageManager` 字段 + **corepack**（与 Volta 都会接管 `pnpm` shim，同时启用等于给自己造一个「哪个版本在跑」的谜题）、`npm` / `yarn` 的任何命令形态。
+**明确不用**：`.nvmrc`（与 Volta 重复，两处必漂移）、`packageManager` 字段 + **corepack**、Volta 的项目级 pnpm 实验 pin，以及 `npm` / `yarn` / `npx` 的任何命令形态。pnpm 只走现有全局命令，不再引入另一套项目级 shim；该全局命令由既有 Volta global package 提供也符合本决策。
 
 **代价 / 已知风险**：见 `R55`。
 
@@ -786,7 +786,7 @@ struct AppError {
 
 ### 8.5 构建、工具链与打包流水线
 
-#### 工具链固定（[D17](#d17工具链固定--volta-pin-node-与-pnpmrust-走-rust-toolchaintoml)）
+#### 工具链固定（[D17](#d17工具链固定--volta-只-pin-nodepnpm-使用全局安装rust-走-rust-toolchaintoml)）
 
 开发机基线（2026-08-21 实测）：
 
@@ -794,16 +794,16 @@ struct AppError {
 |---|---|---|
 | Volta | 2.0.2 | — |
 | Node | 24.18.1 | `volta pin node@24.18.1` → `package.json` 的 `volta.node` |
-| 包管理器 | pnpm 11.18.0 | `volta pin pnpm@11.18.0` → `package.json` 的 `volta.pnpm` |
+| 包管理器 | pnpm 11.18.0 | 直接使用全局 `pnpm`；`package.json.engines.pnpm` 记录并校验期望版本 |
 | Rust | 1.97.1 stable-x86_64-pc-windows-msvc | `rust-toolchain.toml`：`channel` + `components = ["rustfmt", "clippy"]` + `targets = ["x86_64-pc-windows-msvc"]` |
 
 **三条「不用」**：
 
 - **不用 `.nvmrc`** —— 与 Volta 重复，两处版本必然漂移
-- **不用 `packageManager` 字段 + corepack** —— corepack 与 Volta 都会接管 `pnpm` shim，同时启用则无法确定哪个版本在跑。选了 Volta，就不写 `packageManager`
-- **不用 `npm` / `yarn`** —— 文档、脚本、CI 一律 pnpm
+- **不用 `packageManager` 字段 + corepack，也不用 Volta 的项目级 pnpm pin** —— 项目直接使用全局 pnpm，不再引入另一套 shim
+- **不用 `npm` / `yarn` / `npx`** —— 文档、脚本、CI 一律 pnpm
 
-**待 S0 核对**：pnpm 11 的配置落点（`.npmrc` vs `pnpm-workspace.yaml`）。pnpm 10 起部分设置迁往 `pnpm-workspace.yaml`，11 的具体边界以开工时的实际版本文档为准，此处不臆断。
+**S0 实测结论**：pnpm 11 的项目设置放在 `pnpm-workspace.yaml`；`.npmrc` 只用于 authentication 与 registry。当前只有根前端包，因此 `pnpm-workspace.yaml` 使用空 mapping `{}` 并省略 `packages`，不创建 `.npmrc`。
 
 #### `xtask` 职责
 
@@ -819,7 +819,7 @@ struct AppError {
 
 #### CI 闸门（`NFR-MAINT-006`）
 
-Node 与 pnpm 版本由 `volta-cli/action` 从 `package.json` 的 `volta` 字段读取，Rust 由 `rust-toolchain.toml` 决定 —— **workflow 里不出现任何硬编码版本号**。
+Node 版本由 `volta-cli/action` 从 `package.json.volta.node` 读取；CI 从 `package.json.engines.pnpm` 读取并准备同版本 pnpm；Rust 由 `rust-toolchain.toml` 决定 —— **workflow 里不出现任何硬编码版本号**。
 
 ```
 cargo fmt --check
@@ -837,20 +837,24 @@ cargo fmt --check
 
 ## 9. 目录结构（定案）
 
-> 这棵树与仓库实际目录**逐行一致**，由 `08-21-wubilex-architecture-design` 任务创建。
-> 标 `※` 的文件属可编译配置，由**阶段 S0** 产出，当前不存在。
+> 这棵树记录定案的职责布局和关键配置，不作为 `git ls-files` 的逐文件镜像。
+> 标 `※` 的文件由所属阶段建立；S0-01 已创建 workspace/toolchain 子集，其余项在各自阶段落地。
 
 ```
 wubi-lex-tool/
 ├── docs/                             需求文档集（本文档所在）
 ├── wubi-lex/                         原项目只读历史快照，行为规格来源
 ├── .trellis/                         任务与规范
+├── Cargo.lock                     ※  Rust 依赖锁文件，入库
 ├── Cargo.toml                     ※  virtual workspace（D10）
-├── rust-toolchain.toml            ※  channel 1.97 + rustfmt/clippy + msvc target（D17）
-├── package.json                   ※  含 volta.node / volta.pnpm pin；无 packageManager 字段（D17）
+├── rust-toolchain.toml            ※  channel 1.97.1 + rustfmt/clippy + msvc target（D17）
+├── eslint.config.js               ※  ESLint flat config
+├── package.json                   ※  含 volta.node / engines.pnpm；无 volta.pnpm / packageManager 字段（D17）
 ├── pnpm-lock.yaml                 ※  入库
+├── pnpm-workspace.yaml            ※  pnpm 11 项目配置；根包唯一时为空 mapping
 ├── vite.config.ts                 ※  含 @tailwindcss/vite 插件（D9）
 ├── tsconfig.json                  ※
+├── tsconfig.node.json             ※
 ├── crates/
 │   ├── wubilex-codec/                字节 ↔ 内存模型 · 纯逻辑 · 覆盖率目标 90%+
 │   │   ├── README.md
@@ -982,7 +986,7 @@ wubi-lex-tool/
 | 类型契约 | 无 | `src/types/generated/`、`src-tauri/src/bindings/` | [D11](#d11ipc-类型单一事实来源--rust-生成-typescript) |
 | 配置 | 未出现在树中 | `src-tauri/src/config/` | [D12](#d12配置存储自建-serde--toml不用-tauri-plugin-store) |
 | Tauri v2 必需项 | 无 | `capabilities/`、`build.rs`、`icons/` | v2 权限模型的强制目录 |
-| 工具链 | 未出现在树中 | `rust-toolchain.toml`、`package.json`、`pnpm-lock.yaml` | [D17](#d17工具链固定--volta-pin-node-与-pnpmrust-走-rust-toolchaintoml) |
+| 工具链 | 未出现在树中 | `Cargo.lock`、`rust-toolchain.toml`、`package.json`、`pnpm-lock.yaml`、`pnpm-workspace.yaml` | [D17](#d17工具链固定--volta-只-pin-nodepnpm-使用全局安装rust-走-rust-toolchaintoml) |
 | 单文件模块 | `weight.rs`、`escape.rs`、`detect.rs` 等 | 统一为目录 | 这几个都要带各自的测试与 fixture，单文件必然要拆；一开始就用目录省一次重构 |
 
 ### 9.2 crate README 约定
@@ -1065,7 +1069,7 @@ wubi-lex-tool/
 | R44 | 占位状态残留到已实现功能 | 占位由构建期特性开关驱动，见 [`UX-INTERACT-013`](./21-ui-ux.md#61-占位状态规范) |
 | R53 | Tailwind v4 生态插件覆盖仍在追赶 v3 | shadcn/ui 用其 v4 分支源码；`prettier-plugin-tailwindcss` 改用 `tailwindStylesheet` 选项。项目自身不依赖第三方 Tailwind 插件 |
 | R54 | `tauri-specta` 版本跟不上 `tauri` 小版本 | 降级预案：`ts-rs` 只生成类型 + 手写 command 签名 + 契约测试。CI 的 `xtask bindings --check` 保证漂移能被发现 |
-| R55 | pnpm 同时以「volta 全局 package」与「项目 package-manager pin」两种身份存在，shim 解析顺序有歧义 | S0 开工第一步验证：项目目录内 `pnpm --version` 必须等于 `package.json` 的 `volta.pnpm`；不等则 `volta uninstall pnpm`，让项目 pin 成为唯一来源 |
+| R55 | 全局 pnpm 版本可能与仓库期望版本漂移 | `package.json.engines.pnpm` 是唯一期望值；安装和 CI 前验证 `pnpm --version`。全局命令由既有 Volta global package 提供也可接受；不匹配时停止，不自动修改用户全局环境或添加项目 pin |
 
 
 ### M8 自学习（后置模块，`阶段 S8`）
