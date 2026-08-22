@@ -1,0 +1,8 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Verify the Volta-Node/global-pnpm/Rust version contract and absence of project-level pnpm pin mechanisms or competing package managers."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify Cargo metadata has exactly six approved members and no wubilex-learn membership or misplaced responsibility."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Confirm no premature or inconsistent application error boundary was introduced in the empty Rust shells."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Verify fmt, Clippy with denied warnings, tests, and dependency boundary compliance for all workspace members."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Confirm the change remains a non-runnable S0 tooling shell with no S1 routes, components, stores, or product entry point."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Verify no handwritten shared IPC types, generated-output edits, or unsupported binding setup was added."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Verify frozen pnpm install plus TypeScript, ESLint, and Vitest gates and the absence of competing package managers."}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"Verify Tailwind uses the v4 Vite plugin and introduces neither v3 config nor PostCSS configuration."}

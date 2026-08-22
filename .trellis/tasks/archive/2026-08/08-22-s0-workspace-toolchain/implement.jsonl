@@ -1,0 +1,8 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Apply the separate Volta-Node, global-pnpm engine, and Rust toolchain contracts while rejecting project-level pnpm pin mechanisms."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Create exactly the approved Rust workspace members while preserving crate ownership boundaries and excluding wubilex-learn."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Keep the compile-only Rust shells free of ad hoc application error contracts before the owning implementation task."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Run the required Rust formatting, Clippy, and test gates without introducing forbidden dependencies or production unwrap patterns."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Limit S0 to the minimum tooling shell and defer the runnable React application, routes, components, and stores to S1."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Avoid handwritten IPC types or premature binding infrastructure while no Rust command contract exists."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Configure pnpm-only TypeScript, ESLint, and Vitest gates with the approved frontend responsibility boundaries."}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"Use the Tailwind v4 Vite plugin path and avoid v3 config/PostCSS/token patterns during shell setup."}
