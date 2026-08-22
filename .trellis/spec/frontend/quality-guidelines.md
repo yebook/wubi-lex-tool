@@ -1,51 +1,53 @@
 # Quality Guidelines
 
-> Code quality standards for frontend development.
+> Frontend quality gates and responsibility boundaries.
 
 ---
 
-## Overview
+## Required Gates
 
-<!--
-Document your project's quality standards here.
+Frontend changes use pnpm only and must pass the TypeScript compiler with no emit, ESLint, and Vitest. Installation in CI uses the frozen lockfile. Node and pnpm versions come from the `package.json` Volta fields; do not introduce npm, yarn, corepack, `.nvmrc`, or a competing `packageManager` version source.
 
-Questions to answer:
-- What patterns are forbidden?
-- What linting rules do you enforce?
-- What are your testing requirements?
-- What code review standards apply?
--->
+When a change touches IPC, `xtask bindings --check` is part of the frontend gate even if TypeScript compilation succeeds.
 
-(To be filled by the team)
+## Required Boundaries
 
----
-
-## Forbidden Patterns
-
-<!-- Patterns that should never be used and why -->
-
-(To be filled by the team)
-
----
-
-## Required Patterns
-
-<!-- Patterns that must always be used -->
-
-(To be filled by the team)
-
----
+- Keep transformations, slimming, word generation, and file parsing in Rust. The frontend issues typed commands and renders results.
+- Fetch only the current page or viewport of a large lexicon. Do not hold a second complete lexicon in frontend state.
+- Read feature availability from the backend-populated Zustand store. Do not infer availability from missing commands or duplicate flags.
+- Use `src/styles/theme.css` as the Tailwind v4 token source and follow the established Tailwind token guide.
+- Import shared IPC contracts from generated bindings rather than redefining or casting payloads locally.
 
 ## Testing Requirements
 
-<!-- What level of testing is expected -->
+- Vitest covers frontend units and components as they are introduced.
+- Component tests cover empty, loading, failure, disabled, and placeholder states when those states are part of the component contract.
+- Cross-layer tests verify command and event serialization through generated types rather than duplicating fixture interfaces in TypeScript.
+- End-to-end tests are required for the documented critical flow once the runnable shell and relevant stages exist: load a lexicon, edit it, and install it.
+- Feature-placeholder behavior is tested with backend feature switches disabled so unfinished commands cannot appear active.
 
-(To be filled by the team)
+## Forbidden Patterns
 
----
+- Business or codec logic in React components, hooks, stores, or IPC wrappers.
+- Full-file parsing or full-lexicon ownership in the WebView.
+- Handwritten IPC type mirrors or edits to generated output.
+- A second toolchain version source or non-pnpm package-manager commands.
+- Treating a scaffold directory as proof of a component, hook, or state convention.
 
-## Code Review Checklist
+## Review Checklist
 
-<!-- What reviewers should check -->
+- Is the change in the route, shared component, infrastructure, or generated-type directory that owns it?
+- Does data cross IPC through the generated contract and a single typed boundary?
+- Are loading, empty, failure, cancellation, and feature-disabled outcomes handled where relevant?
+- Are large collections paged or virtualized rather than copied into frontend state?
+- Do the TypeScript, ESLint, Vitest, and binding checks cover the changed surface?
+- Does styling use the approved Tailwind v4 token mechanism?
 
-(To be filled by the team)
+## Sources
+
+- [`docs/02-architecture.md` sections 6.2, D9, D11, D16, 8, and 8.5](../../../docs/02-architecture.md)
+- [`docs/20-nonfunctional.md`](../../../docs/20-nonfunctional.md)
+- [`docs/21-ui-ux.md`](../../../docs/21-ui-ux.md)
+- [Tailwind v4 Token Convention](./tailwind-v4-tokens.md)
+
+Real source examples remain pending until the frontend shell exists.

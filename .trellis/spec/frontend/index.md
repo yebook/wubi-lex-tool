@@ -1,40 +1,29 @@
 # Frontend Development Guidelines
 
-> Best practices for frontend development in this project.
+> Project-specific contracts for the React, TypeScript, and Tauri IPC boundary.
 
 ---
 
-## Overview
+## Status Model
 
-This directory contains guidelines for frontend development. Fill in each file with your project's specific conventions.
-
----
+- **Baseline; examples pending** means the rule is fixed by approved architecture, requirements, or the scaffolded repository layout. Real source examples must be added after the frontend shell exists.
+- **Pending implementation evidence** means no actual project convention has been established. Do not turn generic template advice into a project rule.
+- **Established** means the document already contains an approved, executable convention and examples grounded in the design system.
 
 ## Guidelines Index
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Component Guidelines](./component-guidelines.md) | Component patterns, props, composition | To fill |
-| [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
-| [State Management](./state-management.md) | Local state, global state, server state | To fill |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
-| [Type Safety](./type-safety.md) | Type patterns, validation | To fill |
-| [Tailwind v4 令牌约定](./tailwind-v4-tokens.md) | `@theme inline` 的必要性、v3→v4 对照、具名令牌清单 | **已定案** |
+| [Directory Structure](./directory-structure.md) | Route, shared UI, infrastructure, and generated-type placement | **Baseline; examples pending** |
+| [Component Guidelines](./component-guidelines.md) | Component ownership, props, and composition | **Pending implementation evidence** |
+| [Hook Guidelines](./hook-guidelines.md) | Custom hooks and effect boundaries | **Pending implementation evidence** |
+| [State Management](./state-management.md) | Zustand store ownership and selector patterns | **Pending implementation evidence** |
+| [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Baseline; examples pending** |
+| [Type Safety](./type-safety.md) | Generated IPC contracts and frontend-owned type boundaries | **Baseline; examples pending** |
+| [Tailwind v4 Token Convention](./tailwind-v4-tokens.md) | `@theme inline`, v3-to-v4 mapping, and named tokens | **Established** |
+
+Keep `00-bootstrap-guidelines` active until real S0/S1 code provides component, hook, state, and source examples.
 
 ---
 
-## How to Fill These Guidelines
-
-For each guideline file:
-
-1. Document your project's **actual conventions** (not ideals)
-2. Include **code examples** from your codebase
-3. List **forbidden patterns** and why
-4. Add **common mistakes** your team has made
-
-The goal is to help AI assistants and new team members understand how YOUR project works.
-
----
-
-**Language**: All documentation should be written in **English**.
+**Language**: All documentation in this directory must be written in **English**.

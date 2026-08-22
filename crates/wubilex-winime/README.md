@@ -51,7 +51,7 @@ Tauri、业务逻辑（本 crate 不理解码表内容，只负责「安全地�
 
 **S3 — 写入闭环**（全项目最高风险阶段）。
 
-**S0 期间需并行完成技术预研**（见 `docs/22-roadmap.md` §5）：在真机上验证服务控制、计划任务、ACL 接管、TIP 启停四项底层能力可行，再进入 S3。别等做到一半才发现方案不可行。
+**S0 期间需并行完成四项技术预研**（见 `docs/22-roadmap.md` §5），其结果是 S1 的入口门槛。本 crate 负责三个 Windows 预研：`ITfInputProcessorProfileMgr` 激活/停用 Profile、`SetNamedSecurityInfo` 所有权往返、Task Scheduler COM 启停 `MsCtfMonitor`；第四项虚拟滚动预研由前端负责。四项全部通过，或任一失败后先完成架构复评，方可进入 S1。
 
 ## 不可协商的三条
 
