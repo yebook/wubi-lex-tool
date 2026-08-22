@@ -61,3 +61,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 3: 完成 S0 workspace 与工具链
+
+**Date**: 2026-08-22
+**Task**: 完成 S0 workspace 与工具链
+**Branch**: `main`
+
+### Summary
+
+建立六成员 Rust workspace、compile-only Tauri 壳和前端工具链；固定 Rust 1.97.1、Node 24.18.1，并直接使用全局 pnpm 11.18.0；同步架构与 Trellis 工具链规范，归档 S0-01 并更新父任务进度。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c69a745` | (see git log) |
+| `58493e8` | (see git log) |
+| `a1767f9` | (see git log) |
+
+### Status
+
+[OK] **Completed**

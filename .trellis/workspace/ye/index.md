@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 2
+- **Total Sessions**: 3
 - **Last Active**: 2026-08-22
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~63 | Active |
+| `journal-1.md` | ~86 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 3 | 2026-08-22 | 完成 S0 workspace 与工具链 | `c69a745`, `58493e8`, `a1767f9` | `main` |
 | 2 | 2026-08-22 | S0-00 路线图与开发规范校正 | `3cfbd94` | `main` |
 | 1 | 2026-08-21 | WubiLexTool 架构、目录结构、技术选型定案 + 目录骨架 | `cb0ad41`, `45c5087`, `bf3880a` | `main` |
 <!-- @@@/auto:session-history -->
