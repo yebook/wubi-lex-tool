@@ -106,3 +106,25 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 5: 完成 S0-03 .lex 二进制编解码
+
+**Date**: 2026-08-22
+**Task**: 完成 S0-03 .lex 二进制编解码
+**Branch**: `main`
+
+### Summary
+
+实现 raw .lex 安全双向编解码与 20 项格式测试；真实微软五笔 86 样本 207,055 条记录逐字节往返一致；同步 backend 规范并归档子任务。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f07a112` | (see git log) |
+| `cdd7f9c` | (see git log) |
+
+### Status
+
+[OK] **Completed**
