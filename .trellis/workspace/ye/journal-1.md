@@ -84,3 +84,25 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 4: 完成 S0-02 codec 公共模型
+
+**Date**: 2026-08-22
+**Task**: 完成 S0-02 codec 公共模型
+**Branch**: `main`
+
+### Summary
+
+冻结 wubilex-codec 公共模型、结构化错误与输入限制；补齐 19 项集成测试和 backend 规范证据；归档子任务。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `3b554bc` | (see git log) |
+| `619c690` | (see git log) |
+
+### Status
+
+[OK] **Completed**
