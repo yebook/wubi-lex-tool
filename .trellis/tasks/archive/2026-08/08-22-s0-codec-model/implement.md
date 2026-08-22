@@ -45,7 +45,7 @@ git status --short
 ## 6. Finish
 
 - [x] 用首批真实 codec 类型更新 backend error/quality/directory 规范示例，保持 `00-bootstrap-guidelines` 继续进行直至 S0 集成。
-- [ ] 提交并归档子任务，在父任务中把 `s0-codec-model` 标为完成。
+- [x] 提交并归档子任务，在父任务中把 `s0-codec-model` 标为完成。
 
 ## Rollback Points
 
