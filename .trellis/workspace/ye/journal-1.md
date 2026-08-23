@@ -151,3 +151,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 7: S0 码表文本编解码
+
+**Date**: 2026-08-23
+**Task**: S0 码表文本编解码
+**Branch**: `main`
+
+### Summary
+
+实现严格文本编码探测、社区码表方言解析、可见警告、空白转义和七种规范输出，并完成测试与 backend 规范同步
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e5393fd` | (see git log) |
+| `3d9e110` | (see git log) |
+| `1f966c1` | (see git log) |
+
+### Status
+
+[OK] **Completed**
