@@ -37,7 +37,8 @@ The approved CI sequence also checks generated IPC bindings and documentation co
 - `crates/wubilex-codec/tests/error_and_limits.rs` fixes structured error evidence and the 64 MiB / 500,000 default limits. Assertions match error kinds and locations rather than rendered messages.
 - `crates/wubilex-codec/tests/lex_binary.rs` uses hand-authored wire bytes to fix the `.lex` header, alpha-index, record, UTF-16, stable-order, implicit-weight, truncation, and resource-limit contracts independently of the production encoder. Its record-section truncation cases keep `fileSize` coherent so they exercise record bounds rather than stopping at header validation.
 - `crates/wubilex-codec/tests/eudp_binary.rs` uses hand-authored wire bytes to fix the EUDP header, relative offset table, record, tombstone, candidate, strict UTF-16/NUL, stable-order, timestamp, truncation, and resource-limit contracts independently of the production encoder.
-- The crate's only direct dependency at this stage is the exact `thiserror = 2.0.20` contract. Parser, encoding, platform, async, serialization, and network dependencies are introduced only by the task that uses them.
+- `crates/wubilex-codec/tests/text_decode.rs`, `text_format.rs`, and `text_public_contracts.rs` fix strict encoding offsets, preprocessing, six dialects, Microsoft/Jidian branches, bounded visible warnings, stream-checked expansion limits, seven canonical outputs, UTF-16LE bytes, and the `%0B` / `%0C` escape regression.
+- The crate's direct dependencies are exact-pinned. `thiserror = 2.0.20` owns errors; `chardetng = 1.0.0` and `encoding_rs = 0.8.35` own deterministic text detection and strict decoding without enabling Rayon. Platform, async, serialization, and network dependencies remain forbidden.
 - Root-level user samples are not fixtures. Tests must use committed synthetic data or reproducibly fetched files under `crates/wubilex-codec/tests/fixtures/`; they must never depend on a machine-local `resource/` directory.
 
 The remaining three known defect regressions belong to S4: EUDP drag-and-drop dispatch, duplicate Zhengma word generation, and the non-incrementing `unique()` loop.
@@ -171,6 +172,84 @@ let document = wubilex_codec::eudp::decode(bytes, DecodeLimits::default())?;
 let encoded = wubilex_codec::eudp::encode(&document, timestamp)?;
 ```
 
+## Scenario: Community Lexicon Text Codec
+
+### 1. Scope / Trigger
+
+Apply this contract when encoded community lexicon text is decoded into a `LexiconDocument`, when a document is formatted into one of the seven text layouts, or when lexicon/phrase text needs the shared ASCII whitespace escapes. The codec remains synchronous and memory-to-memory; file paths, filesystem I/O, containers, scheme detection, and domain indexes are separate concerns.
+
+### 2. Signatures
+
+```rust
+pub fn decode(
+    input: &[u8],
+    limits: DecodeLimits,
+) -> Result<DecodedLexiconText, CodecError>;
+
+pub fn format(
+    document: &LexiconDocument,
+    format: LexiconTextFormat,
+) -> Result<String, CodecError>;
+
+pub fn encode_utf16le(
+    document: &LexiconDocument,
+    format: LexiconTextFormat,
+) -> Result<Vec<u8>, CodecError>;
+
+pub fn escape_whitespace(input: &str) -> String;
+pub fn unescape_whitespace(input: &str) -> String;
+```
+
+### 3. Contracts
+
+- Decode checks the complete byte limit before BOM selection or allocation. BOMs select UTF-8 or UTF-16LE/BE; valid BOM-less UTF-8 wins, while other detector guesses narrow to strict GBK. Decoding never inserts replacement characters.
+- Preprocessing keeps original line provenance and runs YAML, `#` comments, `[Text]`, Jidian, then Microsoft detection in that order. The main parser tries A through F with `NoMatch`, `Matched`, and `Invalid` outcomes, so recognized corruption cannot fall through into a warning.
+- Each expanded entry and each unknown-line warning is charged to `max_expanded_entries` before it is retained. Multi-entry lines are tokenized and checked incrementally instead of collecting unbounded tokens before the ceiling is known.
+- Unknown nonempty lines produce ordered `UnrecognizedLine` warnings with their original one-based location, at most 160 Unicode scalar values of preview, and an explicit truncation flag. A nonempty body with no surviving entry is still an error.
+- D weights use `65535 - source` and only D entries participate in the minimum-to-5000 shift. Jidian cleanup drops `^`, `$`, and `!`, strips one `~`, clears weights, and rejects a stripped-empty text.
+- All seven formats use one stable code/effective-weight projection without mutating the document. Non-aggregate forms preserve duplicates; aggregate forms fold only adjacent duplicates. Every nonempty output line ends in CRLF, and UTF-16LE output begins with `FF FE`.
+- Escaping is symmetric only for `%20`, `%09`, `%0A`, `%0D`, `%0B`, and `%0C`. Unknown, lowercase, incomplete, and literal percent sequences stay literal; do not add `%25`.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| Input or retained entry/warning ceiling exceeded | `ResourceLimitExceeded` with exact `limit` / `actual`; expanded output also has the current source line |
+| UTF-8, UTF-16, or GBK bytes are malformed | `InvalidTextEncoding` at the original zero-based byte offset, including any removed BOM prefix |
+| YAML is unclosed or a nonempty body has zero surviving entries | `MalformedField` at the original one-based text location |
+| A recognized code, text, or nonzero weight is invalid | Preserve `InvalidInput` and attach the owning token's original line/column |
+| A recognized numeric field is outside its accepted representation | `MalformedField` at the numeric token |
+| A nonempty line matches no supported layout | Ordered `UnrecognizedLine` warning; parsing continues within the shared output budget |
+| Effective weight, phrase candidate, output size, or checked count overflows | `IntegerOverflow`; do not invent a source location for an in-memory format failure |
+
+### 5. Good / Base / Bad Cases
+
+- Good: UTF-8, BOM-prefixed UTF-16LE/BE, and GBK versions of the same mixed-dialect input decode to equal documents; formatting and decoding all six escaped whitespace characters round-trip.
+- Base: empty or preprocessing-only text decodes to an empty document, and an empty document formats to an empty string or BOM-only UTF-16LE bytes.
+- Bad: an unknown line followed by a valid entry returns a document plus a visible warning, but an unknown-only body, an A line with empty text, or a third expansion past a two-entry limit returns a structured error without a partial document.
+
+### 6. Tests Required
+
+- Hand-author bytes for every supported encoding and malformed middle/trailing sequences; assert `DetectedTextEncoding`, `CodecErrorKind`, and exact byte offsets.
+- Test A through F independently plus Microsoft/Jidian, preprocessing provenance, D endpoints/normalization, recognized invalid fields, warning order/preview/truncation, warning-plus-entry budgets, and truncated prefixes without panic.
+- Assert the complete string for each `LexiconTextFormat`, including CRLF, effective weights, equal-weight stability, duplicate behavior, aggregate adjacency, phrase renumbering, and format-time overflow.
+- Assert exact BOM-prefixed UTF-16LE bytes for empty, BMP, and non-BMP output, plus decode/encode symmetry for all six whitespace escapes and literal preservation for unknown percent sequences.
+- Automated tests must remain synthetic or reproducibly fetched and must never read the root `resource/` directory.
+
+### 7. Wrong vs Correct
+
+```rust
+// Wrong: hides detector failures and silently drops unsupported lines.
+let text = String::from_utf8_lossy(bytes);
+let document = parse_known_lines_only(&text);
+
+// Correct: keep strict byte and text evidence plus visible compatibility diagnostics.
+let decoded = wubilex_codec::text::decode(bytes, DecodeLimits::default())?;
+for warning in decoded.warnings() {
+    report_warning(warning.location(), warning.preview());
+}
+```
+
 ## Review Checklist
 
 - Does the change stay within its crate's dependency and responsibility boundary?
@@ -188,4 +267,4 @@ let encoded = wubilex_codec::eudp::encode(&document, timestamp)?;
 - [`docs/22-roadmap.md` S0 and S4](../../../docs/22-roadmap.md)
 - [`wubilex-codec` contract tests](../../../crates/wubilex-codec/tests/model_contracts.rs)
 
-The model, error, limit, raw `.lex`, and raw EUDP round-trip tests are established examples. Phrase-text end-to-end round trips, reproducible real fixtures, eight-scheme coverage, and measured coverage remain obligations for later S0 tasks.
+The model, error, limit, raw `.lex`, raw EUDP, and community lexicon text round-trip tests are established examples. Phrase-text end-to-end round trips, reproducible real fixtures, eight-scheme coverage, and measured coverage remain obligations for later S0 tasks.

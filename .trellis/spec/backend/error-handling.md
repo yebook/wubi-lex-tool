@@ -53,6 +53,8 @@ Use the dedicated structured variants for magic bytes, EOF byte counts, malforme
 
 The `.lex` and EUDP decoders demonstrate the binary-parser contract: signed header and table offsets are preserved in `InvalidOffset`, every malformed wire field is attached to its zero-based field offset, and truncated records return `UnexpectedEof` without partial documents. EUDP tombstones are fully validated before omission, so a deleted flag cannot hide a malformed candidate, string, terminator, or offset. An unsupported EUDP `cbSize` uses `UnsupportedFormat`; canonical encoding reports model or arithmetic failures without inventing a source location for an in-memory value.
 
+The community text decoder applies the same evidence split to text: malformed encoded bytes use `InvalidTextEncoding` at the original zero-based byte offset, while recognized invalid fields retain `InvalidInput` or `MalformedField` at the original one-based line and Unicode-scalar column. Unknown nonempty lines are compatibility diagnostics, not errors: `LexiconTextWarning` carries a structured kind, original location, bounded preview, and truncation flag. Warnings and entries share the expanded-output budget, and a nonempty body with no surviving entry remains an error rather than partial or empty success.
+
 ## Common Mistakes To Reject
 
 - Returning `null`, an empty collection, or a Boolean after an operation failed.
@@ -69,5 +71,6 @@ The `.lex` and EUDP decoders demonstrate the binary-parser contract: signed head
 - [`wubilex-codec` error contract](../../../crates/wubilex-codec/src/error.rs)
 - [`wubilex-codec` `.lex` decoder](../../../crates/wubilex-codec/src/lex/decode.rs)
 - [`wubilex-codec` EUDP decoder](../../../crates/wubilex-codec/src/eudp/decode.rs)
+- [`wubilex-codec` community text decoder](../../../crates/wubilex-codec/src/text/decode.rs)
 
 The codec enum is established. Add the `AppError` conversion example when the command boundary is implemented rather than inventing it in advance.
