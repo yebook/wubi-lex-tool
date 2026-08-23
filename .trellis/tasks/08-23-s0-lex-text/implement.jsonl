@@ -1,0 +1,7 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep lexicon text parsing, encoding conversion, formatting, and shared escaping in the synchronous wubilex-codec boundary; exclude filesystem, core indexes, platform, async, and network work."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Implement structured byte/text locations, strict recognized-field failures, no lossy decoding or partial documents, and visible warnings for unknown lines."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Apply codec test obligations, resource ceilings, dependency review, known escape regression coverage, and the prohibition on machine-local resource fixtures."}
+{"file":".trellis/tasks/08-23-s0-lex-text/research/text-codec-contracts.md","reason":"Use the reviewed encoding APIs, tri-state line parser, warning boundary, effective-weight ordering, seven output layouts, UTF-16LE BOM, and escape decisions."}
+{"file":"docs/01-data-formats.md","reason":"Implement the authoritative preprocessing order, Microsoft branch, A-F dialect priority, descending-weight normalization, output matrix, encodings, and whitespace escapes."}
+{"file":"docs/modules/M1-lex-table.md","reason":"Implement M1-PARSE-002..008 and M1-XFORM-001..007 while respecting the serialization sorting contract and deferring core operations."}
+{"file":"docs/20-nonfunctional.md","reason":"Preserve community text compatibility, exact corrupt-input locations, resource limits, and no-crash behavior."}

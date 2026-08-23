@@ -1,0 +1,7 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify text and escape changes stay inside the codec boundary and do not absorb filesystem, core, phrase-aux, platform, async, or network responsibilities."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Verify malformed bytes and recognized text fields return stable evidence at exact source locations, while unknown lines remain bounded visible warnings."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Verify independent dialect/output tests, escape regression coverage, limits, forbidden-pattern absence, dependency scope, and no resource directory access."}
+{"file":".trellis/tasks/08-23-s0-lex-text/research/text-codec-contracts.md","reason":"Cross-check the implementation against the reviewed encoding, warning, tri-state parser, weight, ordering, output, UTF-16LE, and whitespace contracts."}
+{"file":"docs/01-data-formats.md","reason":"Cross-check preprocessing, six dialects, Microsoft/Jidian behavior, normalization, seven output layouts, encodings, and escape symmetry against the authoritative specification."}
+{"file":"docs/modules/M1-lex-table.md","reason":"Verify only the assigned M1 parse/format requirements are closed and that sorting, duplicate handling, and deferred domain features remain correctly bounded."}
+{"file":"docs/20-nonfunctional.md","reason":"Verify community compatibility, exact line/byte error positions, memory ceilings, deterministic behavior, and corrupt-input robustness."}

@@ -23,7 +23,8 @@
     "08-22-s0-workspace-toolchain",
     "08-22-s0-codec-model",
     "08-22-s0-lex-binary",
-    "08-23-s0-eudp"
+    "08-23-s0-eudp",
+    "08-23-s0-lex-text"
   ],
   "parent": null,
   "relatedFiles": [],

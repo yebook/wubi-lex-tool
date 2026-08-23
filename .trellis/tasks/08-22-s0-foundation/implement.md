@@ -7,7 +7,7 @@
 - [x] 2. 创建并完成 `s0-codec-model`；冻结核心模型、错误和输入限制后再拆格式实现。
 - [ ] 3. 创建 `s0-lex-binary`、`s0-eudp`、`s0-lex-text`、`s0-phrase-aux`；依赖模型任务，格式间不得通过内部实现细节耦合。
   - [x] `s0-lex-binary`
-  - [ ] `s0-eudp`
+  - [x] `s0-eudp`
   - [ ] `s0-lex-text`
   - [ ] `s0-phrase-aux`
 - [ ] 4. 创建并完成 `s0-fixtures-regressions`；补真实样本、属性测试、损坏输入和阶段归属正确的缺陷回归。
