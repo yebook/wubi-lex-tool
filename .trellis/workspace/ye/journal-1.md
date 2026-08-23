@@ -128,3 +128,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 6: S0 EUDP 二进制编解码
+
+**Date**: 2026-08-23
+**Task**: S0 EUDP 二进制编解码
+**Branch**: `main`
+
+### Summary
+
+完成 EUDP 原始字节的严格解码、规范编码、结构化错误、测试覆盖与后端实现合同，并归档 s0-eudp 子任务。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `84f9ce7` | (see git log) |
+| `30d432e` | (see git log) |
+| `ce35e5b` | (see git log) |
+
+### Status
+
+[OK] **Completed**

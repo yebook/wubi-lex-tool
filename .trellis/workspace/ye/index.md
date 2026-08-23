@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 5
-- **Last Active**: 2026-08-22
+- **Total Sessions**: 6
+- **Last Active**: 2026-08-23
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~130 | Active |
+| `journal-1.md` | ~153 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 6 | 2026-08-23 | S0 EUDP 二进制编解码 | `84f9ce7`, `30d432e`, `ce35e5b` | `main` |
 | 5 | 2026-08-22 | 完成 S0-03 .lex 二进制编解码 | `f07a112`, `cdd7f9c` | `main` |
 | 4 | 2026-08-22 | 完成 S0-02 codec 公共模型 | `3b554bc`, `619c690` | `main` |
 | 3 | 2026-08-22 | 完成 S0 workspace 与工具链 | `c69a745`, `58493e8`, `a1767f9` | `main` |
