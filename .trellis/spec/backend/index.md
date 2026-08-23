@@ -20,7 +20,7 @@
 | [Quality Guidelines](./quality-guidelines.md) | Rust gates, test obligations, and binary parsing restrictions | **Baseline with S0 codec evidence** |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging fields, levels, and redaction | **Pending implementation evidence** |
 
-The three baseline guides now include the first compiled S0 examples from `wubilex-codec`. Keep `00-bootstrap-guidelines` active until the remaining S0 crates provide equivalent implementation evidence.
+The three baseline guides now include compiled S0 examples from the shared models and the raw `.lex` and EUDP codecs in `wubilex-codec`. Keep `00-bootstrap-guidelines` active until the remaining S0 crates provide equivalent implementation evidence.
 
 ---
 

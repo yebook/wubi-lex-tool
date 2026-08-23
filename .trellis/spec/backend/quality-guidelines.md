@@ -36,6 +36,7 @@ The approved CI sequence also checks generated IPC bindings and documentation co
 - `crates/wubilex-codec/tests/model_contracts.rs` fixes the validated model boundaries, ordered duplicate-preserving documents, nonzero weight/candidate ranges, UTF-16 code-unit behavior, scheme shape, and encoding/BOM contract.
 - `crates/wubilex-codec/tests/error_and_limits.rs` fixes structured error evidence and the 64 MiB / 500,000 default limits. Assertions match error kinds and locations rather than rendered messages.
 - `crates/wubilex-codec/tests/lex_binary.rs` uses hand-authored wire bytes to fix the `.lex` header, alpha-index, record, UTF-16, stable-order, implicit-weight, truncation, and resource-limit contracts independently of the production encoder. Its record-section truncation cases keep `fileSize` coherent so they exercise record bounds rather than stopping at header validation.
+- `crates/wubilex-codec/tests/eudp_binary.rs` uses hand-authored wire bytes to fix the EUDP header, relative offset table, record, tombstone, candidate, strict UTF-16/NUL, stable-order, timestamp, truncation, and resource-limit contracts independently of the production encoder.
 - The crate's only direct dependency at this stage is the exact `thiserror = 2.0.20` contract. Parser, encoding, platform, async, serialization, and network dependencies are introduced only by the task that uses them.
 - Root-level user samples are not fixtures. Tests must use committed synthetic data or reproducibly fetched files under `crates/wubilex-codec/tests/fixtures/`; they must never depend on a machine-local `resource/` directory.
 
@@ -102,6 +103,74 @@ let text = String::from_utf16_lossy(units);
 let document = wubilex_codec::lex::decode(bytes, DecodeLimits::default())?;
 ```
 
+## Scenario: Raw Microsoft Wubi EUDP Codec
+
+### 1. Scope / Trigger
+
+Apply this contract whenever raw `mschxudp` bytes are decoded or a `PhraseDocument` is encoded. It covers the synchronous in-memory wire codec only. The v1/v2 names identify system paths containing the same bytes; path selection, dual writes, clock access, Windows checks, TSF orchestration, and recovery remain outside `wubilex-codec`.
+
+### 2. Signatures
+
+```rust
+pub fn decode(
+    input: &[u8],
+    limits: DecodeLimits,
+) -> Result<PhraseDocument, CodecError>;
+
+pub fn encode(
+    document: &PhraseDocument,
+    timestamp: i32,
+) -> Result<Vec<u8>, CodecError>;
+```
+
+### 3. Contracts
+
+- Decode checks the complete input limit before parsing and the declared wire count before allocating the offset table. Deleted records count toward this ceiling.
+- Magic and structural fields are strict: signed offsets must describe a complete contiguous table and record section, `phraseEnd` equals the input length, the first relative offset is zero, and later offsets strictly increase.
+- Non-structural header/record metadata is tolerated on decode and normalized on encode. `cbSize` is the explicit record-layout discriminator and must equal 16.
+- Every record has a nonzero candidate, a nonempty lowercase ASCII code, and nonempty strictly valid UTF-16LE text. Code and text contain no embedded `U+0000` and each ends with its own NUL code unit.
+- Decode validates every tombstone before omitting it, preserves active wire order and duplicates, and requires codes to be lexicographically nondecreasing. Candidate values do not impose a second physical sort order.
+- Encode stably sorts by code only, preserves equal-code order/candidates/duplicates, emits canonical constants, and writes the caller-supplied `i32` timestamp verbatim. Equal document and timestamp inputs produce equal bytes.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required error |
+|---|---|
+| Input or declared wire-count ceiling exceeded | `ResourceLimitExceeded` with exact `limit` and `actual`; count errors are located at byte 28 |
+| Magic differs from `mschxudp` | `MagicMismatch` at byte 0 with expected and actual bytes |
+| Header bytes or a complete bounded record are missing | `UnexpectedEof` at the field or record start |
+| Signed header/table offset is negative or outside its valid range | `InvalidOffset` preserving the signed value and bounds |
+| Table end, first/order constraints, record length, text offset parity, candidate, code/order, text, or terminator is invalid | `MalformedField` at the nearest wire field |
+| `cbSize` is not 16 | `UnsupportedFormat { format: "eudp", ... }` at the record start |
+| Code or text contains an unpaired surrogate | `InvalidUtf16` at the exact surrogate byte |
+| Count, table size, text offset, relative offset, record size, or file size cannot be represented | `IntegerOverflow` with a stable operation and no invented model-source location |
+| Encode receives phrase text containing `U+0000` | Structured field failure with no byte location because no wire input exists |
+
+### 5. Good / Base / Bad Cases
+
+- Good: canonical bytes containing duplicate phrases, candidate 255, an emoji surrogate pair, a newline, and a `%yyyy%` variable decode and re-encode byte-for-byte when the same timestamp is supplied.
+- Base: an empty document encodes to a 64-byte canonical header with `count = 0`, then decodes to an empty document.
+- Bad: a deleted record with an invalid candidate, empty text, malformed UTF-16, or bad terminator is rejected rather than silently omitted.
+
+### 6. Tests Required
+
+- Hand-authored canonical bytes must assert decoded entries, relative offsets, timestamp, metadata normalization, and exact encoded bytes independently of the production writer.
+- Header, offset-table, record-header, candidate, code/text, embedded NUL, strict UTF-16, tombstone, ordering, maximum text offset, and resource-limit boundaries must assert both `kind()` and `location()` where a wire source exists.
+- Every truncated prefix must return an error without panic. Record-section prefixes must update `phraseEnd` so they exercise table/record validation instead of only header-size mismatch.
+- Tests must prove equal-code records are stable even when candidates are not monotonic, and that tombstones still count toward the declared wire-entry limit.
+- Machine-local files under the root `resource/` directory are never automated fixtures. Real Windows EUDP compatibility remains pending until a reproducible sample source is established.
+
+### 7. Wrong vs Correct
+
+```rust
+// Wrong: reads the clock inside the codec and skips corrupt tombstones.
+let bytes = encode_with_system_time(document)?;
+
+// Correct: keep output deterministic and validate every wire record first.
+let document = wubilex_codec::eudp::decode(bytes, DecodeLimits::default())?;
+let encoded = wubilex_codec::eudp::encode(&document, timestamp)?;
+```
+
 ## Review Checklist
 
 - Does the change stay within its crate's dependency and responsibility boundary?
@@ -119,4 +188,4 @@ let document = wubilex_codec::lex::decode(bytes, DecodeLimits::default())?;
 - [`docs/22-roadmap.md` S0 and S4](../../../docs/22-roadmap.md)
 - [`wubilex-codec` contract tests](../../../crates/wubilex-codec/tests/model_contracts.rs)
 
-The model, error, limit, and raw `.lex` round-trip tests are established examples. EUDP and text parser round trips, reproducible eight-scheme fixtures, and measured coverage remain obligations for later S0 tasks.
+The model, error, limit, raw `.lex`, and raw EUDP round-trip tests are established examples. Phrase-text end-to-end round trips, reproducible real fixtures, eight-scheme coverage, and measured coverage remain obligations for later S0 tasks.

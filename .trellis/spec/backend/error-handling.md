@@ -51,7 +51,7 @@ let error = CodecError::new(CodecErrorKind::MalformedField {
 
 Use the dedicated structured variants for magic bytes, EOF byte counts, malformed fields, offset ranges, invalid UTF-16 surrogates, selected text encoding, unsupported variants, overflow context, and resource limits. Tests inspect `kind()` and `location()`; they must not parse `Display` output. Model constructors return the same error type without a location, allowing a future parser to attach the position it owns.
 
-The `.lex` decoder demonstrates the binary-parser contract: signed header and alpha-index offsets are preserved in `InvalidOffset`, every malformed wire field is attached to its zero-based field offset, and truncated records return `UnexpectedEof` without partial documents. Canonical encoding reports arithmetic failures through `IntegerOverflow` without inventing a source location for an in-memory model.
+The `.lex` and EUDP decoders demonstrate the binary-parser contract: signed header and table offsets are preserved in `InvalidOffset`, every malformed wire field is attached to its zero-based field offset, and truncated records return `UnexpectedEof` without partial documents. EUDP tombstones are fully validated before omission, so a deleted flag cannot hide a malformed candidate, string, terminator, or offset. An unsupported EUDP `cbSize` uses `UnsupportedFormat`; canonical encoding reports model or arithmetic failures without inventing a source location for an in-memory value.
 
 ## Common Mistakes To Reject
 
@@ -68,5 +68,6 @@ The `.lex` decoder demonstrates the binary-parser contract: signed header and al
 - [`src-tauri/README.md`](../../../src-tauri/README.md)
 - [`wubilex-codec` error contract](../../../crates/wubilex-codec/src/error.rs)
 - [`wubilex-codec` `.lex` decoder](../../../crates/wubilex-codec/src/lex/decode.rs)
+- [`wubilex-codec` EUDP decoder](../../../crates/wubilex-codec/src/eudp/decode.rs)
 
 The codec enum is established. Add the `AppError` conversion example when the command boundary is implemented rather than inventing it in advance.
