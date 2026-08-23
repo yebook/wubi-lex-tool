@@ -1,0 +1,8 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify all changes stay in the raw codec boundary and no platform, filesystem, clock, text-dialect, or core responsibility leaks into EUDP parsing."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Verify each malformed header, offset, record, candidate, and UTF-16 branch returns stable evidence at the nearest source byte without partial output."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Verify checked parsing, independent hand-authored tests, forbidden-pattern absence, dependency limits, and no root resource fixture dependency."}
+{"file":".trellis/tasks/08-23-s0-eudp/research/eudp-binary-contracts.md","reason":"Verify implementation and tests match the reviewed wire, compatibility, timestamp, ordering, deleted-entry, and deferred-evidence decisions."}
+{"file":"docs/01-data-formats.md","reason":"Cross-check every header, offset-table, entry, terminator, UTF-16, deleted, and canonical-write contract against the authoritative binary specification."}
+{"file":"docs/modules/M2-phrase.md","reason":"Verify the raw codec closes only the assigned M2 binary requirements and keeps text conversion, path selection, installation, and S4 regressions deferred."}
+{"file":"docs/20-nonfunctional.md","reason":"Verify v1/v2 path compatibility, UTF-16 surrogate handling, resource robustness, and precise corrupt-file error locations."}
+
