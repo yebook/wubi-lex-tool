@@ -5,7 +5,10 @@ use wubilex_codec::{
 
 #[test]
 fn lex_code_accepts_one_and_four_lowercase_ascii_letters() {
-    assert_eq!(lex_code("a").as_str(), "a");
+    let code = lex_code("a");
+
+    assert_eq!(code.as_str(), "a");
+    assert_eq!(AsRef::<str>::as_ref(&code), "a");
     assert_eq!(lex_code("xfxy").as_str(), "xfxy");
 }
 
@@ -72,6 +75,7 @@ fn phrase_code_has_no_lex_specific_four_letter_limit() {
     let code = phrase_code("abcdefgh");
 
     assert_eq!(code.as_str(), "abcdefgh");
+    assert_eq!(AsRef::<str>::as_ref(&code), "abcdefgh");
     assert_invalid_input(
         "phrase code",
         PhraseCode::new(""),

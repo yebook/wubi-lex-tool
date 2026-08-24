@@ -12,10 +12,14 @@ fn auxiliary_models_preserve_order_duplicates_and_validate_tokens() {
         .expect("test frequency entry must be valid");
     let frequencies = WordFrequencyDocument::new(vec![first.clone(), first.clone()]);
     assert_eq!(frequencies.entries(), &[first.clone(), first]);
+    assert_eq!(frequencies.len(), 2);
+    assert_eq!(frequencies.clone().into_entries(), frequencies.entries());
 
     let split = SplitTableEntry::new("𠮷", "󰀖🤝").expect("test split entry must be valid");
     let splits = SplitTableDocument::new(vec![split.clone(), split.clone()]);
     assert_eq!(splits.entries(), &[split.clone(), split]);
+    assert_eq!(splits.len(), 2);
+    assert_eq!(splits.clone().into_entries(), splits.entries());
 
     for (field, result, index, character) in [
         (

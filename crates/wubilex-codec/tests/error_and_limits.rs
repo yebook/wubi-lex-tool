@@ -83,6 +83,20 @@ fn binary_failures_preserve_field_values_lengths_and_offset_bounds() {
 }
 
 #[test]
+fn field_values_render_actionable_wire_evidence() {
+    assert_eq!(FieldValue::Unsigned(16).to_string(), "16");
+    assert_eq!(FieldValue::Signed(-1).to_string(), "-1");
+    assert_eq!(
+        FieldValue::Bytes(vec![0x00, 0x0A, 0xFF]).to_string(),
+        "[00, 0A, FF]"
+    );
+    assert_eq!(
+        FieldValue::Text("lowercase ASCII".to_owned()).to_string(),
+        "lowercase ASCII"
+    );
+}
+
+#[test]
 fn decoding_and_format_failures_preserve_parser_context() {
     let utf16 = CodecErrorKind::InvalidUtf16 {
         field: "eudp.entry.text",

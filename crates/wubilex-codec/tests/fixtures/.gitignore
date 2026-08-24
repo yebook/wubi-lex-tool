@@ -1,0 +1,6 @@
+*.lex
+*.lex.lzma
+*.part-*
+!.gitignore
+!README.md
+!manifest.json
