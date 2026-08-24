@@ -1,0 +1,9 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep fixture acquisition in xtask, downloaded data under the codec test fixture directory, and all network/LZMA/filesystem behavior out of codec production code."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Implement the eight reproducible real schemes, property and malformed-input evidence, named S0 regressions, no silent fixture skipping, and measured 90% codec coverage."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Preserve strict codec failures and provide actionable fixture-stage evidence without lossy decode, partial documents, or credential leakage."}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Use the approved Rust toolchain and global pnpm route while keeping coverage tooling local and CI version sources nonduplicated."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Keep the fixture manifest as the single source for downloader and tests and avoid duplicating the eight-entry mapping or digest policy."}
+{"file":".trellis/tasks/08-24-s0-fixtures-regressions/research/fixture-regression-contracts.md","reason":"Use the selected HTTPS sources, observed sizes, license caveat, existing evidence inventory, tooling gap and failure policy established during planning."}
+{"file":"docs/01-data-formats.md","reason":"Verify byte round trips, seven text layouts, EUDP/text flow, eight-scheme detection and the three S0 defect contracts against the authoritative format behavior."}
+{"file":"docs/22-roadmap.md","reason":"Keep the S0 exit conditions and S0-versus-S4 regression ownership explicit while deferring independent aardio golden evidence to integration."}
+{"file":".trellis/tasks/08-22-s0-foundation/prd.md","reason":"Preserve the parent S0 reproducibility, real-fixture, coverage, dependency and integration acceptance boundaries."}

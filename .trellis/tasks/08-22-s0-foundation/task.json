@@ -25,7 +25,8 @@
     "08-22-s0-lex-binary",
     "08-23-s0-eudp",
     "08-23-s0-lex-text",
-    "08-24-s0-phrase-aux"
+    "08-24-s0-phrase-aux",
+    "08-24-s0-fixtures-regressions"
   ],
   "parent": null,
   "relatedFiles": [],

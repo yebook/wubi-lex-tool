@@ -1,0 +1,9 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify no product downloader or archive responsibility leaked into codec and all generated fixture bytes remain ignored test data."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check all eight real fixtures, byte-identical round trips, property/corruption tests, named S0 regressions, hard missing-fixture failure and measured coverage."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Check fixture command failures remain actionable and bounded and codec failures retain structured evidence without panic or partial success."}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Verify global pnpm usage, approved Rust version sources, local-only coverage tooling and no unauthorized global toolchain mutations."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Verify downloader, offline checks and real tests consume one manifest contract rather than drift through parallel fixture tables."}
+{"file":".trellis/tasks/08-24-s0-fixtures-regressions/research/fixture-regression-contracts.md","reason":"Compare final sources, hashes, sizes, schemes, licenses, tool versions and result table with the planning evidence and documented limitations."}
+{"file":"docs/01-data-formats.md","reason":"Check the real and generated assertions cover every required binary/text/phrase invariant and the three correctly scoped S0 regressions."}
+{"file":"docs/22-roadmap.md","reason":"Verify the task closes only its S0 exits and does not claim the three S4 defects or independent aardio golden comparison."}
+{"file":".trellis/tasks/08-22-s0-foundation/prd.md","reason":"Run the parent-level acceptance cross-check for reproducible sources, exact real round trips, S0 defects and coverage without prematurely closing CI or integration."}
