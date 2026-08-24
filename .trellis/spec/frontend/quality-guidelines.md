@@ -6,9 +6,11 @@
 
 ## Required Gates
 
-Frontend changes use pnpm only and must pass the TypeScript compiler with no emit, ESLint, and Vitest. Installation in CI uses the frozen lockfile. Node comes from `package.json.volta.node`; pnpm uses the global command and must match `package.json.engines.pnpm`. Do not introduce a Volta project-level pnpm pin, `VOLTA_FEATURE_PNPM`, npm, yarn, npx, corepack, `.nvmrc`, or a competing `packageManager` version source.
+Frontend changes use the global pnpm command only and must pass frozen installation, `pnpm audit --audit-level high`, the TypeScript compiler with no emit, ESLint with zero warnings, and Vitest. Node comes from `package.json.volta.node`; pnpm must match `package.json.engines.pnpm`. Do not introduce a Volta project-level pnpm pin, `VOLTA_FEATURE_PNPM`, npm, yarn, npx, corepack, `.nvmrc`, or a competing `packageManager` version source.
 
-When a change touches IPC, `xtask bindings --check` is part of the frontend gate even if TypeScript compilation succeeds.
+When a change touches IPC, `cargo xtask bindings --check` is part of the frontend gate even if TypeScript compilation succeeds. `cargo xtask check-docs` also guards requirement references consumed by frontend work.
+
+The checked-in Windows workflow reads versions from those repository fields, keys the pnpm store cache by `pnpm-lock.yaml`, and runs every frontend command after the Rust, audit, binding, and documentation gates. Cache restoration never replaces `pnpm install --frozen-lockfile`. A developer mirror that lacks the npm audit endpoint may be diagnosed with a command-local official `--registry` override; do not commit an `.npmrc` or report the missing endpoint as a clean audit.
 
 ## Required Boundaries
 
@@ -32,6 +34,7 @@ When a change touches IPC, `xtask bindings --check` is part of the frontend gate
 - Full-file parsing or full-lexicon ownership in the WebView.
 - Handwritten IPC type mirrors or edits to generated output.
 - A second toolchain version source or non-pnpm package-manager commands.
+- A floating third-party Action ref, `continue-on-error`, or a cache condition that bypasses install, audit, typecheck, lint, or tests.
 - Treating a scaffold directory as proof of a component, hook, or state convention.
 
 ## Review Checklist
@@ -49,5 +52,7 @@ When a change touches IPC, `xtask bindings --check` is part of the frontend gate
 - [`docs/20-nonfunctional.md`](../../../docs/20-nonfunctional.md)
 - [`docs/21-ui-ux.md`](../../../docs/21-ui-ux.md)
 - [Tailwind v4 Token Convention](./tailwind-v4-tokens.md)
+- [Windows quality workflow](../../../.github/workflows/ci.yml)
+- [Frontend toolchain version sources](../../../package.json)
 
-Real source examples remain pending until the frontend shell exists.
+The binding freshness and global-pnpm CI gates are established. Component and browser-flow examples remain pending until the frontend shell exists.

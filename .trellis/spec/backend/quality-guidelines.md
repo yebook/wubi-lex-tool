@@ -6,9 +6,9 @@
 
 ## Required Gates
 
-Backend changes must compile and pass formatting, Clippy with warnings denied, tests, and dependency license and vulnerability checks. CI obtains Rust from `rust-toolchain.toml`; workflow files must not hard-code another Rust version.
+Backend changes must compile and pass formatting, Clippy with warnings denied, tests, warnings-denied Rustdoc, and dependency license and vulnerability checks. CI obtains Rust from `rust-toolchain.toml`; workflow files must not hard-code another Rust version.
 
-The approved CI sequence also checks generated IPC bindings and documentation contracts. A local check is not complete if it skips a gate affected by the change.
+The approved Windows CI sequence also prepares and verifies real fixtures, enforces codec line coverage of at least 90%, checks generated IPC bindings and documentation contracts, and then runs the frozen frontend gates. The executable repository-command and workflow contract lives in [Repository Quality And CI](./repository-quality-ci.md). A local check is not complete if it skips a gate affected by the change.
 
 ## Forbidden Patterns
 
@@ -458,9 +458,8 @@ let frequencies = wubilex_codec::weight::decode(frequency_bytes, limits)?;
 - [`NFR-REL-004`, `NFR-MAINT-001..006`](../../../docs/20-nonfunctional.md)
 - [`docs/22-roadmap.md` S0 and S4](../../../docs/22-roadmap.md)
 - [`wubilex-codec` contract tests](../../../crates/wubilex-codec/tests/model_contracts.rs)
+- [Repository Quality And CI](./repository-quality-ci.md)
 
-The model, error, limit, raw `.lex`, raw EUDP, community lexicon text, phrase
-text, auxiliary text, synthetic eight-scheme, reproducible real-fixture, and
-measured-coverage tests are established examples. Independent aardio golden
-comparison and CI installation/caching of the coverage tool remain later S0
-obligations.
+The model, error, limit, codec, reproducible real-fixture, measured-coverage,
+binding, document, dependency-audit, and Windows CI contracts are established
+examples. Independent aardio golden comparison remains a later S0 obligation.

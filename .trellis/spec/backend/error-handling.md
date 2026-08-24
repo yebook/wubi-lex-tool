@@ -6,7 +6,7 @@
 
 ## Current Status
 
-The library-side contract is established by `wubilex_codec::{CodecError, CodecErrorKind, SourceLocation}`. The application-side `AppError` conversion remains pending until Tauri command work begins.
+The library-side contract is established by `wubilex_codec::{CodecError, CodecErrorKind, SourceLocation}`. Repository automation also has established stage-preserving failures. The application-side `AppError` conversion remains pending until Tauri command work begins.
 
 ## Error Ownership
 
@@ -61,6 +61,8 @@ The word-frequency and split-table decoders accept only BOM-less strict UTF-8 an
 
 Repository fixture automation preserves the failing stage and entry in its command error chain: manifest loading/validation, cache verification, download, compressed integrity, LZMA decode, decoded integrity, strict `.lex` validation, and final placement remain distinguishable. `cargo xtask fixtures --check` never repairs or performs network work; it reports the invalid entry and the `cargo xtask fixtures` recovery command. Download cleanup is ownership-based: create the partial file successfully before arming its guard, and disarm only after validated placement. A failed `create_new` call must never authorize deletion of an existing or concurrently owned path.
 
+Binding and document automation follows the same stage-preserving rule. `cargo xtask bindings --check` reports missing and stale generated output with the exact regeneration command and never repairs it. Export, normalization, read, staging, synchronization, and replacement failures retain the path and stage. `cargo xtask check-docs` aggregates definition, count, dangling-reference, placeholder, and anchor failures; Python spawn failures and nonzero anchor output remain visible rather than becoming a generic validation error.
+
 ## Common Mistakes To Reject
 
 - Returning `null`, an empty collection, or a Boolean after an operation failed.
@@ -70,6 +72,7 @@ Repository fixture automation preserves the failing stage and entry in its comma
 - Letting library crates depend on Tauri only to create `AppError`.
 - Arming a temporary-file cleanup guard before `create_new` succeeds, which can delete a partial file owned by another run.
 - Returning success or silently skipping when an ignored real fixture is missing; report the fixture id and preparation command instead.
+- Repairing generated bindings during `--check`, swallowing an anchor subprocess failure, or reporting only the first independently detectable documentation issue.
 
 ## Sources
 
@@ -83,5 +86,7 @@ Repository fixture automation preserves the failing stage and entry in its comma
 - [`wubilex-codec` phrase text decoder](../../../crates/wubilex-codec/src/text/phrase/decode.rs)
 - [`wubilex-codec` auxiliary text parser](../../../crates/wubilex-codec/src/text/auxiliary.rs)
 - [`xtask` fixture failure stages and cleanup guards](../../../xtask/src/fixtures.rs)
+- [`xtask` binding failure stages](../../../xtask/src/bindings.rs)
+- [`xtask` document failure aggregation](../../../xtask/src/check_docs.rs)
 
 The codec enum is established. Add the `AppError` conversion example when the command boundary is implemented rather than inventing it in advance.

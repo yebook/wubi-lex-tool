@@ -6,7 +6,7 @@
 
 ## Baseline Status
 
-The `src/` directory tree is scaffolded and matches the approved architecture, but it contains no real component implementation yet. S0 may add the minimum build shell; S1 owns the first runnable, navigable application. Do not treat `.gitkeep` files as examples.
+The `src/` directory tree matches the approved architecture and now contains the committed generated IPC baseline, but it has no real component implementation yet. S1 owns the first runnable, navigable application. The generated binding and its Rust registry are implementation evidence; `.gitkeep` files are not.
 
 ## Directory Layout
 
@@ -21,7 +21,7 @@ The `src/` directory tree is scaffolded and matches the approved architecture, b
 | `src/stores/` | Zustand application stores, including the feature availability store |
 | `src/lib/` | Tauri IPC wrappers and frontend utilities |
 | `src/styles/theme.css` | The only Tailwind v4 design-token source |
-| `src/types/generated/` | Committed TypeScript generated from Rust IPC contracts |
+| `src/types/generated/` | Committed LF-normalized TypeScript generated from the Rust IPC registry; currently `bindings.ts` |
 | `src/i18n/` | i18next resources |
 | `src/icons/` | The centralized Lucide export boundary |
 
@@ -30,7 +30,7 @@ The `src/` directory tree is scaffolded and matches the approved architecture, b
 - Route-specific screens and behavior stay within the matching `src/routes/<domain>/` directory. The directory names follow the user-facing information architecture, not Rust module numbers.
 - The lexicon library and editor are two states of `routes/lexicons/`, not separate top-level routes.
 - Reusable UI shared across routes belongs under `src/components/`; generic frontend infrastructure belongs under `src/lib/`.
-- Generated IPC files stay under `src/types/generated/`. Do not place handwritten look-alike contracts beside them.
+- Generated IPC files stay under `src/types/generated/`, use the narrow `.gitattributes` LF rule, and are updated only through `cargo xtask bindings`. Do not edit them or place handwritten look-alike contracts beside them.
 - Feature availability comes from the backend-driven feature store. Feature routes may render the shared placeholder, but must not create a second Vite-time flag source.
 - The frontend never owns file parsing, lexicon transformations, or a complete lexicon model. Those responsibilities remain in Rust; routes request paged view data through IPC.
 
@@ -41,5 +41,7 @@ Existing route and reusable-component directory names use lower-case kebab form.
 - [`docs/02-architecture.md` sections 6, D9, D11, D16, and 9](../../../docs/02-architecture.md)
 - [`docs/21-ui-ux.md` information architecture and component inventory](../../../docs/21-ui-ux.md)
 - The scaffolded [`src/`](../../../src/) directory
+- [Generated TypeScript baseline](../../../src/types/generated/bindings.ts)
+- [Rust-owned binding registry](../../../src-tauri/src/bindings/mod.rs)
 
-Real source examples remain pending until the frontend shell exists.
+The generated binding placement is established. Component, route, hook, store, and IPC-consumer examples remain pending until the frontend shell exists.

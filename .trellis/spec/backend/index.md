@@ -7,20 +7,21 @@
 ## Status Model
 
 - **Baseline; examples pending** means the rule is already fixed by approved architecture, requirements, or the scaffolded repository layout. Real source examples must be added after S0 produces compilable code.
-- **Baseline with S0 codec evidence** means the baseline now cites compiled `wubilex-codec` source and tests, while examples for other backend crates remain pending.
+- **Baseline with S0 implementation evidence** means the baseline cites compiled S0 source, tests, or repository automation while examples for the remaining product crates are still pending.
 - **Pending implementation evidence** means the project has not established an actual convention yet. Do not infer one from templates or `.gitkeep` files.
 
 ## Guidelines Index
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Workspace membership, crate ownership, and dependency boundaries | **Baseline with S0 codec evidence** |
+| [Directory Structure](./directory-structure.md) | Workspace membership, crate ownership, and dependency boundaries | **Baseline with S0 implementation evidence** |
 | [Database Guidelines](./database-guidelines.md) | Persistence, schema, query, and migration patterns | **Pending implementation evidence** |
-| [Error Handling](./error-handling.md) | Library errors, command-boundary errors, and failure context | **Baseline with S0 codec evidence** |
-| [Quality Guidelines](./quality-guidelines.md) | Rust gates, test obligations, and binary parsing restrictions | **Baseline with S0 codec evidence** |
+| [Error Handling](./error-handling.md) | Library errors, command-boundary errors, and failure context | **Baseline with S0 implementation evidence** |
+| [Quality Guidelines](./quality-guidelines.md) | Rust gates, test obligations, repository commands, and CI contracts | **Baseline with S0 implementation evidence** |
+| [Repository Quality And CI](./repository-quality-ci.md) | xtask signatures, generated bindings, document checks, audits, caches, and Windows workflow | **Established** |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging fields, levels, and redaction | **Pending implementation evidence** |
 
-The three baseline guides now include compiled S0 examples from the shared models, the raw `.lex`, EUDP, community lexicon text, phrase text, auxiliary table, and scheme-detection codecs in `wubilex-codec`, plus the test-only real-fixture acquisition and measured-coverage workflow in `xtask`. Keep `00-bootstrap-guidelines` active until the remaining S0 crates provide equivalent implementation evidence.
+The three baseline guides now include compiled S0 examples from the codecs, test-only real-fixture automation, the Rust-owned IPC binding registry, document validation, dependency policy, and the Windows quality workflow. Keep `00-bootstrap-guidelines` active until the remaining product crates provide equivalent implementation evidence.
 
 ---
 

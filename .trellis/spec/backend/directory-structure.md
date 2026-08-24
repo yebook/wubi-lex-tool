@@ -6,7 +6,7 @@
 
 ## Current Status
 
-The workspace, `wubilex-codec` shared contracts, the raw Microsoft Wubi `.lex` and EUDP codecs, community lexicon and phrase text codecs, auxiliary table codecs, content-based scheme detector, and test-only real-fixture automation compile. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
+The workspace, `wubilex-codec` contracts and codecs, test-only real-fixture automation, Rust-owned IPC binding registry, document checks, dependency policy, and Windows CI workflow compile or validate. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
 
 ## Workspace Membership
 
@@ -30,7 +30,7 @@ The root `Cargo.toml` is a virtual workspace. Its members are exactly:
 | `crates/wubilex-winime/` | Windows IME, TSF, registry, service, scheduler, and ACL integration | The `windows` crate with required features only | Tauri and domain logic |
 | `crates/wubilex-resource/` | HTTP, archives, integrity checks, and cache management | HTTP, compression, and hashing crates | Tauri and domain logic |
 | `src-tauri/` | Commands, events, application state, task orchestration, and recovery | All active lower crates | Domain logic inside command handlers |
-| `xtask/` | Reproducible repository automation, including test-only fixture acquisition and verification | Workspace tooling, HTTPS, hashing, and archive crates needed by repository commands | Product resource behavior or runtime dependencies |
+| `xtask/` | Reproducible repository automation, including fixtures, IPC binding generation, and document validation | Workspace tooling plus dependencies required by those commands | Product resource behavior, product runtime code, or a direct Tauri runtime dependency |
 
 `wubilex-codec` and `wubilex-core` remain synchronous and must not depend on Tokio. Long-running work is moved to blocking workers by `src-tauri`; cancellation and progress are adapted at that boundary.
 
@@ -48,6 +48,8 @@ The root `Cargo.toml` is a virtual workspace. Its members are exactly:
 - Direct Win32 or COM work stays in `crates/wubilex-winime/`. System side effects are centralized behind `src/sysops/`; service, scheduler, and ACL implementations use their existing dedicated directories.
 - Resource HTTP abstraction belongs in `crates/wubilex-resource/src/http/`; catalog, download, archive, cache, and verification code stays in its named module.
 - Tauri commands are grouped below `src-tauri/src/commands/` by their documented command prefix. Shared application concerns use the existing `state/`, `events/`, `task/`, `config/`, `error/`, `features/`, `recovery/`, and `bindings/` directories.
+- `src-tauri/src/bindings/mod.rs` owns the single generic `tauri_specta::Builder<R: tauri::Runtime>` registry. Repository generation instantiates it with `tauri::test::MockRuntime`; do not enable `wry` or create a fake command merely to make the generated file nonempty.
+- `xtask/src/{fixtures,bindings,check_docs}.rs` own the three repository command families. Generated TypeScript is written only to `src/types/generated/bindings.ts`; document checks reuse `.trellis/scripts/check_anchors.py` rather than cloning its slug logic.
 
 Rust module and directory names follow the scaffolded `snake_case` form, including `split_table` and `double_pinyin`. Command names use `<module_prefix>_<action>` and must stay in the command directory assigned to that prefix.
 
@@ -64,6 +66,9 @@ Rust module and directory names follow the scaffolded `snake_case` form, includi
 - [`wubilex-codec` auxiliary text codecs](../../../crates/wubilex-codec/src/weight/mod.rs)
 - [`wubilex-codec` scheme detector](../../../crates/wubilex-codec/src/detect/mod.rs)
 - [`xtask` fixture automation](../../../xtask/src/fixtures.rs)
+- [`xtask` binding generation](../../../xtask/src/bindings.rs)
+- [`xtask` document validation](../../../xtask/src/check_docs.rs)
+- [Canonical Tauri binding registry](../../../src-tauri/src/bindings/mod.rs)
 - [Real fixture manifest](../../../crates/wubilex-codec/tests/fixtures/manifest.json)
 
-The codec contract, raw `.lex`, EUDP, community text, phrase text, auxiliary table, scheme-detection layouts, and test-only real-fixture automation are established implementation evidence. Add examples for the remaining crates only after those crates contain real behavior.
+The codec contracts, test-only fixture automation, binding registry/export path, document validator, and CI policy are established implementation evidence. Add examples for the remaining crates only after those crates contain real behavior.
