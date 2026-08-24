@@ -1,0 +1,9 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep phrase text, auxiliary table codecs, shared encoding, and scheme detection inside the synchronous codec boundary while deferring core maps/transforms, resource I/O, and Windows orchestration."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Implement strict byte/text locations, recognized-field failures, bounded visible warnings, checked arithmetic, and no partial documents."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Apply codec test obligations, resource ceilings, dependency rules, known defect regressions, and the ban on machine-local resource fixtures."}
+{"file":".trellis/tasks/08-24-s0-phrase-aux/research/phrase-aux-contracts.md","reason":"Use the reviewed phrase state machine, auxiliary table, duplicate, encoding, scheme scoring, warning, and boundary decisions."}
+{"file":"docs/01-data-formats.md","reason":"Implement the authoritative P1-P6 order, multiline/array/alias behavior, word-frequency and spelling formats, scheme tests, and whitespace contract."}
+{"file":"docs/modules/M1-lex-table.md","reason":"Implement only the S0 scheme detector and file-level weight parsing boundary while deferring M1 core weighting and transformations."}
+{"file":"docs/modules/M2-phrase.md","reason":"Implement M2-PARSE-001..008 text behavior without absorbing EUDP installation, filesystem, UI, or system responsibilities."}
+{"file":"docs/modules/M3-reverse-lookup.md","reason":"Implement only the spelling-table data codec required by M3-SPLIT-001 while deferring lookup indexes and word-combination rules."}
+{"file":"docs/20-nonfunctional.md","reason":"Preserve encoding/emoji compatibility, exact corrupt-input locations, resource limits, and no-crash behavior."}

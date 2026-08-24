@@ -1,0 +1,9 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify changes remain inside codec responsibilities and do not absorb core weighting/indexing, resource acquisition, platform, async, network, or filesystem work."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Verify malformed bytes and recognized fields preserve stable evidence, warnings stay bounded/visible, and failures return no partial document."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Verify dialect/format/scheme tests, limits, forbidden-pattern absence, dependency scope, defect coverage, and no resource directory access."}
+{"file":".trellis/tasks/08-24-s0-phrase-aux/research/phrase-aux-contracts.md","reason":"Cross-check implementation against reviewed phrase state, candidate, auxiliary table, duplicate, encoding, scheme, warning, and deferral decisions."}
+{"file":"docs/01-data-formats.md","reason":"Cross-check P1-P6 parsing/output, word-frequency/spelling formats, direct/scored scheme detection, lowercase xfxy, and whitespace behavior."}
+{"file":"docs/modules/M1-lex-table.md","reason":"Verify M1-PARSE-013 and file-level weight boundaries are met without implementing deferred M1-WEIGHT transformations."}
+{"file":"docs/modules/M2-phrase.md","reason":"Verify M2-PARSE-001..008 text contracts and UTF-16 array compression while excluding installation and UI behavior."}
+{"file":"docs/modules/M3-reverse-lookup.md","reason":"Verify spelling-table parsing preserves resource data while lookup and phrase root composition remain deferred."}
+{"file":"docs/20-nonfunctional.md","reason":"Verify strict encoding, emoji handling, exact line/byte error positions, ceilings, determinism, and corrupt-input robustness."}

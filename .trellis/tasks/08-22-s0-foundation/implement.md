@@ -8,7 +8,7 @@
 - [ ] 3. 创建 `s0-lex-binary`、`s0-eudp`、`s0-lex-text`、`s0-phrase-aux`；依赖模型任务，格式间不得通过内部实现细节耦合。
   - [x] `s0-lex-binary`
   - [x] `s0-eudp`
-  - [ ] `s0-lex-text`
+  - [x] `s0-lex-text`
   - [ ] `s0-phrase-aux`
 - [ ] 4. 创建并完成 `s0-fixtures-regressions`；补真实样本、属性测试、损坏输入和阶段归属正确的缺陷回归。
 - [ ] 5. 创建并完成 `s0-xtask-ci`；把本地已通过的检查固化到 CI。
