@@ -11,4 +11,7 @@ name = "wubilex_app"
 tauri-build = { version = "2.6.3", features = [] }
 
 [dependencies]
-tauri = { version = "2.11.5", default-features = false }
+specta = { version = "=2.0.0-rc.25", features = ["function"] }
+specta-typescript = "=0.0.12"
+tauri = { version = "=2.11.5", default-features = false, features = ["test"] }
+tauri-specta = { version = "=2.0.0-rc.25", default-features = false, features = ["typescript"] }

@@ -1,0 +1,143 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Install Volta and repository Node
+        uses: volta-cli/action@4047d4429228024f9852a9410f32b280e2c7f18f # v4.1.0
+
+      - name: Read repository pnpm version
+        id: versions
+        shell: pwsh
+        run: |
+          $package = Get-Content package.json -Raw | ConvertFrom-Json
+          "pnpm=$($package.engines.pnpm)" >> $env:GITHUB_OUTPUT
+
+      - name: Install repository pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: ${{ steps.versions.outputs.pnpm }}
+          run_install: false
+
+      - name: Install pinned Cargo quality tools
+        uses: taiki-e/install-action@6cd13508893c0e7eab5f273c2575d3859bd7229a # v2.86.6
+        with:
+          tool: cargo-llvm-cov@0.9.0,cargo-deny@0.20.2
+
+      - name: Restore Cargo cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+
+      - name: Locate pnpm store
+        id: pnpm-store
+        shell: pwsh
+        run: |
+          "path=$(pnpm store path --silent)" >> $env:GITHUB_OUTPUT
+
+      - name: Restore pnpm cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Restore codec fixture cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: crates/wubilex-codec/tests/fixtures
+          key: ${{ runner.os }}-codec-fixtures-${{ hashFiles('crates/wubilex-codec/tests/fixtures/manifest.json') }}
+
+      - name: Verify repository toolchain contract
+        shell: pwsh
+        run: |
+          $package = Get-Content package.json -Raw | ConvertFrom-Json
+          $actualNode = (node --version).TrimStart('v')
+          if ($actualNode -ne $package.volta.node) { throw "Node version mismatch: expected $($package.volta.node), got $actualNode" }
+          $actualPnpm = (pnpm --version).Trim()
+          if ($actualPnpm -ne $package.engines.pnpm) { throw "pnpm version mismatch: expected $($package.engines.pnpm), got $actualPnpm" }
+          $channelLine = Select-String -Path rust-toolchain.toml -Pattern '^channel = "([^"]+)"$'
+          if ($channelLine.Matches.Count -ne 1) { throw 'rust-toolchain.toml must contain exactly one channel' }
+          $expectedRust = $channelLine.Matches[0].Groups[1].Value
+          if ((rustc --version) -notmatch "^rustc $([regex]::Escape($expectedRust)) ") { throw "Rust version mismatch: expected $expectedRust, got $(rustc --version)" }
+          if ($package.PSObject.Properties['package' + 'Manager']) { throw 'competing package manager version source is forbidden' }
+          if ($package.volta.PSObject.Properties['pnpm']) { throw 'project-level pnpm pin is forbidden' }
+          if (Test-Path .nvmrc) { throw '.nvmrc is a competing Node version source' }
+          cargo llvm-cov --version | Select-String 'cargo-llvm-cov 0.9.0' | Out-Null
+          cargo deny --version | Select-String 'cargo-deny 0.20.2' | Out-Null
+
+      - name: Rust format
+        run: cargo fmt --all -- --check
+
+      - name: Rust check
+        run: cargo check --workspace --all-targets --all-features
+
+      - name: Rust Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Prepare real codec fixtures
+        run: cargo xtask fixtures
+
+      - name: Verify real codec fixtures offline
+        run: cargo xtask fixtures --check
+
+      - name: Rust tests
+        run: cargo test --workspace --all-features
+
+      - name: Rust documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --workspace --all-features --no-deps
+
+      - name: Codec line coverage
+        shell: pwsh
+        run: |
+          cargo llvm-cov clean --workspace
+          cargo llvm-cov --package wubilex-codec --all-features --summary-only --fail-under-lines 90
+
+      - name: Cargo dependency policy
+        run: cargo deny check
+
+      - name: Generated binding freshness
+        run: cargo xtask bindings --check
+
+      - name: Documentation invariants
+        run: cargo xtask check-docs
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend vulnerability audit
+        run: pnpm audit --audit-level high
+
+      - name: TypeScript
+        run: pnpm typecheck
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Vitest
+        run: pnpm test --run

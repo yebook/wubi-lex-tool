@@ -60,7 +60,7 @@ struct FixtureEntry {
 }
 
 pub(crate) fn run(check: bool) -> Result<(), String> {
-    let repository_root = repository_root()?;
+    let repository_root = crate::repository_root()?;
     let fixture_directory = repository_root.join(FIXTURE_DIRECTORY);
     let manifest = load_manifest(&repository_root.join(MANIFEST_PATH))?;
 
@@ -89,13 +89,6 @@ pub(crate) fn run(check: bool) -> Result<(), String> {
     }
 
     Ok(())
-}
-
-fn repository_root() -> Result<PathBuf, String> {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .map(Path::to_path_buf)
-        .ok_or_else(|| "xtask manifest directory has no repository parent".to_owned())
 }
 
 fn load_manifest(path: &Path) -> Result<FixtureManifest, String> {
