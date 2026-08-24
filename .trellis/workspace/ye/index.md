@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 8
+- **Total Sessions**: 9
 - **Last Active**: 2026-08-24
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~199 | Active |
+| `journal-1.md` | ~222 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 9 | 2026-08-24 | 完成 S0 真实夹具与回归 | `7cc09c6`, `b9db57c`, `d5b7cf3` | `main` |
 | 8 | 2026-08-24 | S0 短语与辅助文本编解码 | `dc173ea`, `2db3138`, `8f22d89` | `main` |
 | 7 | 2026-08-23 | S0 码表文本编解码 | `e5393fd`, `3d9e110`, `1f966c1` | `main` |
 | 6 | 2026-08-23 | S0 EUDP 二进制编解码 | `84f9ce7`, `30d432e`, `ce35e5b` | `main` |

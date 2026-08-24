@@ -197,3 +197,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 9: 完成 S0 真实夹具与回归
+
+**Date**: 2026-08-24
+**Task**: 完成 S0 真实夹具与回归
+**Branch**: `main`
+
+### Summary
+
+实现八方案可复现 fixture 获取与离线校验，补齐真实、属性和跨 codec 回归，实测行覆盖率 90.12%，完成独立检查与 backend 规范同步。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `7cc09c6` | (see git log) |
+| `b9db57c` | (see git log) |
+| `d5b7cf3` | (see git log) |
+
+### Status
+
+[OK] **Completed**
