@@ -1,9 +1,11 @@
+//! Shared strict byte decoding for lexicon, phrase, and auxiliary text.
+
 use chardetng::{EncodingDetector, Iso2022JpDetection, Utf8Detection};
 use encoding_rs::{DecoderResult, Encoding, GBK, UTF_8, UTF_16BE, UTF_16LE};
 
 use crate::{CodecError, CodecErrorKind, DecodeLimits, DetectedTextEncoding, TextEncoding};
 
-pub(super) fn decode_bytes(
+pub(crate) fn decode_bytes(
     input: &[u8],
     limits: DecodeLimits,
 ) -> Result<(String, DetectedTextEncoding), CodecError> {
@@ -18,6 +20,27 @@ pub(super) fn decode_bytes(
     };
 
     Ok((text, DetectedTextEncoding::new(encoding, has_bom)))
+}
+
+pub(crate) fn decode_bomless_utf8<'a>(
+    input: &'a [u8],
+    limits: DecodeLimits,
+    format: &'static str,
+) -> Result<&'a str, CodecError> {
+    limits.check_input_bytes(input.len())?;
+    if input.starts_with(&[0xEF, 0xBB, 0xBF])
+        || input.starts_with(&[0xFF, 0xFE])
+        || input.starts_with(&[0xFE, 0xFF])
+    {
+        return Err(CodecError::new(CodecErrorKind::UnsupportedFormat {
+            format,
+            variant: "byte-order mark is not supported".to_owned(),
+        })
+        .at_byte_offset(0));
+    }
+
+    std::str::from_utf8(input)
+        .map_err(|error| invalid_encoding(TextEncoding::Utf8, error.valid_up_to()))
 }
 
 fn select_encoding(input: &[u8]) -> (TextEncoding, bool, usize) {
@@ -46,9 +69,14 @@ fn select_encoding(input: &[u8]) -> (TextEncoding, bool, usize) {
 }
 
 fn decode_utf8(input: &[u8], prefix_len: usize) -> Result<String, CodecError> {
-    std::str::from_utf8(input)
-        .map(str::to_owned)
-        .map_err(|error| invalid_encoding(TextEncoding::Utf8, prefix_len + error.valid_up_to()))
+    let text = std::str::from_utf8(input)
+        .map_err(|error| invalid_encoding(TextEncoding::Utf8, prefix_len + error.valid_up_to()))?;
+    let mut output = String::new();
+    output
+        .try_reserve_exact(text.len())
+        .map_err(|_| overflow("UTF-8 text decode allocation"))?;
+    output.push_str(text);
+    Ok(output)
 }
 
 fn decode_legacy(

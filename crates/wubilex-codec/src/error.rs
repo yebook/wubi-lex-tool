@@ -34,6 +34,14 @@ pub enum InvalidInputReason {
         /// Rejected Unicode scalar value.
         character: char,
     },
+    /// A token contained Unicode whitespace and would be ambiguous on output.
+    #[error("whitespace character {character:?} at character index {index} is not allowed")]
+    ContainsWhitespace {
+        /// Zero-based character index of the rejected value.
+        index: usize,
+        /// Rejected Unicode whitespace scalar value.
+        character: char,
+    },
     /// A value exceeded its format-specific maximum length.
     #[error("length {actual} exceeds maximum {max}")]
     TooLong {

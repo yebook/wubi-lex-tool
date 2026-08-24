@@ -3,11 +3,10 @@ use std::num::NonZeroUsize;
 use crate::{
     CodecError, CodecErrorKind, DecodeLimits, DetectedTextEncoding, FieldValue, LexCode,
     LexiconDocument, LexiconEntry, SourceLocation, Weight, escape::unescape_whitespace,
+    text::encoding::decode_bytes,
 };
 
-use super::{
-    DecodedLexiconText, LexiconTextWarning, LexiconTextWarningKind, encoding::decode_bytes,
-};
+use super::{DecodedLexiconText, LexiconTextWarning, LexiconTextWarningKind};
 
 const MAX_WARNING_PREVIEW_CHARS: usize = 160;
 const DESCENDING_WEIGHT_BASELINE: u16 = 5_000;

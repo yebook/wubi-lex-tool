@@ -1,8 +1,10 @@
 //! Community lexicon text decoding and canonical formatting.
 
+pub(crate) mod auxiliary;
 mod decode;
 mod encode;
-mod encoding;
+pub(crate) mod encoding;
+pub mod phrase;
 
 use crate::{DetectedTextEncoding, LexiconDocument, SourceLocation};
 
