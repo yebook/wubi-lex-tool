@@ -25,7 +25,7 @@ The approved CI sequence also checks generated IPC bindings and documentation co
 |---|---|
 | `wubilex-codec` | Unit and property tests for round trips, dialects, version detection, boundaries, resource limits, and malformed input; measured coverage >= 90% |
 | Codec fixtures | At least one reproducibly fetched real lexicon for each of 86, 98, 06, 091, 092, Zhengma, Xiaohe, and Biaoxingma |
-| S0 regressions | Failure-to-pass tests for uppercase `XFXY`, asymmetric whitespace escaping, and the removed `codeWeight[0]` dead branch |
+| S0 regressions | Failure-to-pass tests for lowercase `xfxy`, asymmetric whitespace escaping, and the removed `codeWeight[0]` dead branch |
 | `wubilex-core` | Input/output assertions for every implemented transform, slimming, weighting, and word-generation operation |
 | `wubilex-winime` | Operation-sequence tests through recording dry-run behavior; real execution only in an isolated Windows CI environment |
 | `wubilex-resource` | Mocked HTTP and hostile archive tests, including path traversal |
@@ -41,10 +41,78 @@ The approved CI sequence also checks generated IPC bindings and documentation co
 - `crates/wubilex-codec/tests/phrase_text.rs` fixes strict shared encoding, P1-P6 priority, multiline state, comments, arrays, time aliases, bounded visible warnings, candidate and output limits, CRLF canonical formatting, UTF-16 compression boundaries, and malformed-input locations.
 - `crates/wubilex-codec/tests/auxiliary_text.rs` fixes BOM-less UTF-8, exact two-column parsing, ordered duplicates, weight bounds, PUA and non-BMP preservation, LF canonical formatting, resource ceilings, and malformed-input locations for word-frequency and split-table documents.
 - `crates/wubilex-codec/tests/scheme_detection.rs` fixes the five ordered direct branches, four scored branches, strict-winner fallback, duplicate and weight independence, and the lowercase `xfxy` defect regression.
+- `crates/wubilex-codec/tests/real_fixtures.rs` uses the committed manifest to require all eight downloaded samples, verify decoded size and SHA-256, strictly decode, assert the expected scheme, and byte-reencode each document. Missing files fail with an actionable `cargo xtask fixtures` command; they are never skipped.
+- `crates/wubilex-codec/tests/properties.rs` fixes bounded canonical `.lex` and EUDP round trips, duplicate preservation, all six ASCII whitespace escapes, canonical weighted-text reformatting, and no-panic behavior for bounded arbitrary or mutated bytes. Text-format strategies exclude unsupported Unicode whitespace and ambiguous literal percent sequences rather than assuming every model value is representable by every text grammar.
+- `crates/wubilex-codec/tests/cross_codec.rs` fixes deterministic real-document projections into all seven lexicon text formats, phrase text/EUDP semantic round trips, and the named `codeWeight[0]` regression. Real and cross-codec tests share `tests/support/mod.rs` as the only test-side manifest contract.
 - The crate's direct dependencies are exact-pinned. `thiserror = 2.0.20` owns errors; `chardetng = 1.0.0` and `encoding_rs = 0.8.35` own deterministic text detection and strict decoding without enabling Rayon. Platform, async, serialization, and network dependencies remain forbidden.
 - Root-level user samples are not fixtures. Tests must use committed synthetic data or reproducibly fetched files under `crates/wubilex-codec/tests/fixtures/`; they must never depend on a machine-local `resource/` directory.
 
 The remaining three known defect regressions belong to S4: EUDP drag-and-drop dispatch, duplicate Zhengma word generation, and the non-incrementing `unique()` loop.
+
+## Scenario: Reproducible Real Codec Fixtures
+
+### 1. Scope / Trigger
+
+Apply this contract when adding or changing real codec regression data, the `cargo xtask fixtures` command, fixture cache behavior, or codec coverage measurement. This is repository test infrastructure only. Product download, archive, cache, and redistribution behavior remains owned by `wubilex-resource` and later product tasks.
+
+### 2. Signatures
+
+```text
+cargo xtask fixtures
+cargo xtask fixtures --check
+```
+
+The first command verifies and reuses valid cache entries or downloads and repairs invalid entries. The second command is strictly offline and reports every missing or invalid entry without repair.
+
+### 3. Contracts
+
+- `crates/wubilex-codec/tests/fixtures/manifest.json` is the single committed source of fixture entries. Each entry includes a unique `id` and `scheme`, an HTTPS `url`, portable archive/decoded file names, exact compressed and decoded byte sizes, lowercase 64-character SHA-256 values, source attribution, and a license note.
+- The manifest contains exactly 86, 98, 06, 091, 092, Zhengma, Xiaohe, and Biaoxingma. Tests locate files through the shared manifest loader instead of hard-coded paths or a second scheme list.
+- Downloads accept at most five redirects, require both the initial and final URL to be HTTPS, cap compressed input at 16 MiB, and decode LZMA-alone output through a 64 MiB bounded writer.
+- Size and SHA-256 are verified for compressed and decoded content. Strict `.lex` decode and expected magic are required before either final path is installed.
+- Temporary files use `create_new` in the destination directory. A cleanup guard takes ownership only after creation succeeds, so a collision cannot delete another run's partial file. Both temporary payloads must validate before final replacement; cache validity always requires both final files.
+- Standard proxy environment variables may be honored by the HTTP client. Repository code and committed configuration must not contain proxy hosts, credentials, or machine-specific paths.
+- Downloaded payloads and partial files are ignored. Root `resource/` is user data and is never a manifest source, fallback cache, or integrity oracle.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| Manifest schema, scheme set, uniqueness, path, URL, size, or digest is invalid | Fail before cache or network work with entry-specific context |
+| `--check` sees a missing, mismatched, corrupt, or partial cache | Fail offline and print the actionable `cargo xtask fixtures` preparation command |
+| Initial/final URL is not HTTPS or redirect count exceeds five | Reject the response and leave no newly owned partial file |
+| Compressed body exceeds 16 MiB or declared size/digest differs | Abort, remove only the partial created by this run, and preserve prior final files |
+| LZMA output exceeds 64 MiB or decoded size/digest/magic/strict decode fails | Abort before final placement and remove newly owned temporary files |
+| One final replacement is interrupted | The next cache verification rejects the pair unless both final files pass complete validation |
+| A real fixture is absent during tests | Hard failure with `cargo xtask fixtures`; never ignore or return early success |
+| Codec line coverage is below 90% | The workspace-local `cargo-llvm-cov` command exits nonzero via `--fail-under-lines 90` |
+
+### 5. Good / Base / Bad Cases
+
+- Good: an empty cache is populated from the eight pinned HTTPS URLs, every size/digest and strict decode passes, and a second run reuses all files without network access.
+- Base: `cargo xtask fixtures --check` on a complete valid cache performs no download and succeeds; a valid `create_new` collision remains untouched.
+- Bad: a stale partial, one corrupt half of a pair, upstream drift, oversized expansion, or missing real file produces a visible failure and cannot be consumed by codec tests.
+
+### 6. Tests Required
+
+- Unit-test manifest rejection, compressed and decoded bounds, valid cache, corrupt cache, stale partial files, and `create_new` collision ownership.
+- Run one fresh fetch from an empty cache after hashes are pinned, then run the warm default command and offline `--check` against all eight entries.
+- For every real `.lex`, assert exact decoded size/digest, nonempty strict decode, expected scheme, and byte-identical re-encode.
+- Keep bounded property tests for `.lex`, EUDP, six whitespace escapes, representable text models, and arbitrary/mutated invalid bytes. Convert any stable counterexample into a named regression.
+- Measure all `wubilex-codec` tests with an exact workspace-local `cargo-llvm-cov` executable and `--fail-under-lines 90`. Coverage additions must assert behavior and must not exclude business source merely to pass the threshold.
+
+### 7. Wrong vs Correct
+
+```rust
+// Wrong: silently skips a developer-only file and lets CI pass without evidence.
+if !Path::new("../../resource/sample.lex").exists() {
+    return;
+}
+
+// Correct: resolve the pinned manifest entry and fail with its preparation step.
+let fixture = manifest.fixture("wubi86")?;
+let bytes = read_required_fixture(fixture, "cargo xtask fixtures")?;
+```
 
 ## Scenario: Raw Microsoft Wubi `.lex` Codec
 
@@ -392,6 +460,7 @@ let frequencies = wubilex_codec::weight::decode(frequency_bytes, limits)?;
 - [`wubilex-codec` contract tests](../../../crates/wubilex-codec/tests/model_contracts.rs)
 
 The model, error, limit, raw `.lex`, raw EUDP, community lexicon text, phrase
-text, auxiliary text, and synthetic eight-scheme tests are established
-examples. Reproducible real fixtures and measured coverage remain obligations
-for later S0 tasks.
+text, auxiliary text, synthetic eight-scheme, reproducible real-fixture, and
+measured-coverage tests are established examples. Independent aardio golden
+comparison and CI installation/caching of the coverage tool remain later S0
+obligations.

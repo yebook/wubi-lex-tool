@@ -59,6 +59,8 @@ Phrase text follows the same strict byte and visible-warning contract through `p
 
 The word-frequency and split-table decoders accept only BOM-less strict UTF-8 and exactly two nonempty Unicode-whitespace-delimited tokens per retained line. Unsupported BOMs report byte zero, malformed UTF-8 reports the original byte offset, and line structure or value failures report the original one-based line and Unicode-scalar column. Public auxiliary value objects use `ContainsWhitespace` to prevent construction of text that their canonical formatters could not read back unambiguously.
 
+Repository fixture automation preserves the failing stage and entry in its command error chain: manifest loading/validation, cache verification, download, compressed integrity, LZMA decode, decoded integrity, strict `.lex` validation, and final placement remain distinguishable. `cargo xtask fixtures --check` never repairs or performs network work; it reports the invalid entry and the `cargo xtask fixtures` recovery command. Download cleanup is ownership-based: create the partial file successfully before arming its guard, and disarm only after validated placement. A failed `create_new` call must never authorize deletion of an existing or concurrently owned path.
+
 ## Common Mistakes To Reject
 
 - Returning `null`, an empty collection, or a Boolean after an operation failed.
@@ -66,6 +68,8 @@ The word-frequency and split-table decoders accept only BOM-less strict UTF-8 an
 - Logging an error and then returning success.
 - Constructing a different ad hoc error payload in each command.
 - Letting library crates depend on Tauri only to create `AppError`.
+- Arming a temporary-file cleanup guard before `create_new` succeeds, which can delete a partial file owned by another run.
+- Returning success or silently skipping when an ignored real fixture is missing; report the fixture id and preparation command instead.
 
 ## Sources
 
@@ -78,5 +82,6 @@ The word-frequency and split-table decoders accept only BOM-less strict UTF-8 an
 - [`wubilex-codec` community text decoder](../../../crates/wubilex-codec/src/text/decode.rs)
 - [`wubilex-codec` phrase text decoder](../../../crates/wubilex-codec/src/text/phrase/decode.rs)
 - [`wubilex-codec` auxiliary text parser](../../../crates/wubilex-codec/src/text/auxiliary.rs)
+- [`xtask` fixture failure stages and cleanup guards](../../../xtask/src/fixtures.rs)
 
 The codec enum is established. Add the `AppError` conversion example when the command boundary is implemented rather than inventing it in advance.
