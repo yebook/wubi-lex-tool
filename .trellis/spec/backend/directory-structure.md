@@ -6,7 +6,7 @@
 
 ## Current Status
 
-The workspace, `wubilex-codec` shared contracts, the raw Microsoft Wubi `.lex` and EUDP codecs, and the community lexicon text codec compile. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
+The workspace, `wubilex-codec` shared contracts, the raw Microsoft Wubi `.lex` and EUDP codecs, community lexicon and phrase text codecs, auxiliary table codecs, and content-based scheme detector compile. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
 
 ## Workspace Membership
 
@@ -41,6 +41,8 @@ The root `Cargo.toml` is a virtual workspace. Its members are exactly:
 - Raw `.lex` byte decoding and canonical encoding live in `crates/wubilex-codec/src/lex/`. That module is synchronous and memory-to-memory; filesystem access and `.lex.lzma` or `.lex.zst` handling remain in `wubilex-resource`.
 - Raw EUDP byte decoding and canonical encoding live in `crates/wubilex-codec/src/eudp/`. The caller supplies the wire timestamp explicitly. System clock access, v1/v2 path selection and dual writes, Windows version checks, TSF coordination, backup, and rollback remain outside the codec.
 - Community lexicon text detection, strict byte decoding, dialect parsing, warnings, and canonical formatting live in `crates/wubilex-codec/src/text/`; the six-character whitespace escape contract lives in `src/escape/` so phrase text can reuse it. Both modules are synchronous and memory-to-memory. Paths, filesystem writes, containers, scheme detection, indexes, and UI diagnostics remain outside them.
+- Phrase text parsing and formatting live in `crates/wubilex-codec/src/text/phrase/` and are exposed through the crate-root `phrase_text` facade. Shared strict byte decoding remains in `src/text/encoding.rs`, while shared two-column parsing for auxiliary formats remains crate-private in `src/text/auxiliary.rs`.
+- BOM-less UTF-8 word-frequency and split-table codecs live in `src/weight/` and `src/split_table/`; their ordered value objects live in `src/model/`. Content-only scheme detection lives in `src/detect/` and may inspect a `LexiconDocument`, but it must not build a domain index or perform filesystem work.
 - Domain operations stay under the matching `crates/wubilex-core/src/` area. Cross-layer exits owned by core are declared in `crates/wubilex-core/src/ports/`.
 - Direct Win32 or COM work stays in `crates/wubilex-winime/`. System side effects are centralized behind `src/sysops/`; service, scheduler, and ACL implementations use their existing dedicated directories.
 - Resource HTTP abstraction belongs in `crates/wubilex-resource/src/http/`; catalog, download, archive, cache, and verification code stays in its named module.
@@ -57,5 +59,8 @@ Rust module and directory names follow the scaffolded `snake_case` form, includi
 - [`wubilex-codec` `.lex` format module](../../../crates/wubilex-codec/src/lex/mod.rs)
 - [`wubilex-codec` EUDP format module](../../../crates/wubilex-codec/src/eudp/mod.rs)
 - [`wubilex-codec` community text module](../../../crates/wubilex-codec/src/text/mod.rs)
+- [`wubilex-codec` phrase text module](../../../crates/wubilex-codec/src/text/phrase/mod.rs)
+- [`wubilex-codec` auxiliary text codecs](../../../crates/wubilex-codec/src/weight/mod.rs)
+- [`wubilex-codec` scheme detector](../../../crates/wubilex-codec/src/detect/mod.rs)
 
-The codec contract and raw `.lex`, EUDP, and community text layouts are established implementation evidence. Add examples for the remaining crates only after those crates contain real behavior.
+The codec contract and raw `.lex`, EUDP, community text, phrase text, auxiliary table, and scheme-detection layouts are established implementation evidence. Add examples for the remaining crates only after those crates contain real behavior.

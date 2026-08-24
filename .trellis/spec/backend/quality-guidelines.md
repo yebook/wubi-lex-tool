@@ -38,6 +38,9 @@ The approved CI sequence also checks generated IPC bindings and documentation co
 - `crates/wubilex-codec/tests/lex_binary.rs` uses hand-authored wire bytes to fix the `.lex` header, alpha-index, record, UTF-16, stable-order, implicit-weight, truncation, and resource-limit contracts independently of the production encoder. Its record-section truncation cases keep `fileSize` coherent so they exercise record bounds rather than stopping at header validation.
 - `crates/wubilex-codec/tests/eudp_binary.rs` uses hand-authored wire bytes to fix the EUDP header, relative offset table, record, tombstone, candidate, strict UTF-16/NUL, stable-order, timestamp, truncation, and resource-limit contracts independently of the production encoder.
 - `crates/wubilex-codec/tests/text_decode.rs`, `text_format.rs`, and `text_public_contracts.rs` fix strict encoding offsets, preprocessing, six dialects, Microsoft/Jidian branches, bounded visible warnings, stream-checked expansion limits, seven canonical outputs, UTF-16LE bytes, and the `%0B` / `%0C` escape regression.
+- `crates/wubilex-codec/tests/phrase_text.rs` fixes strict shared encoding, P1-P6 priority, multiline state, comments, arrays, time aliases, bounded visible warnings, candidate and output limits, CRLF canonical formatting, UTF-16 compression boundaries, and malformed-input locations.
+- `crates/wubilex-codec/tests/auxiliary_text.rs` fixes BOM-less UTF-8, exact two-column parsing, ordered duplicates, weight bounds, PUA and non-BMP preservation, LF canonical formatting, resource ceilings, and malformed-input locations for word-frequency and split-table documents.
+- `crates/wubilex-codec/tests/scheme_detection.rs` fixes the five ordered direct branches, four scored branches, strict-winner fallback, duplicate and weight independence, and the lowercase `xfxy` defect regression.
 - The crate's direct dependencies are exact-pinned. `thiserror = 2.0.20` owns errors; `chardetng = 1.0.0` and `encoding_rs = 0.8.35` own deterministic text detection and strict decoding without enabling Rayon. Platform, async, serialization, and network dependencies remain forbidden.
 - Root-level user samples are not fixtures. Tests must use committed synthetic data or reproducibly fetched files under `crates/wubilex-codec/tests/fixtures/`; they must never depend on a machine-local `resource/` directory.
 
@@ -250,6 +253,127 @@ for warning in decoded.warnings() {
 }
 ```
 
+## Scenario: Phrase, Auxiliary Text, And Scheme Detection
+
+### 1. Scope / Trigger
+
+Apply this contract when community phrase text is decoded or formatted, when
+word-frequency or split-table text is decoded or formatted, or when a
+`LexiconDocument` is inspected to select one of the eight supported schemes.
+All operations are synchronous and memory-to-memory; paths, resource loading,
+domain indexes, and UI reporting remain outside `wubilex-codec`.
+
+### 2. Signatures
+
+```rust
+pub fn phrase_text::decode(
+    input: &[u8],
+    limits: DecodeLimits,
+) -> Result<DecodedPhraseText, CodecError>;
+
+pub fn phrase_text::format(
+    document: &PhraseDocument,
+) -> Result<String, CodecError>;
+
+pub fn weight::decode(
+    input: &[u8],
+    limits: DecodeLimits,
+) -> Result<WordFrequencyDocument, CodecError>;
+
+pub fn weight::format(
+    document: &WordFrequencyDocument,
+) -> Result<String, CodecError>;
+
+pub fn split_table::decode(
+    input: &[u8],
+    limits: DecodeLimits,
+) -> Result<SplitTableDocument, CodecError>;
+
+pub fn split_table::format(
+    document: &SplitTableDocument,
+) -> Result<String, CodecError>;
+
+pub fn detect::scheme(document: &LexiconDocument) -> LexScheme;
+```
+
+### 3. Contracts
+
+- Phrase decode reuses the strict BOM-first UTF-8, UTF-16LE/BE, and GBK
+  selector. It removes non-greedy cross-line `/* ... */` comments, then tries
+  P1 through P6 in order with recognized invalid fields failing in place.
+- P2/P3 empty text enters multiline state. Automatic candidates use the
+  current per-code maximum plus one. A candidate-less `$[...]` expands to
+  `1..=N` and updates that maximum to `max(old, N)`; every candidate remains
+  in `1..=255`.
+- Phrase warnings retain source order, at most 160 Unicode scalar values of
+  preview, and a truncation flag. Warnings and expanded entries share one
+  output ceiling, and a nonempty body with no entry is an error.
+- Phrase format stably orders by code and candidate, uses CRLF, and compresses
+  only groups with more than one entry, candidates exactly `1..=N`, and text
+  no longer than two UTF-16 code units. It uses the shared six-value ASCII
+  whitespace escape contract.
+- Word-frequency and split-table inputs are BOM-less strict UTF-8. Each
+  retained line has exactly two nonempty Unicode-whitespace-delimited tokens;
+  frequency weights are ASCII decimal `1..=65535`. Both document types retain
+  source order and duplicates and format with TAB plus LF.
+- Scheme detection ignores weights and duplicate observations. It checks the
+  five direct feature groups in documented order, then scores 86/98/06/091;
+  only a strict 98, 06, or 091 winner overrides the 86 fallback. The 06
+  feature code is lowercase `xfxy`.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| Phrase input bytes are malformed | `InvalidTextEncoding` at the original zero-based byte offset |
+| Phrase comment is unclosed | Structured text error at the opening delimiter |
+| A recognized phrase field, array, or candidate is invalid | Field-specific error at the original one-based line and Unicode-scalar column |
+| Phrase retained output exceeds its ceiling | `ResourceLimitExceeded` at the producing source line; no partial document |
+| Auxiliary input has a BOM or malformed UTF-8 | `UnsupportedFormat` at byte zero or `InvalidTextEncoding` at the malformed byte |
+| Auxiliary line has other than two tokens, or a weight is signed/out of range | Structured text error at the owning token |
+| Model or formatter count/capacity cannot be represented or allocated | `IntegerOverflow` without an invented input location |
+| Scheme features tie or do not produce a strict non-86 winner | `LexScheme::Wubi86` |
+
+### 5. Good / Base / Bad Cases
+
+- Good: all six phrase dialects, multiline text, arrays, time aliases, PUA
+  roots, non-BMP text, duplicate auxiliary entries, and every scheme branch
+  produce their documented typed values and canonical output.
+- Base: empty phrase and auxiliary inputs produce empty documents; empty or
+  tied lexicons detect as Wubi86.
+- Bad: an unclosed phrase comment, a 256th candidate, a signed frequency, an
+  auxiliary third column, or malformed encoded bytes returns a located error
+  and never a partial document.
+
+### 6. Tests Required
+
+- Test P1 through P6 independently and together, including parser priority,
+  multiline termination, comments, arrays, aliases, escapes, warning bounds,
+  resource ceilings, candidate overflow, and complete canonical strings.
+- Test auxiliary empty documents, ordered duplicates, exact weight endpoints,
+  PUA/non-BMP preservation, BOM and UTF-8 failures, exact two-column failures,
+  signed numbers, source positions, resource ceilings, and complete LF output.
+- Test all five direct scheme branches and all four scored branches, direct
+  priority, strict-winner ties, duplicate/weight independence, and lowercase
+  `xfxy` as a failure-to-pass regression.
+- Use synthetic bytes or reproducibly fetched fixtures only. Automated tests
+  must never inspect the root `resource/` directory.
+
+### 7. Wrong vs Correct
+
+```rust
+// Wrong: silently drops phrase lines and collapses duplicate auxiliary keys.
+let phrases = parse_known_phrase_lines_only(text);
+let frequencies: HashMap<_, _> = parse_frequency_lines(text).collect();
+
+// Correct: preserve strict source evidence, warnings, order, and duplicates.
+let decoded = wubilex_codec::phrase_text::decode(bytes, limits)?;
+for warning in decoded.warnings() {
+    report_warning(warning.location(), warning.preview());
+}
+let frequencies = wubilex_codec::weight::decode(frequency_bytes, limits)?;
+```
+
 ## Review Checklist
 
 - Does the change stay within its crate's dependency and responsibility boundary?
@@ -267,4 +391,7 @@ for warning in decoded.warnings() {
 - [`docs/22-roadmap.md` S0 and S4](../../../docs/22-roadmap.md)
 - [`wubilex-codec` contract tests](../../../crates/wubilex-codec/tests/model_contracts.rs)
 
-The model, error, limit, raw `.lex`, raw EUDP, and community lexicon text round-trip tests are established examples. Phrase-text end-to-end round trips, reproducible real fixtures, eight-scheme coverage, and measured coverage remain obligations for later S0 tasks.
+The model, error, limit, raw `.lex`, raw EUDP, community lexicon text, phrase
+text, auxiliary text, and synthetic eight-scheme tests are established
+examples. Reproducible real fixtures and measured coverage remain obligations
+for later S0 tasks.

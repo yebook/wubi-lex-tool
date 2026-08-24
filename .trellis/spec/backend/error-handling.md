@@ -55,6 +55,10 @@ The `.lex` and EUDP decoders demonstrate the binary-parser contract: signed head
 
 The community text decoder applies the same evidence split to text: malformed encoded bytes use `InvalidTextEncoding` at the original zero-based byte offset, while recognized invalid fields retain `InvalidInput` or `MalformedField` at the original one-based line and Unicode-scalar column. Unknown nonempty lines are compatibility diagnostics, not errors: `LexiconTextWarning` carries a structured kind, original location, bounded preview, and truncation flag. Warnings and entries share the expanded-output budget, and a nonempty body with no surviving entry remains an error rather than partial or empty success.
 
+Phrase text follows the same strict byte and visible-warning contract through `phrase_text::decode`. Recognized P1-P6 shapes own their field errors, multiline state preserves the originating record location, unterminated comments report the opening delimiter, and array or automatic-candidate overflow returns a structured failure without a partial document. `PhraseTextWarning` previews are bounded to 160 Unicode scalar values and share one output budget with expanded entries.
+
+The word-frequency and split-table decoders accept only BOM-less strict UTF-8 and exactly two nonempty Unicode-whitespace-delimited tokens per retained line. Unsupported BOMs report byte zero, malformed UTF-8 reports the original byte offset, and line structure or value failures report the original one-based line and Unicode-scalar column. Public auxiliary value objects use `ContainsWhitespace` to prevent construction of text that their canonical formatters could not read back unambiguously.
+
 ## Common Mistakes To Reject
 
 - Returning `null`, an empty collection, or a Boolean after an operation failed.
@@ -72,5 +76,7 @@ The community text decoder applies the same evidence split to text: malformed en
 - [`wubilex-codec` `.lex` decoder](../../../crates/wubilex-codec/src/lex/decode.rs)
 - [`wubilex-codec` EUDP decoder](../../../crates/wubilex-codec/src/eudp/decode.rs)
 - [`wubilex-codec` community text decoder](../../../crates/wubilex-codec/src/text/decode.rs)
+- [`wubilex-codec` phrase text decoder](../../../crates/wubilex-codec/src/text/phrase/decode.rs)
+- [`wubilex-codec` auxiliary text parser](../../../crates/wubilex-codec/src/text/auxiliary.rs)
 
 The codec enum is established. Add the `AppError` conversion example when the command boundary is implemented rather than inventing it in advance.
