@@ -1,0 +1,10 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Verify workflow YAML reads repository version sources and contains no Volta pnpm pin, corepack, npm/yarn/npx or duplicate toolchain versions."}
+{"file":".trellis/spec/guides/requirement-id-conventions.md","reason":"Verify check-docs catches wrong counts, duplicate definitions, dangling references, placeholders and anchor failures without broad exclusions."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify HTTP/coverage/audit automation stays in xtask/CI and binding generation stays at the application boundary."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Verify all eight fixtures, full workspace gates and measured codec coverage remain mandatory after cache and CI wiring."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Verify strict xtask signatures, binding/document checks, dependency policy, immutable action pins, cache behavior and complete fail-closed Windows gate order."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Review every xtask/CI failure path for actionable nonzero propagation and owned temporary-file cleanup."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Verify frozen global-pnpm installation, audit, typecheck, lint and tests are all enforced and not tolerated failures."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Verify generated bindings are Rust-owned, committed, LF-stable, non-mutating under --check and sourced from one runtime-generic registry."}
+{"file":".trellis/tasks/08-24-s0-xtask-ci/research/ci-contracts.md","reason":"Cross-check dependency/action pins, environment caveats, command order and deferred scope against researched evidence."}
+{"file":".trellis/tasks/archive/2026-08/08-24-s0-fixtures-regressions/research/fixture-regression-contracts.md","reason":"Verify CI uses the exact proven fixture and coverage commands and does not reintroduce resource fallback or silent skips."}

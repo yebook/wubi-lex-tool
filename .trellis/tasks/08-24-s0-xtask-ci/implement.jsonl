@@ -1,0 +1,10 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Implement CI version discovery and global pnpm setup without adding a second Node/pnpm/Rust version source or forbidden package-manager commands."}
+{"file":".trellis/spec/guides/requirement-id-conventions.md","reason":"Implement check-docs counts, definition/reference, placeholder and anchor behavior using the corrected ID grammar and verified script contracts."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep xtask repository automation, wubilex-app binding registry and product resource/runtime boundaries correctly separated."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Preserve the established fixture, 90% coverage, strict Rust gate and missing-data failure contracts while wiring CI."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Implement the established xtask signatures, binding/document validation, dependency policy, immutable action pins, cache behavior and fail-closed Windows workflow."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Ensure xtask stages and generator/document failures remain actionable and cannot become silent success."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Implement frozen global-pnpm install, audit, TypeScript, ESLint, Vitest and binding freshness gates without weakening frontend standards."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Establish the tauri-specta Rust registry, committed generated TypeScript and non-mutating freshness workflow."}
+{"file":".trellis/tasks/08-24-s0-xtask-ci/research/ci-contracts.md","reason":"Use the verified repository baseline, binding compatibility, audit behavior and CI decisions rather than re-researching or guessing."}
+{"file":".trellis/tasks/archive/2026-08/08-24-s0-fixtures-regressions/research/fixture-regression-contracts.md","reason":"Reuse exact fixture, coverage, tool-version and offline-cache evidence when moving the local gates into CI."}
