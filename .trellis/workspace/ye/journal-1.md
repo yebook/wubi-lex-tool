@@ -174,3 +174,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 8: S0 短语与辅助文本编解码
+
+**Date**: 2026-08-24
+**Task**: S0 短语与辅助文本编解码
+**Branch**: `main`
+
+### Summary
+
+实现短语文本 P1-P6、多行、数组、时间别名与可见警告，新增词频和拆字表严格编解码及八方案探测；完成独立 Trellis 检查、规范同步和全量门禁。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `dc173ea` | (see git log) |
+| `2db3138` | (see git log) |
+| `8f22d89` | (see git log) |
+
+### Status
+
+[OK] **Completed**
