@@ -4203,6 +4203,9 @@ version = "0.1.0"
 [[package]]
 name = "wubilex-winime"
 version = "0.1.0"
+dependencies = [
+ "windows",
+]
 
 [[package]]
 name = "xtask"

@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit --project tsconfig.json && tsc --noEmit --project tsconfig.node.json",
+    "typecheck": "tsc --noEmit --project tsconfig.json && tsc --noEmit --project tsconfig.node.json && tsc --noEmit --project spikes/virtual-scroll/tsconfig.json",
     "lint": "eslint . --max-warnings=0",
-    "test": "vitest --passWithNoTests"
+    "test": "vitest --passWithNoTests",
+    "spike:virtual-scroll": "node spikes/virtual-scroll/runner.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
@@ -16,8 +17,12 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@tailwindcss/vite": "4.3.3",
+    "@tanstack/react-virtual": "3.14.10",
     "@tauri-apps/cli": "2.11.4",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.3",
     "eslint": "10.8.1",
+    "playwright-core": "1.62.1",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "typescript-eslint": "8.67.0",

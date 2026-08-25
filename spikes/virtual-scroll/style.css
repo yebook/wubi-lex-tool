@@ -1,0 +1,66 @@
+:root {
+  color: #17212b;
+  background: #f4f6f8;
+  font-family: "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  width: min(1120px, calc(100vw - 48px));
+  margin: 24px auto;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  letter-spacing: 0;
+}
+
+.status {
+  margin-bottom: 12px;
+  color: #536273;
+  font-size: 14px;
+}
+
+.viewport {
+  overflow: auto;
+  border: 1px solid #aab4bf;
+  background: #fff;
+}
+
+.spacer {
+  position: relative;
+  width: 100%;
+}
+
+.row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  width: 100%;
+  padding: 0 16px;
+  border-bottom: 1px solid #e3e7eb;
+  font-size: 14px;
+}
+
+.row span {
+  color: #667585;
+  font-variant-numeric: tabular-nums;
+}
+
+.row strong {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
