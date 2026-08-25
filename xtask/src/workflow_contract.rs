@@ -2,7 +2,7 @@ use std::{collections::BTreeSet, fs, path::Path};
 
 use regex::Regex;
 
-const ACTION_PINS: [(&str, &str, &str); 5] = [
+const ACTION_PINS: [(&str, &str, &str); 4] = [
     (
         "actions/checkout",
         "11d5960a326750d5838078e36cf38b85af677262",
@@ -19,16 +19,17 @@ const ACTION_PINS: [(&str, &str, &str); 5] = [
         "v4.1.0",
     ),
     (
-        "pnpm/action-setup",
-        "a7487c7e89a18df4991f7f222e4898a00d66ddda",
-        "v4.1.0",
-    ),
-    (
         "taiki-e/install-action",
         "6cd13508893c0e7eab5f273c2575d3859bd7229a",
         "v2.86.6",
     ),
 ];
+
+fn contains_forbidden_package_manager_token(command: &str) -> bool {
+    Regex::new(r"(?i)(?:^|[^a-z0-9_-])(?:npm|yarn|npx|corepack)(?:$|[^a-z0-9_-])")
+        .expect("forbidden package manager regex must compile")
+        .is_match(command)
+}
 
 #[test]
 fn windows_quality_workflow_has_the_complete_fail_closed_contract() {
@@ -37,6 +38,52 @@ fn windows_quality_workflow_has_the_complete_fail_closed_contract() {
         .expect("xtask must have a repository parent");
     let workflow = fs::read_to_string(root.join(".github/workflows/ci.yml"))
         .expect("the Windows quality workflow must exist");
+    let package_text = fs::read_to_string(root.join("package.json"))
+        .expect("the root package manifest must exist");
+    let package: serde_json::Value =
+        serde_json::from_str(&package_text).expect("package.json must be valid JSON");
+    let volta = package
+        .get("volta")
+        .and_then(serde_json::Value::as_object)
+        .expect("package.json.volta must be an object");
+
+    let volta_keys = volta.keys().map(String::as_str).collect::<BTreeSet<_>>();
+    assert_eq!(
+        volta_keys,
+        BTreeSet::from(["node", "pnpm"]),
+        "package.json.volta must contain only the Node and pnpm version sources"
+    );
+    for key in ["node", "pnpm"] {
+        let version = volta
+            .get(key)
+            .and_then(serde_json::Value::as_str)
+            .expect("Volta pins must be strings");
+        assert!(!version.trim().is_empty(), "volta.{key} must not be empty");
+    }
+    assert!(
+        package
+            .get("engines")
+            .and_then(|engines| engines.get("pnpm"))
+            .is_none(),
+        "package.json.engines.pnpm is forbidden"
+    );
+    assert!(
+        package.get("packageManager").is_none(),
+        "package.json.packageManager is forbidden"
+    );
+    for (name, command) in package
+        .get("scripts")
+        .and_then(serde_json::Value::as_object)
+        .expect("package.json.scripts must be an object")
+    {
+        let command = command
+            .as_str()
+            .expect("package.json script commands must be strings");
+        assert!(
+            !contains_forbidden_package_manager_token(command),
+            "package.json script {name} uses a forbidden package manager"
+        );
+    }
 
     for required in [
         "push:",
@@ -48,7 +95,9 @@ fn windows_quality_workflow_has_the_complete_fail_closed_contract() {
         "cancel-in-progress: true",
         "runs-on: windows-latest",
         "package.json",
-        "engines.pnpm",
+        "VOLTA_FEATURE_PNPM: \"1\"",
+        "$package.volta.pnpm",
+        "$package.engines.PSObject.Properties['pnpm']",
         "rust-toolchain.toml",
         "hashFiles('Cargo.lock')",
         "hashFiles('pnpm-lock.yaml')",
@@ -64,8 +113,8 @@ fn windows_quality_workflow_has_the_complete_fail_closed_contract() {
 
     for forbidden in [
         "continue-on-error",
+        "pnpm/action-setup",
         "corepack",
-        "volta.pnpm",
         "packageManager",
         "24.18.1",
         "11.18.0",
@@ -134,9 +183,7 @@ fn windows_quality_workflow_has_the_complete_fail_closed_contract() {
         previous = position;
     }
 
-    let forbidden_command = Regex::new(r"(?m)^\s+(?:npm|yarn|npx|corepack)(?:\s|$)")
-        .expect("forbidden command regex must compile");
-    assert!(!forbidden_command.is_match(&workflow));
+    assert!(!contains_forbidden_package_manager_token(&workflow));
     for bypass in [
         "--no-fail-fast",
         "--ignore-rust-version",
@@ -148,6 +195,29 @@ fn windows_quality_workflow_has_the_complete_fail_closed_contract() {
         assert!(
             !workflow.contains(bypass),
             "workflow bypass found: {bypass}"
+        );
+    }
+}
+
+#[test]
+fn forbidden_package_manager_detection_covers_wrapped_and_mixed_case_commands() {
+    for command in [
+        "npm run test",
+        "cmd /c \"NPM run test\"",
+        "powershell -Command corepack enable",
+        "tool && yarn lint",
+        "npx eslint .",
+    ] {
+        assert!(
+            contains_forbidden_package_manager_token(command),
+            "{command}"
+        );
+    }
+
+    for command in ["pnpm run test", "minimum", "npm-run-all"] {
+        assert!(
+            !contains_forbidden_package_manager_token(command),
+            "{command}"
         );
     }
 }

@@ -34,7 +34,7 @@ pub fn export_mock(path: impl AsRef<Path>) -> Result<(), specta_typescript::Erro
 - `cargo xtask bindings` exports through an ignored unique temporary file, normalizes to UTF-8 LF ending in a newline, and stages replacement of `src/types/generated/bindings.ts`. `--check` byte-compares canonical output without changing the committed target.
 - `cargo xtask check-docs` scans sorted `docs/**/*.md`, accepts definition IDs only in their owning module/NFR/UX documents, requires unique counts `414/101/115/630`, rejects dangling IDs and real `TBD` or `待补充` placeholders, and delegates anchors to `.trellis/scripts/check_anchors.py`.
 - `.github/workflows/ci.yml` runs on pull requests, `main` pushes, and manual dispatch on `windows-latest`, with `contents: read`, per-ref concurrency cancellation, a finite timeout, and no secrets or release steps. Every third-party action is pinned to a reviewed full commit SHA with its release tag in a comment.
-- Node, pnpm, and Rust versions come only from `package.json.volta.node`, `package.json.engines.pnpm`, and `rust-toolchain.toml`. CI exposes pnpm as the global command. Do not add `volta.pnpm`, corepack, `packageManager`, `.nvmrc`, npm, yarn, or npx.
+- Node, pnpm, and Rust versions come only from `package.json.volta.node`, `package.json.volta.pnpm`, and `rust-toolchain.toml`. CI sets `VOLTA_FEATURE_PNPM=1` and uses `volta-cli/action` as the only Node/pnpm setup path. Do not add `engines.pnpm`, corepack, `packageManager`, `.nvmrc`, npm, yarn, npx, or a separate pnpm setup action.
 - Cargo and pnpm caches are keyed by their lockfiles. The fixture cache is keyed by runner OS plus the fixture manifest digest. A cache hit never replaces preparation, offline verification, tests, coverage, audit, or freshness checks.
 - `deny.toml` runs cargo-deny 0.20.2 advisories, licenses, bans, and sources. Advisory ignores are exact reviewed IDs with reasons; licenses are limited to the current lockfile; broad crate skips, git sources, unknown registries, and wildcard workspace dependencies remain forbidden.
 
@@ -61,7 +61,7 @@ pub fn export_mock(path: impl AsRef<Path>) -> Result<(), specta_typescript::Erro
 - Parser tests accept exactly the five forms and reject invalid Unicode and every extra/unknown argument with full usage.
 - Binding tests prove repeat generation is byte-identical and LF-only; mutation causes `--check` to fail without repair.
 - Document tests cover valid trees, malformed/wrong-owner and duplicate definitions, count drift, dangling references, placeholders, anchor nonzero output, spawn failure, and the live `414/101/115/630` baseline.
-- Workflow contract tests parse the checked-in YAML and assert triggers, permissions, concurrency, exact action SHAs, version sources, cache keys, step order, and forbidden bypass/package-manager patterns. Run actionlint as an independent syntax check.
+- Workflow contract tests parse the checked-in YAML and root manifest, then assert triggers, permissions, concurrency, exact action SHAs, Volta Node/pnpm pins, the pnpm feature flag, cache keys, step order, and forbidden bypass/package-manager patterns. Run actionlint as an independent syntax check.
 - The final local gate mirrors CI: fmt, check, strict Clippy, fixtures, tests, Rustdoc, coverage, cargo-deny, bindings/docs, frozen pnpm install, audit, typecheck, lint, and Vitest.
 
 ### 7. Wrong vs Correct

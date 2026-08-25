@@ -6,7 +6,7 @@
 
 ## Required Gates
 
-Frontend changes use the global pnpm command only and must pass frozen installation, `pnpm audit --audit-level high`, the TypeScript compiler with no emit, ESLint with zero warnings, and Vitest. Node comes from `package.json.volta.node`; pnpm must match `package.json.engines.pnpm`. Do not introduce a Volta project-level pnpm pin, `VOLTA_FEATURE_PNPM`, npm, yarn, npx, corepack, `.nvmrc`, or a competing `packageManager` version source.
+Frontend changes use the direct `pnpm` command resolved by the project Volta pin and must pass frozen installation, `pnpm audit --audit-level high`, the TypeScript compiler with no emit, ESLint with zero warnings, and Vitest. Node and pnpm come only from `package.json.volta.node` and `package.json.volta.pnpm`; Volta 2.0.2 requires `VOLTA_FEATURE_PNPM=1` in the user environment and CI. Do not introduce `engines.pnpm`, npm, yarn, npx, corepack, `.nvmrc`, a competing `packageManager` version source, or a second pnpm setup path.
 
 When a change touches IPC, `cargo xtask bindings --check` is part of the frontend gate even if TypeScript compilation succeeds. `cargo xtask check-docs` also guards requirement references consumed by frontend work.
 
@@ -55,4 +55,4 @@ The checked-in Windows workflow reads versions from those repository fields, key
 - [Windows quality workflow](../../../.github/workflows/ci.yml)
 - [Frontend toolchain version sources](../../../package.json)
 
-The binding freshness and global-pnpm CI gates are established. Component and browser-flow examples remain pending until the frontend shell exists.
+The binding freshness and Volta-pinned pnpm CI gates are established. Component and browser-flow examples remain pending until the frontend shell exists.

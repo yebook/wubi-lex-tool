@@ -18,26 +18,15 @@ jobs:
   quality:
     runs-on: windows-latest
     timeout-minutes: 60
+    env:
+      VOLTA_FEATURE_PNPM: "1"
 
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - name: Install Volta and repository Node
+      - name: Install Volta and repository Node/pnpm
         uses: volta-cli/action@4047d4429228024f9852a9410f32b280e2c7f18f # v4.1.0
-
-      - name: Read repository pnpm version
-        id: versions
-        shell: pwsh
-        run: |
-          $package = Get-Content package.json -Raw | ConvertFrom-Json
-          "pnpm=$($package.engines.pnpm)" >> $env:GITHUB_OUTPUT
-
-      - name: Install repository pnpm
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-        with:
-          version: ${{ steps.versions.outputs.pnpm }}
-          run_install: false
 
       - name: Install pinned Cargo quality tools
         uses: taiki-e/install-action@6cd13508893c0e7eab5f273c2575d3859bd7229a # v2.86.6
@@ -78,13 +67,15 @@ jobs:
           $actualNode = (node --version).TrimStart('v')
           if ($actualNode -ne $package.volta.node) { throw "Node version mismatch: expected $($package.volta.node), got $actualNode" }
           $actualPnpm = (pnpm --version).Trim()
-          if ($actualPnpm -ne $package.engines.pnpm) { throw "pnpm version mismatch: expected $($package.engines.pnpm), got $actualPnpm" }
+          if ($actualPnpm -ne $package.volta.pnpm) { throw "pnpm version mismatch: expected $($package.volta.pnpm), got $actualPnpm" }
           $channelLine = Select-String -Path rust-toolchain.toml -Pattern '^channel = "([^"]+)"$'
           if ($channelLine.Matches.Count -ne 1) { throw 'rust-toolchain.toml must contain exactly one channel' }
           $expectedRust = $channelLine.Matches[0].Groups[1].Value
           if ((rustc --version) -notmatch "^rustc $([regex]::Escape($expectedRust)) ") { throw "Rust version mismatch: expected $expectedRust, got $(rustc --version)" }
+          if ($env:VOLTA_FEATURE_PNPM -ne '1') { throw 'VOLTA_FEATURE_PNPM must equal 1' }
+          if (-not $package.volta.PSObject.Properties['pnpm']) { throw 'volta.pnpm is required' }
+          if ($package.engines -and $package.engines.PSObject.Properties['pnpm']) { throw 'engines.pnpm is forbidden' }
           if ($package.PSObject.Properties['package' + 'Manager']) { throw 'competing package manager version source is forbidden' }
-          if ($package.volta.PSObject.Properties['pnpm']) { throw 'project-level pnpm pin is forbidden' }
           if (Test-Path .nvmrc) { throw '.nvmrc is a competing Node version source' }
           cargo llvm-cov --version | Select-String 'cargo-llvm-cov 0.9.0' | Out-Null
           cargo deny --version | Select-String 'cargo-deny 0.20.2' | Out-Null
