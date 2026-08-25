@@ -21,9 +21,13 @@
 | [State Management](./state-management.md) | Zustand store ownership and selector patterns | **Pending implementation evidence** |
 | [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Baseline with S0 binding evidence** |
 | [Type Safety](./type-safety.md) | Generated IPC contracts and frontend-owned type boundaries | **Baseline with S0 binding evidence** |
+| [Virtualization And Performance](./virtualization-performance.md) | Bounded large-list ownership and visible-browser benchmark contracts | **Baseline with S0 risk-spike evidence** |
 | [Tailwind v4 Token Convention](./tailwind-v4-tokens.md) | `@theme inline`, v3-to-v4 mapping, and named tokens | **Established** |
 
-The S0 binding and CI examples establish generated-type placement, freshness, and frontend toolchain gates. Keep `00-bootstrap-guidelines` active until real S1 code provides component, hook, state, consumer, and route examples.
+The S0 binding, CI, and virtual-scroll examples establish generated-type
+placement, freshness, frontend toolchain gates, and bounded-DOM performance
+measurement. Keep `00-bootstrap-guidelines` active until real S1 code provides
+component, hook, state, consumer, and route examples.
 
 ---
 

@@ -19,9 +19,14 @@
 | [Error Handling](./error-handling.md) | Library errors, command-boundary errors, and failure context | **Baseline with S0 implementation evidence** |
 | [Quality Guidelines](./quality-guidelines.md) | Rust gates, test obligations, repository commands, and CI contracts | **Baseline with S0 implementation evidence** |
 | [Repository Quality And CI](./repository-quality-ci.md) | xtask signatures, generated bindings, document checks, audits, caches, and Windows workflow | **Established** |
+| [Windows System Integration](./windows-system-integration.md) | Reversible TSF, ACL, Scheduler API, evidence, and restoration contracts | **Baseline with S0 risk-spike evidence** |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging fields, levels, and redaction | **Pending implementation evidence** |
 
-The three baseline guides now include compiled S0 examples from the codecs, test-only real-fixture automation, the Rust-owned IPC binding registry, document validation, dependency policy, and the Windows quality workflow. Keep `00-bootstrap-guidelines` active until the remaining product crates provide equivalent implementation evidence.
+The baseline guides now include compiled S0 examples from the codecs, test-only
+real-fixture automation, the Rust-owned IPC binding registry, document
+validation, dependency policy, the Windows quality workflow, and reversible
+Windows risk-spike evidence. Keep `00-bootstrap-guidelines` active until the
+remaining product crates provide equivalent implementation evidence.
 
 ---
 
