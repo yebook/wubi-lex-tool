@@ -26,7 +26,7 @@ The local visible benchmark has one supported command:
 pnpm run spike:virtual-scroll -- --output <result.json>
 ```
 
-Global pnpm 11 forwards the separator as a literal argument. The runner parser
+The project-pinned pnpm 11 forwards the separator as a literal argument. The runner parser
 therefore accepts exactly these equivalent vectors and rejects every other one:
 
 ```text
@@ -60,8 +60,9 @@ interface SpikeController {
   runtime error; declare an inline favicon rather than filtering the 404.
 - Write JSON only to the caller-selected output and close Edge and Vite in
   `finally`. The visible benchmark is a local manual gate, not a CI command.
-- Use the global `pnpm` executable. Do not add project-level Volta pnpm,
-  Corepack, npm, yarn, npx, or another package-manager version source.
+- Use the direct `pnpm` executable resolved from `package.json.volta.pnpm` with
+  `VOLTA_FEATURE_PNPM=1`. Do not add Corepack, npm, yarn, npx,
+  `engines.pnpm`, or another package-manager version source.
 
 ### 4. Validation & Error Matrix
 
@@ -115,6 +116,5 @@ errorCursor = runtimeErrors.length;
 ## Sources
 
 - [Virtual-scroll spike](../../../spikes/virtual-scroll/)
-- [`S0 risk-spike design`](../../tasks/08-24-s0-risk-spikes/design.md)
-- [`S0 virtual-scroll result`](../../tasks/08-24-s0-risk-spikes/research/results/virtual-scroll.md)
-
+- [`S0 risk-spike design`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/design.md)
+- [`S0 virtual-scroll result`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/research/results/virtual-scroll.md)

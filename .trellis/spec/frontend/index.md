@@ -6,9 +6,12 @@
 
 ## Status Model
 
-- **Baseline; examples pending** means the rule is fixed by approved architecture, requirements, or the scaffolded repository layout. Real source examples must be added after the frontend shell exists.
+- **Baseline; examples pending** means the rule is fixed by approved architecture, requirements, or the scaffolded repository layout. Real source examples must be added only after the relevant frontend surface exists.
 - **Baseline with S0 binding evidence** means the boundary is implemented and verified by the Rust registry, generated TypeScript baseline, and repository gates, while real frontend consumers are still pending.
-- **Pending implementation evidence** means no actual project convention has been established. Do not turn generic template advice into a project rule.
+- **Pending implementation evidence** means no actual project convention has
+  been established. The guide must still record approved boundaries,
+  unselected decisions, forbidden assumptions and the event that will update
+  it; do not turn generic template advice into a project rule.
 - **Established** means the document already contains an approved, executable convention and examples grounded in the design system.
 
 ## Guidelines Index
@@ -26,8 +29,9 @@
 
 The S0 binding, CI, and virtual-scroll examples establish generated-type
 placement, freshness, frontend toolchain gates, and bounded-DOM performance
-measurement. Keep `00-bootstrap-guidelines` active until real S1 code provides
-component, hook, state, consumer, and route examples.
+measurement. Bootstrap completeness means every guide is non-placeholder and
+honest about its evidence state; component, Hook, state, consumer and route
+patterns remain pending until real S1 code and tests provide them.
 
 ---
 

@@ -130,6 +130,5 @@ delete_probe_file()?;
 ## Sources
 
 - [`wubilex-winime` risk-spike examples](../../../crates/wubilex-winime/examples/)
-- [`S0 risk-spike design`](../../tasks/08-24-s0-risk-spikes/design.md)
-- [`S0 risk-spike results`](../../tasks/08-24-s0-risk-spikes/research/results/summary.md)
-
+- [`S0 risk-spike design`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/design.md)
+- [`S0 risk-spike results`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/research/results/summary.md)

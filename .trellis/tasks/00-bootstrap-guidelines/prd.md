@@ -21,9 +21,17 @@ the rest conversationally.
 
 ## Status (update the checkboxes as you complete each item)
 
-- [ ] Fill backend guidelines
-- [ ] Fill frontend guidelines
-- [ ] Add code examples
+- [x] Fill backend guidelines
+- [x] Fill frontend guidelines
+- [x] Add code examples
+
+Completion evidence is recorded in
+`.trellis/tasks/08-25-s0-integration/research/integration-results.md`. Backend
+and frontend indexes classify every guide by evidence state. Established S0
+guides cite compiled codec code, real-fixture automation, generated bindings,
+repository checks, Windows probes and the virtual-scroll benchmark. Areas with
+no product implementation remain explicitly `Pending implementation evidence`
+and record boundaries and update triggers instead of hypothetical examples.
 
 ---
 

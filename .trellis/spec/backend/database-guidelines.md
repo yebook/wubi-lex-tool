@@ -1,51 +1,68 @@
 # Database Guidelines
 
-> Database patterns and conventions for this project.
+> Persistence boundaries before a database implementation exists.
 
 ---
 
-## Overview
+## Current Status
 
-<!--
-Document your project's database conventions here.
+**Pending implementation evidence.** The repository has no database crate,
+schema, query layer, migration, or database test. S0 established codec and
+repository infrastructure only. This document records the approved persistence
+boundary without selecting a database design for a later phase.
 
-Questions to answer:
-- What ORM/query library do you use?
-- How are migrations managed?
-- What are the naming conventions for tables/columns?
-- How do you handle transactions?
--->
+## Approved Boundary
 
-(To be filled by the team)
+- Application configuration is not a database concern. Architecture decision
+  D12 assigns it to strongly typed `serde` + TOML under
+  `src-tauri/src/config/`, with a schema version, corruption fallback, backup,
+  atomic replacement and migration support.
+- User lexicon data and disposable resource caches must remain physically
+  separate. A cache may be deleted without deleting user-owned data.
+- `wubilex-codec` remains synchronous and memory-to-memory. It must not acquire
+  database, ORM, filesystem, Tauri or asynchronous dependencies.
+- The frontend never reads a persistence schema. Data crosses the application
+  boundary through generated command/event contracts and frontend views
+  request only the page or viewport they need.
 
----
+These are placement and ownership constraints, not proof that SQL or another
+database is required.
 
-## Query Patterns
+## Decisions Not Yet Established
 
-<!-- How should queries be written? Batch operations? -->
+The project has not selected:
 
-(To be filled by the team)
+- whether any product data needs a database rather than files and in-memory
+  indexes;
+- a database engine, ORM, query library, connection model or pooling policy;
+- schema, table, column, index or foreign-key naming conventions;
+- transaction boundaries, batching rules or concurrency behavior;
+- a migration file format, migration runner, rollback policy or test fixture
+  strategy.
 
----
+## Forbidden Premature Assumptions
 
-## Migrations
+- Do not add a database dependency merely to fill this guideline or mirror a
+  generic Tauri template.
+- Do not treat scaffolded directories, config requirements or the legacy
+  application's file layout as evidence for a database convention.
+- Do not move the D12 TOML configuration contract into a database without an
+  explicit architecture review.
+- Do not expose persistence rows directly through Tauri commands or duplicate
+  a future schema in TypeScript.
+- Do not place persistence access in `wubilex-codec` or frontend code.
 
-<!-- How to create and run migrations -->
+## Update Trigger
 
-(To be filled by the team)
+Update this guide in the same reviewed task that first introduces database
+persistence. That task must select the owning crate and library, define schema
+and migration behavior, add executable tests for queries/transactions/failure
+recovery, and cite the resulting source paths here. Until then, no query,
+migration or naming example is a project convention.
 
----
+## Sources
 
-## Naming Conventions
-
-<!-- Table names, column names, index names -->
-
-(To be filled by the team)
-
----
-
-## Common Mistakes
-
-<!-- Database-related mistakes your team has made -->
-
-(To be filled by the team)
+- [`docs/02-architecture.md` D12 and workspace boundaries](../../../docs/02-architecture.md)
+- [`docs/modules/M7-app-shell.md` configuration requirements](../../../docs/modules/M7-app-shell.md)
+- [`docs/20-nonfunctional.md` data safety requirements](../../../docs/20-nonfunctional.md)
+- [Backend directory structure](./directory-structure.md)
