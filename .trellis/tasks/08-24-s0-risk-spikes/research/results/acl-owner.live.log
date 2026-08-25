@@ -1,0 +1,23 @@
+cargo.exe :     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+At line:2 char:1
++ & 'E:\env\rust\cargo\bin\cargo.exe' run -p wubilex-winime --example a ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Finished `d...get(s) in 0.15s:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+     Running `target\debug\examples\acl_owner_spike.exe --live`
+mode=Live
+target_policy=one create_new file below %TEMP%/wubilex-risk-spikes/acl-owner
+elevated=true
+planned_owner_round_trip=TrustedInstaller -> Administrators -> TrustedInstaller
+planned_cleanup=restore creation owner/DACL, restore token privileges, delete file
+temporary_path=\\?\C:\Users\yekm\AppData\Local\Temp\wubilex-risk-spikes\acl-owner\owner-round-trip-29112-1787622849668018400.tmp
+baseline_a=sddl:O:BAD:AI(A;ID;0x1301bf;;;S-1-5-21-3063896727-1282042539-1011446520-1004)(A;ID;0x1301bf;;;S-1-5-21-2300565193-1104271707-3642192443-1232128968)(A;ID;0x1301ff;;;S-1-5-21-2593343070-3589252556-4227892356-4115737916)(A;ID;FA;;;S-1-15-3-2968813833-811790644-2202111208-3784096404-1081847329-2708967783-1438471679)(A;ID;FA;;;S-1-5-21-3063896727-1282042539-1011446520-1001)(A;ID;FA;;;SY)(A;ID;FA;;;BA),dacl_present:true,control:0x8404
+trusted_installer_sid=S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464
+administrators_sid=S-1-5-32-544
+baseline_b=sddl:O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:AI(A;ID;0x1301bf;;;S-1-5-21-3063896727-1282042539-1011446520-1004)(A;ID;0x1301bf;;;S-1-5-21-2300565193-1104271707-3642192443-1232128968)(A;ID;0x1301ff;;;S-1-5-21-2593343070-3589252556-4227892356-4115737916)(A;ID;FA;;;S-1-15-3-2968813833-811790644-2202111208-3784096404-1081847329-2708967783-1438471679)(A;ID;FA;;;S-1-5-21-3063896727-1282042539-1011446520-1001)(A;ID;FA;;;SY)(A;ID;FA;;;BA),dacl_present:true,control:0x8404
+administrators=sddl:O:BAD:AI(A;ID;0x1301bf;;;S-1-5-21-3063896727-1282042539-1011446520-1004)(A;ID;0x1301bf;;;S-1-5-21-2300565193-1104271707-3642192443-1232128968)(A;ID;0x1301ff;;;S-1-5-21-2593343070-3589252556-4227892356-4115737916)(A;ID;FA;;;S-1-15-3-2968813833-811790644-2202111208-3784096404-1081847329-2708967783-1438471679)(A;ID;FA;;;S-1-5-21-3063896727-1282042539-1011446520-1001)(A;ID;FA;;;SY)(A;ID;FA;;;BA),dacl_present:true,control:0x8404
+restored_b=sddl:O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:AI(A;ID;0x1301bf;;;S-1-5-21-3063896727-1282042539-1011446520-1004)(A;ID;0x1301bf;;;S-1-5-21-2300565193-1104271707-3642192443-1232128968)(A;ID;0x1301ff;;;S-1-5-21-2593343070-3589252556-4227892356-4115737916)(A;ID;FA;;;S-1-15-3-2968813833-811790644-2202111208-3784096404-1081847329-2708967783-1438471679)(A;ID;FA;;;S-1-5-21-3063896727-1282042539-1011446520-1001)(A;ID;FA;;;SY)(A;ID;FA;;;BA),dacl_present:true,control:0x8404
+round_trip=verified TrustedInstaller -> Administrators -> TrustedInstaller
+restoration=baseline A verified; privileges restored; file deleted
+verdict=LIVE PASS

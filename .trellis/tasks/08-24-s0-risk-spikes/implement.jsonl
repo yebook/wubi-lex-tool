@@ -1,0 +1,8 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep all direct Win32 and COM spike code inside wubilex-winime while avoiding premature SystemOps product modules."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Preserve operation stage, HRESULT or Win32 code, readable detail, and fail visibly when restoration does not complete."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Apply no-unwrap production rules, Windows dry-run expectations, dependency boundaries, and full Rust quality gates."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Keep the benchmark isolated from the reserved production virtual-table component and prevent frontend ownership of a complete lexicon."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Use global pnpm, strict TypeScript, bounded large-data rendering, Vitest, audit, lint, and browser evidence correctly."}
+{"file":".trellis/tasks/08-24-s0-risk-spikes/research/environment-preflight.md","reason":"Use the observed non-elevated Windows, Wubi TIP, COM-handler task, ctfmon, and installed Edge baseline without hard-coding it into product configuration."}
+{"file":".trellis/tasks/08-24-s0-risk-spikes/research/windows-api-contracts.md","reason":"Follow the researched windows 0.61.3 interfaces, feature gates, allocation ownership, privilege, snapshot, and restoration contracts."}
+{"file":".trellis/tasks/08-24-s0-risk-spikes/research/virtual-scroll-contracts.md","reason":"Implement the fixed 300,000-row Edge protocol, three-run 55 fps threshold, bounded DOM assertion, and exact development dependencies."}

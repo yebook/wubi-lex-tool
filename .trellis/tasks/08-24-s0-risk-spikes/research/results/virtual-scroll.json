@@ -1,0 +1,107 @@
+{
+  "capturedAt": "2026-08-25T01:52:42.342Z",
+  "environment": {
+    "browser": "151.0.4129.101",
+    "node": "v24.18.1",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "visible": true
+  },
+  "command": "pnpm run spike:virtual-scroll -- --output F:\\workspace\\other\\wubi-lex-tool\\.trellis\\tasks\\08-24-s0-risk-spikes\\research\\results\\virtual-scroll.json",
+  "config": {
+    "count": 300000,
+    "rowHeight": 32,
+    "viewportHeight": 640,
+    "overscan": 12,
+    "maximumDomRows": 64,
+    "minimumFps": 55,
+    "warmupMs": 1000,
+    "sampleMs": 5000,
+    "runCount": 3
+  },
+  "runs": [
+    {
+      "run": 1,
+      "elapsedMs": 5008.2,
+      "frameCount": 599,
+      "fps": 119.60384968651412,
+      "p95FrameIntervalMs": 8.5,
+      "maximumFrameIntervalMs": 16.800000000000182,
+      "maximumDomRows": 45,
+      "minimumScrollOffset": 0,
+      "maximumScrollOffset": 9599361,
+      "finalScrollOffset": 768,
+      "visibleThroughout": true,
+      "blankRowObserved": false,
+      "memory": {
+        "jsHeapSizeLimit": 4395630592,
+        "totalJSHeapSize": 75155840,
+        "usedJSHeapSize": 23665624
+      },
+      "errors": []
+    },
+    {
+      "run": 2,
+      "elapsedMs": 5000,
+      "frameCount": 467,
+      "fps": 93.4,
+      "p95FrameIntervalMs": 16.80000000000109,
+      "maximumFrameIntervalMs": 25.30000000000109,
+      "maximumDomRows": 45,
+      "minimumScrollOffset": 0,
+      "maximumScrollOffset": 9599361,
+      "finalScrollOffset": 31870,
+      "visibleThroughout": true,
+      "blankRowObserved": false,
+      "memory": {
+        "jsHeapSizeLimit": 4395630592,
+        "totalJSHeapSize": 84369166,
+        "usedJSHeapSize": 31049898
+      },
+      "errors": []
+    },
+    {
+      "run": 3,
+      "elapsedMs": 5007.999999999998,
+      "frameCount": 551,
+      "fps": 110.02396166134189,
+      "p95FrameIntervalMs": 16.700000000000728,
+      "maximumFrameIntervalMs": 25.19999999999709,
+      "maximumDomRows": 45,
+      "minimumScrollOffset": 0,
+      "maximumScrollOffset": 9598977,
+      "finalScrollOffset": 768,
+      "visibleThroughout": true,
+      "blankRowObserved": false,
+      "memory": {
+        "jsHeapSizeLimit": 4395630592,
+        "totalJSHeapSize": 88811565,
+        "usedJSHeapSize": 40486069
+      },
+      "errors": []
+    }
+  ],
+  "verdicts": [
+    {
+      "run": 1,
+      "valid": true,
+      "passed": true,
+      "reasons": []
+    },
+    {
+      "run": 2,
+      "valid": true,
+      "passed": true,
+      "reasons": []
+    },
+    {
+      "run": 3,
+      "valid": true,
+      "passed": true,
+      "reasons": []
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,9 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify Win32 code remains in wubilex-winime examples and no product SystemOps or unrelated layer is implemented."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Check native failures and restoration failures preserve stage, code, readable evidence, and non-success status."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check no forbidden production patterns, default system mutation, dependency leakage, or missing Rust gates remain."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Verify the final command set mirrors repository CI, respects lockfiles and toolchain sources, and uses only global pnpm."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Check the harness remains outside production virtual-table ownership and does not create a product route or full data model."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check strict typing, deterministic tests, audit/lint gates, bounded data ownership, and explicit local Edge measurement."}
+{"file":".trellis/tasks/08-24-s0-risk-spikes/research/environment-preflight.md","reason":"Compare live evidence and final restoration with the real Wubi, task, process, elevation, and Edge baseline."}
+{"file":".trellis/tasks/08-24-s0-risk-spikes/research/windows-api-contracts.md","reason":"Audit COM lifetime, native allocation cleanup, privileges, polling, state snapshots, and exact restoration against researched contracts."}
+{"file":".trellis/tasks/08-24-s0-risk-spikes/research/virtual-scroll-contracts.md","reason":"Recalculate all three fps samples, DOM bounds, validity rules, and browser cleanup against the fixed benchmark protocol."}

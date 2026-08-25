@@ -1,0 +1,20 @@
+cargo.exe :     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+At line:2 char:1
++ & 'E:\env\rust\cargo\bin\cargo.exe' run -p wubilex-winime --example t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Finished `d...get(s) in 0.14s:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+     Running `target\debug\examples\tsf_profile_spike.exe --live`
+baseline.wubi=enabled:true,active:true,flags:0x00000003
+baseline.active=type:1,lang:0x0804,clsid:6A498709-E00B-4C45-A018-8F9E4081AE40,profile:82590C13-F4DD-44F4-BA1D-8667246FDF8E,category:34745C63-B2F0-4784-8B67-5E12C8701A31,hkl_substitute:HKL(0x0),caps:0x5003002E,hkl:HKL(0x0)
+mode=Live
+planned_scope=TF_IPPMF_FORSESSION only; ENABLED configuration is immutable
+planned_action=DeactivateThenRestore
+after_deactivate.wubi=enabled:true,active:false,flags:0x00000002
+after_deactivate.active=type:1,lang:0x0804,clsid:81D4E9C9-1D3B-41BC-9E6C-4B40BF79E35E,profile:FA550B04-5AD7-411F-A5AC-CA038EC515D7,category:34745C63-B2F0-4784-8B67-5E12C8701A31,hkl_substitute:HKL(0x0),caps:0x5003002E,hkl:HKL(0x0)
+transition=wubi-active -> inactive verified
+restored.wubi=enabled:true,active:true,flags:0x00000003
+restored.active=type:1,lang:0x0804,clsid:6A498709-E00B-4C45-A018-8F9E4081AE40,profile:82590C13-F4DD-44F4-BA1D-8667246FDF8E,category:34745C63-B2F0-4784-8B67-5E12C8701A31,hkl_substitute:HKL(0x0),caps:0x5003002E,hkl:HKL(0x0)
+restoration=verified
+verdict=LIVE PASS

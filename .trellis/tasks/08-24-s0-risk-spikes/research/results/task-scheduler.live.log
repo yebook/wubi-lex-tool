@@ -1,0 +1,20 @@
+cargo.exe :     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s
+At line:2 char:1
++ & 'E:\env\rust\cargo\bin\cargo.exe' run -p wubilex-winime --example t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    Finished `d...get(s) in 0.22s:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+     Running `target\debug\examples\task_scheduler_spike.exe --live`
+baseline=timestamp_ms:1787622886423,enabled:true,state:3,instances:[],ctfmon_pids:[5212]
+mode=Live
+planned_action=IRegisteredTask::Stop(0) -> observe -> Run(VT_EMPTY) -> restore
+process_policy=observe ctfmon.exe only; never open or terminate it
+operation=Stop(0) accepted
+after_stop=timestamp_ms:1787622886436,enabled:true,state:3,instances:[],ctfmon_pids:[5212]
+stop_observation=instances:0,ctfmon_pid_changed:false
+run_instance=guid:{BB6CC585-9DB0-4E68-A7FE-2ECB8764226A},state:unavailable: 没有此任务的实例在运行。 (0x8004130B),engine_pid:unavailable: 没有此任务的实例在运行。 (0x8004130B)
+after_run=timestamp_ms:1787622886552,enabled:true,state:3,instances:[],ctfmon_pids:[5212]
+restored=timestamp_ms:1787622886563,enabled:true,state:3,instances:[],ctfmon_pids:[5212]
+restoration=logical baseline verified
+verdict=LIVE PASS
