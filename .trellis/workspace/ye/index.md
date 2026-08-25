@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 11
+- **Total Sessions**: 12
 - **Last Active**: 2026-08-25
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~268 | Active |
+| `journal-1.md` | ~291 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 12 | 2026-08-25 | 完成 S0 集成验收 | `8a48e3b`, `7593e9b`, `94369c2` | `main` |
 | 11 | 2026-08-25 | 完成 S0 技术预研 | `a46395f`, `ca0ffd2`, `3c8f906` | `main` |
 | 10 | 2026-08-24 | S0 xtask 与 CI 门禁 | `25bcc6a`, `e781098`, `1b901e7` | `main` |
 | 9 | 2026-08-24 | 完成 S0 真实夹具与回归 | `7cc09c6`, `b9db57c`, `d5b7cf3` | `main` |

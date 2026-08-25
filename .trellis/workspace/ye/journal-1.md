@@ -266,3 +266,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 12: 完成 S0 集成验收
+
+**Date**: 2026-08-25
+**Task**: 完成 S0 集成验收
+**Branch**: `main`
+
+### Summary
+
+固定 Volta 项目级 pnpm，完成 S0 规范与集成验收；按用户决定跳过 aardio legacy golden 独立逐字节对照，保留 canonical、真实 fixture、编码转义和回归测试合同；全量门禁通过并依次归档 integration、bootstrap 与 S0 父任务。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `8a48e3b` | (see git log) |
+| `7593e9b` | (see git log) |
+| `94369c2` | (see git log) |
+
+### Status
+
+[OK] **Completed**
