@@ -13,7 +13,7 @@
 - [x] 4. 创建并完成 `s0-fixtures-regressions`；补真实样本、属性测试、损坏输入和阶段归属正确的缺陷回归。
 - [x] 5. 创建并完成 `s0-xtask-ci`；把本地已通过的检查固化到 CI。
 - [x] 6. 在步骤 1 后并行推进 `s0-risk-spikes`，结果作为 S1 入口门槛。
-- [ ] 7. 完成 `s0-integration`；全量验证与集成评审已通过，待按顺序提交并归档当前任务、bootstrap 与父任务。
+- [x] 7. 完成并归档 `s0-integration`；全量验证与集成评审已通过，bootstrap 也已归档，父任务进入最终归档。
 
 ## Global Review Gates
 
@@ -48,7 +48,6 @@ pnpm run typecheck
 pnpm run lint
 pnpm run test --run
 python ./.trellis/scripts/task.py validate .trellis/tasks/08-22-s0-foundation
-python ./.trellis/scripts/task.py validate .trellis/tasks/08-25-s0-integration
 git status --short
 ```
 
