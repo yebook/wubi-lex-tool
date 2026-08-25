@@ -1,0 +1,8 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Check that integration edits do not cross crate ownership or claim implementation evidence for scaffold-only product areas."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Run and review the full Rust, real-fixture, coverage, and regression gate on the final tree."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Check that package.json.volta.pnpm is the sole pnpm version source and CI, audit, bindings, docs, and local commands remain in parity."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Audit raw Windows evidence, restoration markers, and the no-live-rerun integration boundary."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check Volta-pinned pnpm resolution, forced frozen reinstall, security audit, typecheck, lint, tests, and frontend responsibility boundaries."}
+{"file":".trellis/spec/frontend/virtualization-performance.md","reason":"Audit updated pnpm command semantics plus Edge JSON validity, error-free three-run verdict, DOM/FPS thresholds, and local-only benchmark limitations."}
+{"file":".trellis/tasks/08-25-s0-integration/research/integration-baseline.md","reason":"Verify every closure claim against the initial archived-task and placeholder inventory."}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Check the single-source Volta node/pnpm policy and reject engines.pnpm, packageManager, Corepack, npm, yarn, and npx drift."}

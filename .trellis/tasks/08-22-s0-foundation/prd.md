@@ -7,9 +7,13 @@
 ## Background
 
 - `docs/22-roadmap.md` 将下一阶段定义为 S0：工程基础设施、编解码、真实回归集与技术预研。
-- 架构、目录和工具链已经在 `08-21-wubilex-architecture-design` 中定案；当前仓库只有目录骨架，没有可编译配置或源码。
-- 当前开发机实测 Volta `2.0.2`、Node `24.18.1`、全局 pnpm `11.18.0`、Rust/Cargo `1.97.1`，与 D17 基线一致。
+- 架构、目录和工具链已经在 `08-21-wubilex-architecture-design` 中定案；父任务启动时仓库只有目录骨架，没有可编译配置或源码。
+- 当前开发机实测 Volta `2.0.2`、项目 pin 的 Node `24.18.1` 与 pnpm `11.18.0`、Rust/Cargo `1.97.1`，与 D17 基线一致；Volta pnpm 解析要求 Windows 用户环境中的 `VOLTA_FEATURE_PNPM=1`。
 - `00-bootstrap-guidelines` 仍在进行中；S0 首批代码形成后才能补入真实代码示例并完成归档。
+- 2026-08-25 用户明确批准“跳过逐字节比对”：七种文本输出的 S0 出口
+  证据采用 canonical 完整字符串测试、真实码表确定性投影、严格编码、
+  空白转义与已知缺陷回归，不再要求 aardio/原项目 golden 独立对照；
+  `.lex` 与 EUDP 的字节级要求不受影响。
 
 ## In Scope
 
@@ -32,7 +36,7 @@
 
 | ID | Requirement |
 |---|---|
-| S0-R01 | 根 workspace 必须遵守 D10/D17：`src-tauri` 与 `xtask` 是 member，`wubilex-learn` 不是 member；Volta 只管理 Node，直接使用全局 pnpm，不使用 Volta 项目级 pnpm pin、corepack、npm、yarn 或 npx。 |
+| S0-R01 | 根 workspace 必须遵守 D10/D17：`src-tauri` 与 `xtask` 是 member，`wubilex-learn` 不是 member；Node/pnpm 分别由 `package.json.volta.node` 与 `package.json.volta.pnpm` 固定，开发机和 CI 启用 `VOLTA_FEATURE_PNPM=1`，不使用 `engines.pnpm`、`packageManager`、corepack、npm、yarn 或 npx。 |
 | S0-R02 | `wubilex-codec` 保持纯同步、无 Tauri/Win32/网络依赖；二进制解析不得用 `repr(C)`/transmute 映射外部字节。 |
 | S0-R03 | `.lex` 和 EUDP 编解码必须遵守 `docs/01-data-formats.md` 的字节布局、排序、UTF-16 和损坏输入契约。 |
 | S0-R04 | 文本解析必须覆盖码表 6 种方言 + 微软分支、7 种输出，以及短语 6 种方言、`$[...]`、多行与时间变量。 |
@@ -63,15 +67,15 @@
 ## Acceptance Criteria
 
 - [x] workspace 中 6 个成员和前端最小壳在固定工具链下通过构建与静态检查。
-- [ ] `.lex` 往返在 8 种真实方案上字节级一致。
-- [ ] 7 种码表文本输出与行为规格逐字节一致。
-- [ ] EUDP 往返覆盖 emoji 代理对、多行短语、`$[...]` 和损坏输入。
-- [ ] S0 所属的 codec 缺陷回归均经历失败到通过；S4 所属缺陷有明确阶段归属。
-- [ ] `wubilex-codec` 测试覆盖率不低于 90%。
-- [ ] CI 与本地验证命令使用同一版本来源并全部通过。
-- [ ] 四项技术预研均达到判定标准，或在进入 S1 前完成架构复评并更新设计。
-- [ ] 需求计数保持模块 414、NFR 101、UX 115、总计 630；内部锚点 0 失效。
-- [ ] 相关 Trellis 规范包含真实 S0 代码示例，`00-bootstrap-guidelines` 满足完成条件。
+- [x] `.lex` 往返在 8 种真实方案上字节级一致。
+- [x] 7 种码表文本输出的 canonical 完整字符串测试、真实码表确定性投影、严格编码、空白转义与已知缺陷回归均通过。
+- [x] EUDP 往返覆盖 emoji 代理对、多行短语、`$[...]` 和损坏输入。
+- [x] S0 所属的 codec 缺陷回归均经历失败到通过；S4 所属缺陷有明确阶段归属。
+- [x] `wubilex-codec` 测试覆盖率不低于 90%。
+- [x] CI 与本地验证命令使用同一版本来源并全部通过。
+- [x] 四项技术预研均达到判定标准，或在进入 S1 前完成架构复评并更新设计。
+- [x] 需求计数保持模块 414、NFR 101、UX 115、总计 630；内部锚点 0 失效。
+- [x] 相关 Trellis 规范包含真实 S0 代码示例，`00-bootstrap-guidelines` 满足完成条件。
 
 ## Risks And Deferred Items
 
@@ -79,3 +83,6 @@
 - pnpm 11 项目设置使用 `pnpm-workspace.yaml`；没有 authentication/registry 项目设置时不创建 `.npmrc`。
 - 真实 Windows 技术预研可能需要管理员权限和隔离环境；原型不得操作用户实际输入法数据文件。
 - 完整前端体验和业务 command 延后到 S1 及后续阶段。
+- 当前仓库与开发机均无可调用的 aardio 运行时或原项目七种文本输出
+  golden，且不宣称存在该证据。按 2026-08-25 用户明确批准的出口标准，
+  这不再阻止 S0 归档或 S1 入口。

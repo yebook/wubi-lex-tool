@@ -1,0 +1,8 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Verify workspace ownership, crate boundaries, real S0 examples, and explicitly deferred product-layer evidence."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Apply the complete Rust, fixture, coverage, no-machine-local-resource, and regression-test contracts."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Migrate CI and repository checks to package.json.volta.pnpm as the sole pnpm version source while preserving xtask, audit, bindings, and docs gates."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Verify the final Windows risk evidence and preserve reversible-operation boundaries without rerunning live probes."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Apply the Volta-pinned forced frozen reinstall, official audit fallback, TypeScript, ESLint, Vitest, and large-collection ownership rules."}
+{"file":".trellis/spec/frontend/virtualization-performance.md","reason":"Update pnpm command semantics while preserving the committed Edge result structure and threshold without rerunning the visible benchmark."}
+{"file":".trellis/tasks/08-25-s0-integration/research/integration-baseline.md","reason":"Start from the audited child-task, gate, bootstrap, and parent-state baseline for the final S0 closure."}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Make Volta node and pnpm project pins the sole JavaScript toolchain contract and keep packageManager, Corepack, npm, yarn, and npx forbidden."}

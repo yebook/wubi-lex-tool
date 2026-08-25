@@ -50,7 +50,7 @@ risk spikes run in parallel after workspace/toolchain and gate S1
 
 ## 5. Toolchain And CI
 
-Node 版本来自 `package.json.volta.node`，全局 pnpm 的期望版本来自 `package.json.engines.pnpm`，Rust 版本来自 `rust-toolchain.toml`。CI 不重复硬编码版本。日常命令只使用 `cargo`、全局 `pnpm` 与 `cargo xtask`；不用 Volta 的项目级 pnpm pin、corepack、npm、yarn 或 npx。
+Node 与 pnpm 版本分别来自 `package.json.volta.node` 和 `package.json.volta.pnpm`，Rust 版本来自 `rust-toolchain.toml`。Windows 用户环境与 CI 显式设置 `VOLTA_FEATURE_PNPM=1`，CI 由 `volta-cli/action` 同时准备两个项目 pin，不重复硬编码版本。日常命令只使用 `cargo`、直接的 `pnpm` 与 `cargo xtask`；不用 `engines.pnpm`、`packageManager`、corepack、npm、yarn 或 npx。
 
 CI 顺序遵守快速失败原则：格式 -> lint/type -> 单测 -> 覆盖率 -> 依赖审计 -> 生成物/文档一致性。Windows 专属集成测试与不需要真实系统状态的单元测试分离。
 

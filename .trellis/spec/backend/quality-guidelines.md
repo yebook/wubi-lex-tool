@@ -460,6 +460,6 @@ let frequencies = wubilex_codec::weight::decode(frequency_bytes, limits)?;
 - [`wubilex-codec` contract tests](../../../crates/wubilex-codec/tests/model_contracts.rs)
 - [Repository Quality And CI](./repository-quality-ci.md)
 
-The model, error, limit, codec, reproducible real-fixture, measured-coverage,
-binding, document, dependency-audit, and Windows CI contracts are established
-examples. Independent aardio golden comparison remains a later S0 obligation.
+On 2026-08-25, the user removed only the independent aardio golden comparison
+from S0. Canonical-string, fixture-projection, encoding/escape, regression, and
+every raw `.lex`/EUDP byte-level contract remain required. No golden is claimed.

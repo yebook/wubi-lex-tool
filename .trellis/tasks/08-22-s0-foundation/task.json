@@ -28,7 +28,8 @@
     "08-24-s0-phrase-aux",
     "08-24-s0-fixtures-regressions",
     "08-24-s0-xtask-ci",
-    "08-24-s0-risk-spikes"
+    "08-24-s0-risk-spikes",
+    "08-25-s0-integration"
   ],
   "parent": null,
   "relatedFiles": [],
