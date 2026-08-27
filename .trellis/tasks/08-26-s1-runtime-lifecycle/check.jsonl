@@ -1,0 +1,11 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Verify dependency installation, project pnpm pin and lockfile discipline."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Review complete primary/secondary launch flows and early-event recovery through snapshot state."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Reject misplaced Win32 calls, duplicate IPC registries and domain behavior in runtime adapters."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Audit structured failures, non-panic argument handling and marker ownership errors."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Check elevation boundaries and confirm forbidden companion integration is absent."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Check structured rolling output, retention, redaction and panic-hook behavior."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Run Rust boundary, malformed-input and generated-contract quality checks."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Verify bindings, documents, dependency policy and Windows workflow contracts remain intact."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check runtime IPC types are generated once and consumed without handwritten mirrors."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Run TypeScript, ESLint, Vitest and frontend responsibility checks."}
+{"file":".trellis/tasks/08-26-s1-runtime-lifecycle/research/runtime-baseline.md","reason":"Compare implementation against the inspected runtime and upstream dependency evidence."}

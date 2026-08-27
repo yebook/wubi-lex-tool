@@ -1,0 +1,28 @@
+{
+  "id": "s1-shell-ui",
+  "name": "s1-shell-ui",
+  "title": "S1 外壳与 UI 骨架",
+  "description": "交付第一个可运行、可点击、具备完整导航和横切外壳能力的 Windows 应用",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P0",
+  "creator": "ye",
+  "assignee": "ye",
+  "createdAt": "2026-08-25",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-26-s1-runtime-lifecycle"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

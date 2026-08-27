@@ -1,0 +1,13 @@
+{"file":".trellis/spec/guides/requirement-id-conventions.md","reason":"Audit that S1 acceptance evidence maps back to every claimed M7, UX and NFR contract."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Review complete native-to-frontend flows and reject duplicated payload or action contracts."}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Verify project pnpm pin, dependency installation and lockfile discipline remain compliant."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Review structured errors, rollback behavior and user-visible recovery paths."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Review privilege, hotkey, tray and window lifecycle safety and the S3 side-effect boundary."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Run Rust quality gates and require boundary-focused tests."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Check abnormal-session evidence, log usefulness and sensitive-data exclusions."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Review product components for ownership, accessibility, theme and composition consistency."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check selectors, bounded state and the single backend feature/configuration source."}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"Audit theme switching, token-only styling and Tailwind v4 correctness."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Verify generated IPC freshness and absence of duplicate wire contracts."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Run TypeScript, lint, component, route and frontend behavior gates."}
+{"file":".trellis/tasks/08-25-s1-shell-ui/research/planning-baseline.md","reason":"Check implementation against the reconciled IA, shortcut, crash-recovery and placeholder decisions."}

@@ -1,0 +1,14 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Required Node, project-level pnpm, Rust, lockfile and dependency-change contract."}
+{"file":".trellis/spec/guides/requirement-id-conventions.md","reason":"Preserve M7, UX and NFR traceability across S1 child tasks and tests."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"S1 spans Rust state, generated IPC, frontend stores, routes, native events and Windows behavior."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Place Tauri commands, state, config, events, tasks, keymap, features and recovery in approved owners."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Implement the shared structured AppError boundary and user-visible recovery information."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Constrain privilege, tray, hotkey, window and future recovery boundaries without leaking Win32 work into UI."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Establish startup, abnormal-session and operational logging without sensitive content."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Use the approved seven-domain route, providers, shared component, store, theme and icon layout."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Respect current component boundaries and update them only from reviewed S1 evidence."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Use selector-based Zustand state and keep TOML configuration and feature truth in Rust."}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"Implement theme tokens with the required CSS-first @theme inline mechanism."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Consume generated Rust-owned commands, events and payloads without handwritten wire types."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Apply frontend static, test and cross-layer responsibility gates."}
+{"file":".trellis/tasks/08-25-s1-shell-ui/research/planning-baseline.md","reason":"Carry the reconciled S1 scope, current scaffold evidence and deferred compatibility boundaries."}

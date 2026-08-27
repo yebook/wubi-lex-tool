@@ -1,0 +1,11 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Apply the project-level Volta Node/pnpm pins and Rust dependency/lockfile contract."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Trace launch requests, runtime snapshots and notices from OS argv through Rust IPC to React."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Place Tauri orchestration, recovery and direct Windows token work in their approved owners."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Preserve launch, native privilege, logging and session-marker failure context without production panics."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Respect native-operation ownership and the permanent companion-tool integration prohibition."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Implement the first product logging surface with rolling, redaction and no telemetry."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Reuse the canonical binding registry and preserve dependency, docs and Windows CI gates."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Keep the temporary React bootstrap inside approved frontend owners without inventing final route conventions."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Generate runtime snapshot and event contracts from the single Rust-owned registry."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Apply Volta-pinned frontend checks and typed IPC consumer tests."}
+{"file":".trellis/tasks/08-26-s1-runtime-lifecycle/research/runtime-baseline.md","reason":"Carry the inspected scaffold, upstream plugin/manifest evidence and resolved runtime boundaries."}
