@@ -289,3 +289,25 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 13: 完成 S1 运行时与生命周期
+
+**Date**: 2026-08-27
+**Task**: 完成 S1 运行时与生命周期
+**Branch**: `main`
+
+### Summary
+
+完成 Tauri/React 可启动运行时、单实例、管理员权限与参数处理、结构化日志、异常会话恢复、Windows smoke、CSP/capability 收紧及完整质量验收；清理 10.9 GiB target 构建产物。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `47c2fd2` | (see git log) |
+| `c0a1da5` | (see git log) |
+
+### Status
+
+[OK] **Completed**
