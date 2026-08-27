@@ -1,62 +1,86 @@
 # Logging Guidelines
 
-> Observability and redaction boundaries before product logging exists.
+> Structured application logging, retention, and redaction contracts.
 
 ---
 
 ## Current Status
 
-**Pending implementation evidence.** No production logging subscriber, file
-sink, rotation policy or application logging call exists in the current tree.
-The architecture names `tracing` and `tauri-plugin-log` as the starting stack,
-but their versions and integration remain subject to implementation-time
-review. They are not S0-established code conventions.
+**Established by the S1 runtime lifecycle.** `src-tauri` initializes one global
+`tracing-subscriber` registry with an application-target filter, a daily JSONL
+file sink, a bounded non-blocking worker, and a compact development stderr
+layer. Library crates still return typed errors and never install application
+logging policy.
 
-## Approved Boundary
+## Runtime Contract
 
-- Product logs must be structured, leveled and written to rolling local files.
-- The default retention requirement is seven days, with automatic cleanup.
-- Every TSF shutdown-window stage and its duration must be observable. Native
-  failures retain the operation stage, HRESULT or Win32 code and readable
-  technical detail.
-- Logs and exported diagnostics must never contain user input, lexicon entries,
-  phrase content, credentials or other secrets.
-- The product sends no telemetry. Any future telemetry requires explicit user
-  consent and must be disabled by default.
-- Library crates return structured errors to their caller. In particular,
-  `wubilex-codec` must not initialize a logger or emit application policy.
+- `src-tauri/src/logging/mod.rs` is the only subscriber owner. Runtime startup
+  retains its `LoggingGuard` for the complete Tauri process lifetime so queued
+  records flush when the event loop returns.
+- File logs use exact `tracing 0.1.44`, `tracing-subscriber 0.3.23`, and
+  `tracing-appender 0.2.5`. Files are named `wubilex.YYYY-MM-DD.jsonl`, rotate
+  daily, and are limited to seven files.
+- Startup parses the owned filename date and removes only owned files older
+  than seven UTC calendar days. File modification time is not retention truth,
+  and unrelated or malformed near-match files remain untouched.
+- File and development stderr layers accept only the `wubilex_app` target and
+  its modules. Dependency events are excluded because their field safety is not
+  controlled by the application.
+- Every product record includes the formatter-owned timestamp, level and
+  target plus explicit stable `event`, `stage`, `pid`, and `app_version`
+  fields. Operation-specific bounded fields may be added when they contain no
+  user or domain content.
+- Logging setup failure becomes a visible `LoggingUnavailable` runtime notice
+  and does not prevent the application window from starting.
 
-## Decisions Not Yet Established
+## Redaction Contract
 
-The project has not established:
+- Never record a complete argv vector, navigation target, working directory,
+  panic payload, user input, lexicon entry, phrase content, credential, secret,
+  or arbitrary frontend payload at any level.
+- Launch diagnostics are projected to stable notice code and one-based argument
+  position before logging. Summary, detail, and original argument values are
+  excluded from the logging projection.
+- The panic hook records only source location and payload type, then chains to
+  the previous hook. It does not format or debug-print the payload into the
+  structured sink.
+- Native failures may record their stable operation stage and numeric HRESULT
+  or Win32 code. Add readable system text only after confirming that the API
+  cannot echo user-controlled content.
+- Logging a failure never converts it to success or discards the typed error
+  returned to the owning boundary.
 
-- the exact `tracing` subscriber/plugin composition or dependency versions;
-- required event field names, span hierarchy or correlation/task identifiers;
-- the detailed mapping of `trace`, `debug`, `info`, `warn` and `error` to
-  product events;
-- log directory/file naming, rotation mechanics or cleanup implementation;
-- the redaction helper/API, diagnostic bundle format or test capture strategy.
+## Level Rules
 
-## Forbidden Premature Assumptions
+- `info`: lifecycle milestones and successful bounded control-plane events.
+- `warn`: recoverable launch, event-delivery, window-activation, or degraded
+  diagnostic conditions.
+- `error`: panic evidence and failures during ownership-sensitive cleanup.
+- `trace` and `debug` have no blanket payload exemption; the same redaction
+  contract applies even in development builds.
 
-- Do not add a logger, subscriber or Tauri plugin solely to populate this spec.
-- Do not copy the plain-text risk-spike evidence format into product logging;
-  those logs are task artifacts, not a runtime schema.
-- Do not log raw lexicon/phrase/user-input fields even at debug or trace level.
-- Do not swallow a structured error after logging it, and do not turn an error
-  into a success because a log entry was written.
-- Do not initialize global logging from a library crate.
+## Tests Required
 
-## Update Trigger
+- Assert exact owned-name recognition, calendar-date validity, the seven-day
+  boundary, and preservation of unrelated files.
+- Assert logging projections cannot render launch summary, detail, raw argument,
+  navigation target, or panic payload content.
+- Review every new `tracing` call for the required stable fields and forbidden
+  values. Keep a case-insensitive source search as a secondary audit, not as a
+  substitute for typed projections.
+- Run strict Clippy and the focused `wubilex-app` tests after changing subscriber
+  composition, retention, fields, or redaction.
 
-Update this guide with real fields, level rules and source examples when the
-first product logging/diagnostic task implements and tests the subscriber,
-rolling files, retention and redaction behavior. A dependency selection alone
-is insufficient evidence.
+## Still Deferred
+
+Correlation/task identifiers, TSF stage-duration events, exported diagnostic
+bundles, and any telemetry policy remain unimplemented. Telemetry still
+requires explicit user consent and must default to disabled.
 
 ## Sources
 
+- [Application logging implementation](../../../src-tauri/src/logging/mod.rs)
+- [Runtime logging call sites](../../../src-tauri/src/lib.rs)
 - [`docs/20-nonfunctional.md` NFR-SEC-011 and NFR-OBS-001..007](../../../docs/20-nonfunctional.md)
-- [`docs/02-architecture.md` dependency baseline](../../../docs/02-architecture.md)
 - [Windows system integration](./windows-system-integration.md)
 - [Backend error handling](./error-handling.md)

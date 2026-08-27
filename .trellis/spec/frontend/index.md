@@ -8,6 +8,7 @@
 
 - **Baseline; examples pending** means the rule is fixed by approved architecture, requirements, or the scaffolded repository layout. Real source examples must be added only after the relevant frontend surface exists.
 - **Baseline with S0 binding evidence** means the boundary is implemented and verified by the Rust registry, generated TypeScript baseline, and repository gates, while real frontend consumers are still pending.
+- **Baseline with S1 runtime evidence** means the rule is exercised by the first generated command/event consumer and focused runtime-view tests without claiming final shell conventions.
 - **Pending implementation evidence** means no actual project convention has
   been established. The guide must still record approved boundaries,
   unselected decisions, forbidden assumptions and the event that will update
@@ -18,20 +19,20 @@
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Route, shared UI, infrastructure, and generated-type placement | **Baseline with S0 binding evidence** |
+| [Directory Structure](./directory-structure.md) | Route, shared UI, infrastructure, and generated-type placement | **Baseline with S1 runtime evidence** |
 | [Component Guidelines](./component-guidelines.md) | Component ownership, props, and composition | **Pending implementation evidence** |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks and effect boundaries | **Pending implementation evidence** |
 | [State Management](./state-management.md) | Zustand store ownership and selector patterns | **Pending implementation evidence** |
-| [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Baseline with S0 binding evidence** |
-| [Type Safety](./type-safety.md) | Generated IPC contracts and frontend-owned type boundaries | **Baseline with S0 binding evidence** |
+| [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Baseline with S1 runtime evidence** |
+| [Type Safety](./type-safety.md) | Generated IPC contracts and frontend-owned type boundaries | **Baseline with S1 runtime evidence** |
 | [Virtualization And Performance](./virtualization-performance.md) | Bounded large-list ownership and visible-browser benchmark contracts | **Baseline with S0 risk-spike evidence** |
 | [Tailwind v4 Token Convention](./tailwind-v4-tokens.md) | `@theme inline`, v3-to-v4 mapping, and named tokens | **Established** |
 
 The S0 binding, CI, and virtual-scroll examples establish generated-type
 placement, freshness, frontend toolchain gates, and bounded-DOM performance
-measurement. Bootstrap completeness means every guide is non-placeholder and
-honest about its evidence state; component, Hook, state, consumer and route
-patterns remain pending until real S1 code and tests provide them.
+measurement. The S1 runtime adds the first generated command/event consumer.
+Component, Hook, state, and route patterns remain pending until their owning
+S1 tasks provide real code and tests.
 
 ---
 

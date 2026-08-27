@@ -6,7 +6,7 @@
 
 ## Baseline Status
 
-The `src/` directory tree matches the approved architecture and now contains the committed generated IPC baseline, but it has no real component implementation yet. S1 owns the first runnable, navigable application. The generated binding and its Rust registry are implementation evidence; `.gitkeep` files are not.
+The `src/` directory tree matches the approved architecture and now contains a runnable S1 React bootstrap plus the committed generated IPC contract. The temporary runtime status surface does not establish the final route, component, hook, store, or design-token conventions owned by later S1 tasks. Generated bindings and compiled consumers are implementation evidence; `.gitkeep` files are not.
 
 ## Directory Layout
 
@@ -31,7 +31,9 @@ The `src/` directory tree matches the approved architecture and now contains the
 - The lexicon library and editor are two states of `routes/lexicons/`, not separate top-level routes.
 - Reusable UI shared across routes belongs under `src/components/`; generic frontend infrastructure belongs under `src/lib/`.
 - Generated IPC files stay under `src/types/generated/`, use the narrow `.gitattributes` LF rule, and are updated only through `cargo xtask bindings`. Do not edit them or place handwritten look-alike contracts beside them.
+- The initial `src/main.tsx` bootstrap consumes `commands` and `events` from generated bindings. Pure view projections may live beside it until the routing shell creates their durable owner; this temporary placement must not be copied as a route convention.
 - Feature availability comes from the backend-driven feature store. Feature routes may render the shared placeholder, but must not create a second Vite-time flag source.
+- ImTip is permanently excluded by deprecated `M7-WIN-005`: do not create a route, component, action, tray projection, settings entry, feature flag or placeholder for it.
 - The frontend never owns file parsing, lexicon transformations, or a complete lexicon model. Those responsibilities remain in Rust; routes request paged view data through IPC.
 
 Existing route and reusable-component directory names use lower-case kebab form. File naming and component export conventions remain pending until real implementation provides evidence.
@@ -44,4 +46,4 @@ Existing route and reusable-component directory names use lower-case kebab form.
 - [Generated TypeScript baseline](../../../src/types/generated/bindings.ts)
 - [Rust-owned binding registry](../../../src-tauri/src/bindings/mod.rs)
 
-The generated binding placement is established. Component, route, hook, store, and IPC-consumer examples remain pending until the frontend shell exists.
+Generated binding placement and the first runtime command/event consumer are established. Component, route, hook, store, and final shell examples remain pending.

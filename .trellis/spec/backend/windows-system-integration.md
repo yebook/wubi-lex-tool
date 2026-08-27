@@ -1,15 +1,68 @@
 # Windows System Integration
 
-> Reversible TSF, security descriptor, and Task Scheduler integration contracts.
+> Reversible TSF, security descriptor, Task Scheduler, and forbidden companion-tool integration contracts.
 
 ---
 
 ## Current Status
 
 The S0 risk spikes establish the API and restoration contracts below on Windows
-11. Product `SystemOps` orchestration is still pending. Keep direct Win32 and COM
-calls inside `wubilex-winime`; the examples are executable evidence, not the
-future product abstraction.
+11. The S1 runtime adds current-process token elevation detection. Product
+`SystemOps` orchestration is still pending. Keep direct Win32 and COM calls
+inside `wubilex-winime`; the examples are executable evidence, not the future
+product abstraction.
+
+## Scenario: Current Process Elevation Detection
+
+### 1. Scope / Trigger
+
+Apply this contract when startup, feature availability, or diagnostics need to
+know whether the current process token is actually elevated. An executable
+manifest requests elevation but is not runtime proof that elevation succeeded.
+
+### 2. Signatures
+
+```rust
+pub trait ElevationProbe {
+    fn is_elevated(&self) -> Result<bool, NativeSecurityError>;
+}
+
+pub fn current_process_is_elevated() -> Result<bool, NativeSecurityError>;
+```
+
+### 3. Contracts
+
+- `crates/wubilex-winime/src/security.rs` exclusively owns
+  `OpenProcessToken` and `GetTokenInformation(TokenElevation)`. Tauri consumes
+  the typed result and does not duplicate token inspection.
+- The probe opens only the current process token with `TOKEN_QUERY`, validates
+  the returned `TOKEN_ELEVATION` byte count, and closes the token through an
+  ownership guard.
+- A native failure preserves a stable operation stage, unsigned HRESULT/Win32
+  code, and readable system message. The runtime projection exposes bounded
+  stage/code evidence without assuming elevation.
+- `Ok(false)` is a real non-elevated state, not an unavailable probe. The UI
+  presents an administrator restart action and does not perform system writes.
+- Non-Windows builds return a typed unavailable failure so mock bindings and
+  cross-platform library checks stay deterministic.
+
+### 4. Tests Required
+
+- Adapter tests cover elevated, non-elevated, and typed native failures.
+- Runtime projection tests preserve the three privilege states and serialized
+  stage/code contract.
+- The checked-in application manifest independently contains both Common
+  Controls v6 and `requireAdministrator` with `uiAccess="false"`.
+
+### 5. Wrong vs Correct
+
+```rust
+// Wrong: assumes the manifest proves the current token state.
+let elevated = true;
+
+// Correct: consume the Windows-owned typed probe at the application boundary.
+let privilege = PrivilegeStatus::from_probe(current_process_is_elevated());
+```
 
 ## Scenario: Reversible IME System Operations
 
@@ -127,8 +180,79 @@ verify_restoration()?;
 delete_probe_file()?;
 ```
 
+## Scenario: ImTip Integration Is Forbidden
+
+### 1. Scope / Trigger
+
+Apply this contract whenever shell navigation, actions, tray menus, settings,
+deep links, external-process discovery, URL opening, Tauri commands,
+capabilities, dependencies, or migration work could introduce an ImTip entry or
+integration. The user permanently removed this product surface on 2026-08-25;
+it is not a deferred feature.
+
+### 2. Signatures
+
+There is deliberately no command, event, route, action, configuration key,
+capability, dependency, process probe, executable launch, or URL contract for
+ImTip. `M7-WIN-005` remains only as a deprecated P3 requirement ID and must not
+be registered in generated bindings.
+
+### 3. Contracts
+
+- Production roots `src/`, `src-tauri/`, `crates/`, manifests, capabilities,
+  route tables, action catalogs and tray projections contain no ImTip surface.
+- No feature flag may make the integration available; permanently excluded
+  behavior is not represented as a disabled product feature.
+- The legacy `wubi-lex/` snapshot and archived Trellis tasks may retain the
+  original name solely as immutable historical evidence. They are never copied
+  into product code, current planning, UI text, telemetry, links, or metadata.
+- No generic “related tools” abstraction may be introduced solely to preserve
+  the removed behavior under another label.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| A task proposes an ImTip route, action, button, tray item or settings entry | Reject as out of scope and cite deprecated `M7-WIN-005` |
+| Code proposes process/atom lookup, executable launch or website fallback | Reject; remove the integration code and any supporting capability/dependency |
+| A feature catalog contains the removed integration as unavailable | Remove the feature ID entirely; do not expose a permanent placeholder |
+| Historical source or archived task mentions the original integration | Treat as evidence only; do not use it as implementation input |
+| Requirement tooling encounters `M7-WIN-005` | Accept only its P3 deprecated definition and references that state it is forbidden |
+
+### 5. Good / Base / Bad Cases
+
+- Good: the seven-domain shell, action catalog, settings and tray contain no
+  entry, and focused searches over production roots return no integration
+  identifier, URL or executable name.
+- Base: the legacy snapshot retains its original source for traceability while
+  current requirements classify the ID as P3 and S1 explicitly skips it.
+- Bad: hiding the entry behind a feature flag, renaming it “related tools”, or
+  keeping an unused launcher command “for later”.
+
+### 6. Tests Required
+
+- Search production roots and manifests for case-insensitive `imtip`; expect no
+  matches.
+- Assert route, action, tray and feature snapshots contain no removed entry.
+- Run document count, dangling-reference and anchor checks after changing the
+  deprecated requirement.
+- Review new external-process or URL-opening capabilities against this scenario
+  so generic infrastructure cannot reintroduce the integration indirectly.
+
+### 7. Wrong vs Correct
+
+```rust
+// Wrong: keeps a hidden integration path for a future release.
+registry.register("related_tool.open", open_imtip);
+
+// Correct: no action, command, capability, dependency, URL, or placeholder exists.
+let registry = shell_actions_without_companion_integrations();
+```
+
 ## Sources
 
+- [Current-process elevation probe](../../../crates/wubilex-winime/src/security.rs)
+- [Runtime privilege projection](../../../src-tauri/src/runtime/mod.rs)
 - [`wubilex-winime` risk-spike examples](../../../crates/wubilex-winime/examples/)
 - [`S0 risk-spike design`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/design.md)
 - [`S0 risk-spike results`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/research/results/summary.md)

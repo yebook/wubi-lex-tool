@@ -55,4 +55,4 @@ The checked-in Windows workflow reads versions from those repository fields, key
 - [Windows quality workflow](../../../.github/workflows/ci.yml)
 - [Frontend toolchain version sources](../../../package.json)
 
-The binding freshness and Volta-pinned pnpm CI gates are established. Component and browser-flow examples remain pending until the frontend shell exists.
+The binding freshness and Volta-pinned pnpm CI gates are established. The S1 runtime bootstrap adds focused Vitest coverage for privilege, recovery, launch warning, load failure, and snapshot/event merge projections. Final component and browser-flow conventions remain pending until the frontend shell exists.

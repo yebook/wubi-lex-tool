@@ -13,8 +13,10 @@ pub const GENERATED_HEADER: &str =
 /// Builds the single Rust-owned IPC registry for the selected Tauri runtime.
 pub fn builder<R: Runtime>() -> Builder<R> {
     Builder::<R>::new()
-        .commands(collect_commands![])
-        .events(collect_events![])
+        .commands(collect_commands![
+            crate::commands::app::app_runtime_snapshot,
+        ])
+        .events(collect_events![crate::events::LaunchRequestedEvent])
 }
 
 /// Exports the canonical registry without constructing a Wry runtime.

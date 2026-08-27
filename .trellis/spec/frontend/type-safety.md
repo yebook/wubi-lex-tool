@@ -54,7 +54,7 @@ cargo xtask bindings --check
 - `builder<R>()` is the only command/event collector. Runtime startup and repository export must reuse it instead of maintaining parallel lists.
 - Repository export instantiates `MockRuntime`, so binding generation does not enable `wry`, create a window, or register a fake command.
 - The compatible stack is exact `tauri-specta 2.0.0-rc.25`, `specta 2.0.0-rc.25` with function support, and `specta-typescript 0.0.12`.
-- The generated header identifies `cargo xtask bindings` as the owner. Output is valid UTF-8, LF-only, ends in a newline, and is committed at `src/types/generated/bindings.ts`.
+- The generated header identifies `cargo xtask bindings` as the owner. Output is valid UTF-8, LF-only, has no trailing line whitespace or blank EOF lines, ends in exactly one newline, and is committed at `src/types/generated/bindings.ts`.
 - Default generation may replace only that owned target through a staged file. `--check` exports to ignored temporary storage, byte-compares canonical output, cleans up, and never repairs the target.
 
 ### 4. Validation & Error Matrix
@@ -75,7 +75,7 @@ cargo xtask bindings --check
 
 ### 6. Tests Required
 
-- Assert repeat generation is byte-identical, UTF-8, LF-only, and ends with a newline.
+- Assert repeat generation is byte-identical, UTF-8, LF-only, free of trailing whitespace, and ends with exactly one newline.
 - Mutate the committed-target analogue, run check mode, and assert nonzero failure plus byte-for-byte non-modification.
 - Extend workflow contract tests whenever action pins, binding commands, or generated paths change.
 - For every real command/event added in S1+, add serialization contract coverage and compile the frontend consumer against regenerated types.
@@ -106,4 +106,4 @@ import type { ImportRequest } from "../types/generated/bindings";
 - [Generated TypeScript baseline](../../../src/types/generated/bindings.ts)
 - [`xtask` generation and freshness implementation](../../../xtask/src/bindings.rs)
 
-The empty generated baseline and freshness behavior are established. Real command/event payloads and frontend consumer examples remain pending until S1.
+The S1 runtime snapshot command and launch-requested event now establish the first real generated payloads and consumer in `src/main.tsx`. Bootstrap races are handled by listening before the initial snapshot and merging any event received while that snapshot is in flight; the backend snapshot remains authoritative and is refreshed after later events. Final IPC wrapper placement remains pending until the routing shell establishes `src/lib/` conventions.

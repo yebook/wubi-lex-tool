@@ -122,10 +122,17 @@ fn normalize_generated_file(path: &Path) -> Result<Vec<u8>, String> {
     })?;
     let text = String::from_utf8(bytes)
         .map_err(|_| "binding export stage produced non-UTF-8 TypeScript".to_owned())?;
-    let mut normalized = text.replace("\r\n", "\n").replace('\r', "\n");
-    if !normalized.ends_with('\n') {
-        normalized.push('\n');
+    let normalized_newlines = text.replace("\r\n", "\n").replace('\r', "\n");
+    let mut lines = normalized_newlines
+        .split('\n')
+        .map(str::trim_end)
+        .collect::<Vec<_>>();
+    while lines.last().is_some_and(|line| line.is_empty()) {
+        lines.pop();
     }
+
+    let mut normalized = lines.join("\n");
+    normalized.push('\n');
     Ok(normalized.into_bytes())
 }
 
@@ -197,8 +204,11 @@ mod tests {
     fn repeated_generation_is_byte_identical_and_lf_stable() {
         let directory = TestDirectory::new();
         let export = |path: &std::path::Path| {
-            fs::write(path, format!("{GENERATED_HEADER}\r\nexport {{}};\r\n"))
-                .map_err(|error| error.to_string())
+            fs::write(
+                path,
+                format!("{GENERATED_HEADER}\r\nexport type Value = \t\r\n  \"value\";\t\r\n\r\n"),
+            )
+            .map_err(|error| error.to_string())
         };
 
         sync_generated(directory.path(), false, export).expect("first generation must succeed");
@@ -211,6 +221,13 @@ mod tests {
         assert!(first.starts_with(GENERATED_HEADER.as_bytes()));
         assert!(!first.contains(&b'\r'));
         assert_eq!(first.last(), Some(&b'\n'));
+        assert!(!first.ends_with(b"\n\n"));
+        assert!(
+            std::str::from_utf8(&first)
+                .expect("normalized output must remain UTF-8")
+                .lines()
+                .all(|line| !line.ends_with([' ', '\t']))
+        );
     }
 
     #[test]

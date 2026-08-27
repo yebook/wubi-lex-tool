@@ -31,7 +31,7 @@ pub fn export_mock(path: impl AsRef<Path>) -> Result<(), specta_typescript::Erro
 
 - Repository paths derive from `xtask`'s `CARGO_MANIFEST_DIR`, so commands are independent of the caller's current directory.
 - `src-tauri/src/bindings/mod.rs` is the only command/event registry. It remains generic over `tauri::Runtime`; repository export uses `MockRuntime`, exact `tauri-specta 2.0.0-rc.25` and `specta-typescript 0.0.12`, with no `wry` feature and no fake command.
-- `cargo xtask bindings` exports through an ignored unique temporary file, normalizes to UTF-8 LF ending in a newline, and stages replacement of `src/types/generated/bindings.ts`. `--check` byte-compares canonical output without changing the committed target.
+- `cargo xtask bindings` exports through an ignored unique temporary file, normalizes to UTF-8 LF with no trailing line whitespace or blank EOF lines and exactly one final newline, and stages replacement of `src/types/generated/bindings.ts`. `--check` byte-compares canonical output without changing the committed target.
 - `cargo xtask check-docs` scans sorted `docs/**/*.md`, accepts definition IDs only in their owning module/NFR/UX documents, requires unique counts `414/101/115/630`, rejects dangling IDs and real `TBD` or `待补充` placeholders, and delegates anchors to `.trellis/scripts/check_anchors.py`.
 - `.github/workflows/ci.yml` runs on pull requests, `main` pushes, and manual dispatch on `windows-latest`, with `contents: read`, per-ref concurrency cancellation, a finite timeout, and no secrets or release steps. Every third-party action is pinned to a reviewed full commit SHA with its release tag in a comment.
 - Node, pnpm, and Rust versions come only from `package.json.volta.node`, `package.json.volta.pnpm`, and `rust-toolchain.toml`. CI sets `VOLTA_FEATURE_PNPM=1` and uses `volta-cli/action` as the only Node/pnpm setup path. Do not add `engines.pnpm`, corepack, `packageManager`, `.nvmrc`, npm, yarn, npx, or a separate pnpm setup action.
@@ -59,7 +59,7 @@ pub fn export_mock(path: impl AsRef<Path>) -> Result<(), specta_typescript::Erro
 ### 6. Tests Required
 
 - Parser tests accept exactly the five forms and reject invalid Unicode and every extra/unknown argument with full usage.
-- Binding tests prove repeat generation is byte-identical and LF-only; mutation causes `--check` to fail without repair.
+- Binding tests prove repeat generation is byte-identical, LF-only, free of trailing whitespace, and has exactly one final newline; mutation causes `--check` to fail without repair.
 - Document tests cover valid trees, malformed/wrong-owner and duplicate definitions, count drift, dangling references, placeholders, anchor nonzero output, spawn failure, and the live `414/101/115/630` baseline.
 - Workflow contract tests parse the checked-in YAML and root manifest, then assert triggers, permissions, concurrency, exact action SHAs, Volta Node/pnpm pins, the pnpm feature flag, cache keys, step order, and forbidden bypass/package-manager patterns. Run actionlint as an independent syntax check.
 - The final local gate mirrors CI: fmt, check, strict Clippy, fixtures, tests, Rustdoc, coverage, cargo-deny, bindings/docs, frozen pnpm install, audit, typecheck, lint, and Vitest.
@@ -77,6 +77,101 @@ pub fn export_mock(path: impl AsRef<Path>) -> Result<(), specta_typescript::Erro
 - run: cargo deny check
 ```
 
+## Scenario: Windows Runtime Smoke Harness
+
+### 1. Scope / Trigger
+
+Apply this contract when changing application startup, single-instance handoff,
+launch warnings, session markers, runtime logging, or the checked-in Windows
+smoke harness. The smoke is a destructive-process test, but it may delete only
+markers and processes that the current invocation created and recorded.
+
+### 2. Signatures
+
+```text
+pnpm run smoke:runtime
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-runtime.ps1
+```
+
+The package command builds the debug application without a bundle before the
+PowerShell script runs. A non-administrator invocation self-elevates through a
+visible UAC request and waits for the elevated result.
+
+### 3. Contracts
+
+- Resolve the executable below the repository `target/` directory and reject a
+  path that escapes that root. Refuse to run while that exact debug executable
+  already has a live process.
+- Capture pre-existing marker and log baselines before starting product
+  processes. Track every process and marker created by the current invocation;
+  cleanup may stop or remove only those tracked resources.
+- Verify four stages: hidden `/tray` startup, two second-instance handoffs with
+  one redacted invalid-argument notice, clean-exit marker removal, and forced
+  termination followed by abnormal-session detection and clean recovery.
+- PowerShell 5.1 unwraps a function's single `PSCustomObject` output. Every
+  count or indexed read from `Get-LogEvents` must first force an array with
+  `@(Get-LogEvents ...)`; a direct `.Count` is invalid for the one-record case.
+- `Start-Process` rejects a null or empty `-ArgumentList`. The no-argument
+  application path must omit that parameter entirely; non-empty vectors use
+  the explicit argument branch.
+- Transcript files are allowed only at the fixed repository-owned target path,
+  are replayed to the parent process, and are removed after the elevated run.
+- `pnpm tauri dev` uses Cargo's direct process launch and does not request UAC.
+  With the required `requireAdministrator` manifest, run it from an already
+  elevated terminal. Do not weaken or replace the manifest for dev ergonomics.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| UAC is rejected or times out | Exit nonzero; do not report smoke success |
+| Non-elevated `tauri dev` returns Windows error 740 | Relaunch the terminal elevated; do not mark the dev launch as passed |
+| The exact debug executable is already running | Fail before creating a marker or process |
+| A hidden primary has a visible window | Fail and stop only the tracked primary |
+| A secondary does not exit or activate the primary | Fail with the named wait stage |
+| Exactly one log event is returned | Treat it as an array of count one |
+| A launch has no arguments | Omit `-ArgumentList`; do not pass an empty collection |
+| Clean exit leaves its owned marker | Fail; preserve unrelated baseline markers |
+| Forced termination removes its marker | Fail because abnormal evidence was lost |
+| Recovery does not observe the abnormal baseline | Fail without performing system recovery |
+
+### 5. Good / Base / Bad Cases
+
+- Good: all four stages pass, no debug process or transcript remains, the
+  forced-test marker is removed, and pre-existing markers remain unchanged.
+- Base: historical markers already exist; they increase the recovery baseline
+  but are never adopted or deleted by the smoke invocation.
+- Bad: counting a scalar log object through `.Count`, passing `@()` to
+  `-ArgumentList`, deleting every marker in the session directory, or treating
+  an unapproved UAC request as a passed smoke.
+
+### 6. Tests Required
+
+- Parse `scripts/smoke-runtime.ps1` with the Windows PowerShell 5.1 parser.
+- Assert zero, one, and multiple log records produce counts `0`, `1`, and `N`
+  through the array-forcing call form.
+- Assert null/empty launch arguments select the no-`ArgumentList` branch while
+  one or more arguments select the explicit branch.
+- Run `pnpm run smoke:runtime` in an interactive Windows session and require
+  all four named stages plus `runtime smoke: passed`.
+- From an elevated terminal, run Tauri dev and assert the real main window
+  loads the local Vite React entry; a compile followed by error 740 is not this
+  assertion.
+- After success and failure, assert no owned process or transcript remains and
+  only pre-existing baseline markers survive.
+
+### 7. Wrong vs Correct
+
+```powershell
+# Wrong: scalar output has no reliable Count, and an empty ArgumentList fails.
+(Get-LogEvents "launch_argument_notice").Count
+Start-Process -FilePath $executable -ArgumentList @() -PassThru
+
+# Correct: force collection semantics and omit the empty parameter.
+@(Get-LogEvents "launch_argument_notice").Count
+Start-Process -FilePath $executable -PassThru
+```
+
 ## Sources
 
 - [`xtask` command parser](../../../xtask/src/main.rs)
@@ -84,5 +179,6 @@ pub fn export_mock(path: impl AsRef<Path>) -> Result<(), specta_typescript::Erro
 - [`xtask` document validator](../../../xtask/src/check_docs.rs)
 - [Canonical Tauri binding registry](../../../src-tauri/src/bindings/mod.rs)
 - [Windows quality workflow](../../../.github/workflows/ci.yml)
+- [Windows runtime smoke harness](../../../scripts/smoke-runtime.ps1)
 - [Cargo dependency policy](../../../deny.toml)
 - [Frontend toolchain version sources](../../../package.json)

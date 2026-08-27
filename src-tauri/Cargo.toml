@@ -7,11 +7,30 @@ publish = false
 [lib]
 name = "wubilex_app"
 
+[[bin]]
+name = "wubilex-app"
+path = "src/main.rs"
+required-features = ["desktop"]
+test = false
+bench = false
+
+[features]
+default = ["desktop"]
+desktop = ["dep:tauri-plugin-single-instance", "tauri/wry"]
+
 [build-dependencies]
 tauri-build = { version = "2.6.3", features = [] }
 
 [dependencies]
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.145"
 specta = { version = "=2.0.0-rc.25", features = ["function"] }
 specta-typescript = "=0.0.12"
 tauri = { version = "=2.11.5", default-features = false, features = ["test"] }
 tauri-specta = { version = "=2.0.0-rc.25", default-features = false, features = ["typescript"] }
+tauri-plugin-single-instance = { version = "=2.4.3", optional = true }
+thiserror = "=2.0.20"
+tracing = "=0.1.44"
+tracing-appender = "=0.2.5"
+tracing-subscriber = { version = "=0.3.23", features = ["json"] }
+wubilex-winime = { path = "../crates/wubilex-winime", version = "=0.1.0" }

@@ -10,6 +10,7 @@ export default defineConfig([
     ".trellis/**",
     "dist/**",
     "node_modules/**",
+    "src/types/generated/**",
     "target/**",
     "wubi-lex/**",
   ]),

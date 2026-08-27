@@ -6,7 +6,7 @@
 
 ## Current Status
 
-The workspace, `wubilex-codec` contracts and codecs, test-only real-fixture automation, Rust-owned IPC binding registry, document checks, dependency policy, and Windows CI workflow compile or validate. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
+The workspace, `wubilex-codec` contracts and codecs, test-only real-fixture automation, Rust-owned IPC binding registry, S1 runtime lifecycle, document checks, dependency policy, and Windows CI workflow compile or validate. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
 
 ## Workspace Membership
 
@@ -48,6 +48,7 @@ The root `Cargo.toml` is a virtual workspace. Its members are exactly:
 - Direct Win32 or COM work stays in `crates/wubilex-winime/`. System side effects are centralized behind `src/sysops/`; service, scheduler, and ACL implementations use their existing dedicated directories.
 - Resource HTTP abstraction belongs in `crates/wubilex-resource/src/http/`; catalog, download, archive, cache, and verification code stays in its named module.
 - Tauri commands are grouped below `src-tauri/src/commands/` by their documented command prefix. Shared application concerns use the existing `state/`, `events/`, `task/`, `config/`, `error/`, `features/`, `recovery/`, and `bindings/` directories.
+- Pure process argument parsing lives in `src-tauri/src/launch/`; the authoritative process snapshot and bounded runtime notices live in `src-tauri/src/runtime/`; subscriber, retention, and panic-hook policy live in `src-tauri/src/logging/`. Direct process-token inspection remains in `crates/wubilex-winime/src/security.rs`.
 - `src-tauri/src/bindings/mod.rs` owns the single generic `tauri_specta::Builder<R: tauri::Runtime>` registry. Repository generation instantiates it with `tauri::test::MockRuntime`; do not enable `wry` or create a fake command merely to make the generated file nonempty.
 - `xtask/src/{fixtures,bindings,check_docs}.rs` own the three repository command families. Generated TypeScript is written only to `src/types/generated/bindings.ts`; document checks reuse `.trellis/scripts/check_anchors.py` rather than cloning its slug logic.
 
