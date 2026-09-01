@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 13
-- **Last Active**: 2026-08-27
+- **Total Sessions**: 14
+- **Last Active**: 2026-09-01
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~313 | Active |
+| `journal-1.md` | ~336 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 14 | 2026-09-01 | 完成 S1 配置与功能目录 | `21b8392`, `1118447`, `5bef37f` | `main` |
 | 13 | 2026-08-27 | 完成 S1 运行时与生命周期 | `47c2fd2`, `c0a1da5` | `main` |
 | 12 | 2026-08-25 | 完成 S0 集成验收 | `8a48e3b`, `7593e9b`, `94369c2` | `main` |
 | 11 | 2026-08-25 | 完成 S0 技术预研 | `a46395f`, `ca0ffd2`, `3c8f906` | `main` |

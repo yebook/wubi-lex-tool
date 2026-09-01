@@ -311,3 +311,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 14: 完成 S1 配置与功能目录
+
+**Date**: 2026-09-01
+**Task**: 完成 S1 配置与功能目录
+**Branch**: `main`
+
+### Summary
+
+实现版本化 TOML 配置、Windows 事务保存与恢复、统一 AppError、Cargo feature catalog 和 Zustand store；完成独立审查、故障注入测试与规范回填。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `21b8392` | (see git log) |
+| `1118447` | (see git log) |
+| `5bef37f` | (see git log) |
+
+### Status
+
+[OK] **Completed**
