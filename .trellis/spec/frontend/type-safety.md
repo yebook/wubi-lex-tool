@@ -54,6 +54,7 @@ cargo xtask bindings --check
 - `builder<R>()` is the only command/event collector. Runtime startup and repository export must reuse it instead of maintaining parallel lists.
 - Repository export instantiates `MockRuntime`, so binding generation does not enable `wry`, create a window, or register a fake command.
 - The compatible stack is exact `tauri-specta 2.0.0-rc.25`, `specta 2.0.0-rc.25` with function support, and `specta-typescript 0.0.12`.
+- S1 exports config commands, `ConfigChangedEvent`, `AppError`, and the 12-ID feature catalog from the same registry. JavaScript-safe numeric annotations keep revisions, byte counts, and finite window scale factors as `number` rather than nullable or bigint-shaped frontend contracts.
 - The generated header identifies `cargo xtask bindings` as the owner. Output is valid UTF-8, LF-only, has no trailing line whitespace or blank EOF lines, ends in exactly one newline, and is committed at `src/types/generated/bindings.ts`.
 - Default generation may replace only that owned target through a staged file. `--check` exports to ignored temporary storage, byte-compares canonical output, cleans up, and never repairs the target.
 
@@ -70,7 +71,7 @@ cargo xtask bindings --check
 ### 5. Good / Base / Bad Cases
 
 - Good: a new typed Rust command is collected once, regenerated, imported by its frontend wrapper, and passes freshness plus TypeScript checks.
-- Base: the empty S0 registry generates a deterministic committed TypeScript file and passes repeated generation and `--check`.
+- Base: the S1 registry generates runtime, config, error, event, and feature contracts deterministically and passes repeated generation and `--check`.
 - Bad: TypeScript is handwritten to unblock a consumer, `wry` is enabled only for generation, or check mode silently rewrites a stale file.
 
 ### 6. Tests Required
@@ -106,4 +107,4 @@ import type { ImportRequest } from "../types/generated/bindings";
 - [Generated TypeScript baseline](../../../src/types/generated/bindings.ts)
 - [`xtask` generation and freshness implementation](../../../xtask/src/bindings.rs)
 
-The S1 runtime snapshot command and launch-requested event now establish the first real generated payloads and consumer in `src/main.tsx`. Bootstrap races are handled by listening before the initial snapshot and merging any event received while that snapshot is in flight; the backend snapshot remains authoritative and is refreshed after later events. Final IPC wrapper placement remains pending until the routing shell establishes `src/lib/` conventions.
+The S1 runtime snapshot, launch event, configuration surface, and feature catalog establish real generated payloads and consumers. Runtime bootstrap races listen before the initial snapshot; feature bootstrap deduplicates the in-flight generated command through `src/lib/features-client.ts` and `src/stores/features.ts`. Config models, error codes, feature IDs, milestone IDs, and unavailable reasons have no handwritten TypeScript mirrors.

@@ -7,10 +7,10 @@
 ## Current Status
 
 The S0 risk spikes establish the API and restoration contracts below on Windows
-11. The S1 runtime adds current-process token elevation detection. Product
-`SystemOps` orchestration is still pending. Keep direct Win32 and COM calls
-inside `wubilex-winime`; the examples are executable evidence, not the future
-product abstraction.
+11. S1 adds current-process token elevation detection and the application config
+file adapter. Product `SystemOps` orchestration is still pending. Keep direct
+Win32 and COM calls inside `wubilex-winime`; the examples are executable
+evidence, not the future product abstraction.
 
 ## Scenario: Current Process Elevation Detection
 
@@ -180,6 +180,81 @@ verify_restoration()?;
 delete_probe_file()?;
 ```
 
+## Scenario: Transactional Application Configuration Files
+
+### 1. Scope / Trigger
+
+Apply this contract to versioned application TOML creation, replacement,
+backup recovery, corrupt preservation, import, and export. It is a file
+transaction contract, not permission for S2 data writes or S3 system changes.
+
+### 2. Signatures
+
+```rust
+pub fn create_staging_exclusive(path: &Path) -> Result<File, NativeFileError>;
+pub fn install_new_noreplace(staging: &Path, target: &Path) -> Result<(), NativeFileError>;
+pub fn replace_file_with_backup(
+    target: &Path,
+    staging: &Path,
+    backup: &Path,
+) -> Result<(), ReplaceFileError>;
+pub fn restore_backup_noreplace(backup: &Path, target: &Path) -> Result<(), NativeFileError>;
+```
+
+The app-layer `ConfigFileOps` port exposes directory creation, bounded reads,
+backup listing, exclusive staging, sync, close, replace/install/restore,
+corrupt preservation, canonical path identity, and owned cleanup as separate
+injectable stages.
+
+### 3. Contracts
+
+- `crates/wubilex-winime/src/filesystem.rs` exclusively owns direct Win32 file APIs; `src-tauri/src/config/` owns schema and recovery policy.
+- Staging is same-directory and `create_new`; on Windows the open handle uses share mode zero. Ownership starts only after creation succeeds.
+- Write all bytes, flush, `sync_all`, and close before namespace installation.
+- Initial installation uses `MoveFileExW(MOVEFILE_WRITE_THROUGH)` without replace/copy flags. Existing replacement uses `ReplaceFileW` with flags zero and a unique nonexistent backup.
+- `REPLACEFILE_WRITE_THROUGH`, delete-live-then-rename, and adoption or cleanup of a failed create are forbidden.
+- Native 1177 means the old target may be at backup. Attempt no-clobber restore; if it fails, retain backup, leave memory/revision uncommitted, enter read-only mode, and expose combined evidence.
+- When live is missing, backup enumeration or read failure is a read-only startup failure. Never install defaults after losing visibility into a possible last-valid owned backup.
+- Canonicalize existing external paths and their parents before alias checks so dot segments and symlinks cannot target config-owned live/temp/backup/corrupt artifacts.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| Staging name collision | Retry finitely; never delete collision bytes |
+| Initial target appears concurrently | No-clobber install fails; external target wins |
+| Write/flush/sync/close failure | Close then remove only owned staging; keep live and revision |
+| Replace error 1175/1176 | Names unchanged; clean owned staging |
+| Replace error 1177, restore succeeds | Old target restored; clean staging; return primary replace failure |
+| Replace error 1177, restore fails | Keep backup and combined evidence; enter read-only mode |
+| Backup listing/read fails while live is missing | Do not create live defaults; use read-only defaults with notice |
+| Future schema | Preserve live bytes in place; routine writes fail read-only |
+
+### 5. Good / Base / Bad Cases
+
+- Good: replacement succeeds with exact new live bytes and exact previous bytes in a unique backup.
+- Base: first run installs canonical defaults without a backup and starts at revision one.
+- Bad: swallowing backup enumeration failure, deleting live before rename, passing an unsupported replace flag, or cleaning a path whose create failed.
+
+### 6. Tests Required
+
+- Windows integration tests assert real no-clobber initial install and `ReplaceFileW` backup bytes.
+- Fault injection covers create, write, flush, sync, close, target inspection, backup selection, install/replace, 1177 restore, and cleanup ordering.
+- A stateful 1177 fake must move old target to backup before returning the failure; assertions inspect live/backup/staging bytes, snapshot, revision, persistence, error, and notice.
+- Startup tests cover missing, valid, corrupt, future, newest valid backup, backup listing failure, backup read failure, and corrupt-preservation failure.
+- Import/export tests reject owned aliases and prove failed operations do not mutate the authoritative snapshot.
+
+### 7. Wrong vs Correct
+
+```rust
+// Wrong: destroys the live-name recovery boundary.
+std::fs::remove_file(target)?;
+std::fs::rename(staging, target)?;
+
+// Correct: one supported replacement call with an owned backup.
+replace_file_with_backup(target, staging, unique_backup)?;
+```
+
 ## Scenario: ImTip Integration Is Forbidden
 
 ### 1. Scope / Trigger
@@ -254,5 +329,7 @@ let registry = shell_actions_without_companion_integrations();
 - [Current-process elevation probe](../../../crates/wubilex-winime/src/security.rs)
 - [Runtime privilege projection](../../../src-tauri/src/runtime/mod.rs)
 - [`wubilex-winime` risk-spike examples](../../../crates/wubilex-winime/examples/)
+- [Atomic file adapter](../../../crates/wubilex-winime/src/filesystem.rs)
+- [Application config transaction service](../../../src-tauri/src/config/mod.rs)
 - [`S0 risk-spike design`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/design.md)
 - [`S0 risk-spike results`](../../tasks/archive/2026-08/08-24-s0-risk-spikes/research/results/summary.md)

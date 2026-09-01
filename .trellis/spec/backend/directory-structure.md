@@ -6,7 +6,7 @@
 
 ## Current Status
 
-The workspace, `wubilex-codec` contracts and codecs, test-only real-fixture automation, Rust-owned IPC binding registry, S1 runtime lifecycle, document checks, dependency policy, and Windows CI workflow compile or validate. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
+The workspace, codecs, fixture automation, Rust-owned IPC registry, S1 runtime lifecycle, transactional application configuration, generated command errors, feature catalog, document checks, dependency policy, and Windows CI workflow compile or validate. Other product modules may still contain only their S0 shell or scaffolded directories, so the ownership table remains the placement contract for work that has not started.
 
 ## Workspace Membership
 
@@ -27,7 +27,7 @@ The root `Cargo.toml` is a virtual workspace. Its members are exactly:
 |---|---|---|---|
 | `crates/wubilex-codec/` | Bytes or text to typed models and back | Standard library plus parsing and encoding crates | Tauri, Windows APIs, network, and non-filesystem I/O |
 | `crates/wubilex-core/` | Domain models, indexes, transformations, slimming, weighting, and word generation | `wubilex-codec` | Tauri, Windows APIs, and network |
-| `crates/wubilex-winime/` | Windows IME, TSF, registry, service, scheduler, and ACL integration | The `windows` crate with required features only | Tauri and domain logic |
+| `crates/wubilex-winime/` | Windows IME, TSF, registry, service, scheduler, ACL, and direct Win32 file-namespace integration | The `windows` crate with required features only | Tauri, application config policy, and domain logic |
 | `crates/wubilex-resource/` | HTTP, archives, integrity checks, and cache management | HTTP, compression, and hashing crates | Tauri and domain logic |
 | `src-tauri/` | Commands, events, application state, task orchestration, and recovery | All active lower crates | Domain logic inside command handlers |
 | `xtask/` | Reproducible repository automation, including fixtures, IPC binding generation, and document validation | Workspace tooling plus dependencies required by those commands | Product resource behavior, product runtime code, or a direct Tauri runtime dependency |
@@ -46,6 +46,7 @@ The root `Cargo.toml` is a virtual workspace. Its members are exactly:
 - BOM-less UTF-8 word-frequency and split-table codecs live in `src/weight/` and `src/split_table/`; their ordered value objects live in `src/model/`. Content-only scheme detection lives in `src/detect/` and may inspect a `LexiconDocument`, but it must not build a domain index or perform filesystem work.
 - Domain operations stay under the matching `crates/wubilex-core/src/` area. Cross-layer exits owned by core are declared in `crates/wubilex-core/src/ports/`.
 - Direct Win32 or COM work stays in `crates/wubilex-winime/`. System side effects are centralized behind `src/sysops/`; service, scheduler, and ACL implementations use their existing dedicated directories.
+- Direct `ReplaceFileW`, `MoveFileExW`, and exclusive Windows staging calls live in `crates/wubilex-winime/src/filesystem.rs`. Version routing, canonical TOML, recovery policy, owned-path selection, backup discovery, revision state, and the injectable `ConfigFileOps` port live under `src-tauri/src/config/`; command adapters must not duplicate that policy.
 - Resource HTTP abstraction belongs in `crates/wubilex-resource/src/http/`; catalog, download, archive, cache, and verification code stays in its named module.
 - Tauri commands are grouped below `src-tauri/src/commands/` by their documented command prefix. Shared application concerns use the existing `state/`, `events/`, `task/`, `config/`, `error/`, `features/`, `recovery/`, and `bindings/` directories.
 - Pure process argument parsing lives in `src-tauri/src/launch/`; the authoritative process snapshot and bounded runtime notices live in `src-tauri/src/runtime/`; subscriber, retention, and panic-hook policy live in `src-tauri/src/logging/`. Direct process-token inspection remains in `crates/wubilex-winime/src/security.rs`.
@@ -70,6 +71,8 @@ Rust module and directory names follow the scaffolded `snake_case` form, includi
 - [`xtask` binding generation](../../../xtask/src/bindings.rs)
 - [`xtask` document validation](../../../xtask/src/check_docs.rs)
 - [Canonical Tauri binding registry](../../../src-tauri/src/bindings/mod.rs)
+- [Application configuration service](../../../src-tauri/src/config/mod.rs)
+- [Direct Windows file adapter](../../../crates/wubilex-winime/src/filesystem.rs)
 - [Real fixture manifest](../../../crates/wubilex-codec/tests/fixtures/manifest.json)
 
 The codec contracts, test-only fixture automation, binding registry/export path, document validator, and CI policy are established implementation evidence. Add examples for the remaining crates only after those crates contain real behavior.

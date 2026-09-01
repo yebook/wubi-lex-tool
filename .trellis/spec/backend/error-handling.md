@@ -6,7 +6,7 @@
 
 ## Current Status
 
-The library-side contract is established by `wubilex_codec::{CodecError, CodecErrorKind, SourceLocation}`. Repository automation also has established stage-preserving failures. The application-side `AppError` conversion remains pending until Tauri command work begins.
+The library-side contract is established by `wubilex_codec::{CodecError, CodecErrorKind, SourceLocation}`. Repository automation also has established stage-preserving failures. S1 configuration commands establish the application-side generated `AppError` boundary in `src-tauri/src/error/mod.rs`; later modules must extend that shared contract instead of creating command-local payloads.
 
 ## Error Ownership
 
@@ -18,6 +18,7 @@ The shared application error contract contains:
 
 | Field | Contract |
 |---|---|
+| `code` | Stable camelCase operation identifier such as `configValidationFailed` or `configReplaceFailed` |
 | `kind` | One of the approved categories: I/O, parse, network, permission, system, validation, or cancelled |
 | `module` | Owning requirement module, such as `M1` or `M4` |
 | `message` | User-readable Chinese description |
@@ -61,6 +62,71 @@ The word-frequency and split-table decoders accept only BOM-less strict UTF-8 an
 
 Repository fixture automation preserves the failing stage and entry in its command error chain: manifest loading/validation, cache verification, download, compressed integrity, LZMA decode, decoded integrity, strict `.lex` validation, and final placement remain distinguishable. `cargo xtask fixtures --check` never repairs or performs network work; it reports the invalid entry and the `cargo xtask fixtures` recovery command. Download cleanup is ownership-based: create the partial file successfully before arming its guard, and disarm only after validated placement. A failed `create_new` call must never authorize deletion of an existing or concurrently owned path.
 
+## Scenario: Configuration Command Errors
+
+### 1. Scope / Trigger
+
+Apply this contract to configuration snapshot, grouped update, restore, import,
+export, persistence, recovery, and blocking-task failures.
+
+### 2. Signatures
+
+```rust
+pub struct AppError {
+    pub code: AppErrorCode,
+    pub kind: AppErrorKind,
+    pub module: RequirementModule,
+    pub message: String,
+    pub detail: Option<String>,
+    pub recoverable: bool,
+}
+
+pub async fn config_update_ui(...) -> Result<ConfigSnapshot, AppError>;
+```
+
+### 3. Contracts
+
+- Rust owns `AppErrorCode`, `AppErrorKind`, `RequirementModule`, and `AppError`; bindings generate the TypeScript union.
+- Configuration errors use module `m7`, a Chinese user message, and technical detail bounded to 1,024 Unicode scalar values.
+- Detail may contain stage, error kind/code, disposition, and involved paths. It must never contain complete TOML, shortcut values, argv values, or other raw user payloads.
+- A 1177 replace plus failed restore retains primary, restore, cleanup, target, staging, and backup evidence. Cleanup never replaces the primary failure.
+- `spawn_blocking` join failures become `configStateFailed`; an event emit failure is logged after commit and is not returned as a false persistence failure.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required error |
+|---|---|
+| Empty, relative, directory, or config-owned path | `configInvalidPath` or stage-specific import/export inspection failure |
+| TOML/UTF-8/size decode failure | `configParseFailed` without document contents |
+| Missing, zero, unsupported, or future version on import | `configUnsupportedVersion` |
+| Bounded model validation failure | `configValidationFailed` with field/reason only |
+| Staging write/sync/close/install failure | `configWriteFailed` with original stage |
+| Backup selection or native replacement failure | `configBackupFailed` or `configReplaceFailed` |
+| Poisoned state or blocking-task join failure | `configStateFailed` |
+
+### 5. Good / Base / Bad Cases
+
+- Good: failed 1177 restore reports every recovery stage and leaves last-valid bytes at the named owned backup.
+- Base: a malformed import returns a bounded parse error and leaves snapshot, revision, and live bytes unchanged.
+- Bad: logging a replace error and returning success, exposing TOML in detail, or returning only the cleanup error.
+
+### 6. Tests Required
+
+- Serialize representative codes, categories, module, nullable detail, and recoverability through generated bindings.
+- Inject create, write, flush, sync, close, backup, replace, restore, and cleanup failures; assert the primary stage and secondary evidence.
+- Assert invalid input values and shortcut contents never occur in error detail or recovery notices.
+- Assert event-emission failure does not roll back a completed transaction.
+
+### 7. Wrong vs Correct
+
+```rust
+// Wrong: loses the native stage and lies about rollback.
+return Err(AppError::generic("保存失败"));
+
+// Correct: preserve primary and recovery evidence; commit memory only on success.
+return Err(AppError::config(code, kind, message, bounded_detail, true));
+```
+
 Binding and document automation follows the same stage-preserving rule. `cargo xtask bindings --check` reports missing and stale generated output with the exact regeneration command and never repairs it. Export, normalization, read, staging, synchronization, and replacement failures retain the path and stage. `cargo xtask check-docs` aggregates definition, count, dangling-reference, placeholder, and anchor failures; Python spawn failures and nonzero anchor output remain visible rather than becoming a generic validation error.
 
 ## Common Mistakes To Reject
@@ -88,5 +154,7 @@ Binding and document automation follows the same stage-preserving rule. `cargo x
 - [`xtask` fixture failure stages and cleanup guards](../../../xtask/src/fixtures.rs)
 - [`xtask` binding failure stages](../../../xtask/src/bindings.rs)
 - [`xtask` document failure aggregation](../../../xtask/src/check_docs.rs)
+- [Generated application error contract](../../../src-tauri/src/error/mod.rs)
+- [Configuration error mapping](../../../src-tauri/src/config/mod.rs)
 
-The codec enum is established. Add the `AppError` conversion example when the command boundary is implemented rather than inventing it in advance.
+The codec enum and the first application `AppError` conversion are established. Extend the shared application enums when later command modules need new stable codes; do not fork the payload shape.

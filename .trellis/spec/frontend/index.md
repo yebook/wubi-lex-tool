@@ -22,7 +22,7 @@
 | [Directory Structure](./directory-structure.md) | Route, shared UI, infrastructure, and generated-type placement | **Baseline with S1 runtime evidence** |
 | [Component Guidelines](./component-guidelines.md) | Component ownership, props, and composition | **Pending implementation evidence** |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks and effect boundaries | **Pending implementation evidence** |
-| [State Management](./state-management.md) | Zustand store ownership and selector patterns | **Pending implementation evidence** |
+| [State Management](./state-management.md) | Zustand store ownership and selector patterns | **Established by S1 feature catalog** |
 | [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Baseline with S1 runtime evidence** |
 | [Type Safety](./type-safety.md) | Generated IPC contracts and frontend-owned type boundaries | **Baseline with S1 runtime evidence** |
 | [Virtualization And Performance](./virtualization-performance.md) | Bounded large-list ownership and visible-browser benchmark contracts | **Baseline with S0 risk-spike evidence** |
@@ -31,8 +31,10 @@
 The S0 binding, CI, and virtual-scroll examples establish generated-type
 placement, freshness, frontend toolchain gates, and bounded-DOM performance
 measurement. The S1 runtime adds the first generated command/event consumer.
-Component, Hook, state, and route patterns remain pending until their owning
-S1 tasks provide real code and tests.
+The S1 feature catalog establishes the first Zustand vanilla store, injected
+client, async loading/retry shape, in-flight deduplication, and typed selectors.
+Component, Hook, and route patterns remain pending until their owning S1 tasks
+provide real code and tests.
 
 ---
 

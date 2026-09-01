@@ -1,6 +1,6 @@
 # Quality Guidelines
 
-> Rust quality gates and the S0 codec verification baseline.
+> Rust quality gates and S0/S1 verification.
 
 ---
 
@@ -29,7 +29,7 @@ The approved Windows CI sequence also prepares and verifies real fixtures, enfor
 | `wubilex-core` | Input/output assertions for every implemented transform, slimming, weighting, and word-generation operation |
 | `wubilex-winime` | Operation-sequence tests through recording dry-run behavior; real execution only in an isolated Windows CI environment |
 | `wubilex-resource` | Mocked HTTP and hostile archive tests, including path traversal |
-| `wubilex-app` | Serialization contract tests for commands and shared errors |
+| `wubilex-app` | Serialization, bounded config, rollback/recovery, native 1177, import/export, event, and feature catalog tests |
 
 ## Established S0 Codec Evidence
 

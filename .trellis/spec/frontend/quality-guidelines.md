@@ -27,6 +27,7 @@ The checked-in Windows workflow reads versions from those repository fields, key
 - Cross-layer tests verify command and event serialization through generated types rather than duplicating fixture interfaces in TypeScript.
 - End-to-end tests are required for the documented critical flow once the runnable shell and relevant stages exist: load a lexicon, edit it, and install it.
 - Feature-placeholder behavior is tested with backend feature switches disabled so unfinished commands cannot appear active.
+- The S1 feature store tests loading, ready, failed, retry, StrictMode-style in-flight deduplication, enabled/disabled typed lookup, and full-snapshot replacement. Backend tests own catalog ordering and Cargo-feature projection.
 
 ## Forbidden Patterns
 
@@ -55,4 +56,4 @@ The checked-in Windows workflow reads versions from those repository fields, key
 - [Windows quality workflow](../../../.github/workflows/ci.yml)
 - [Frontend toolchain version sources](../../../package.json)
 
-The binding freshness and Volta-pinned pnpm CI gates are established. The S1 runtime bootstrap adds focused Vitest coverage for privilege, recovery, launch warning, load failure, and snapshot/event merge projections. Final component and browser-flow conventions remain pending until the frontend shell exists.
+The binding freshness and Volta-pinned pnpm CI gates are established. S1 runtime and feature bootstrap add focused Vitest coverage for privilege, recovery, launch warning, load failure, snapshot/event merge projections, feature initialization, failure/retry, selectors, and stale-entry removal. Final component and browser-flow conventions remain pending until the frontend shell exists.
