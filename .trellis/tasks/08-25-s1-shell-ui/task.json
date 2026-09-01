@@ -19,7 +19,8 @@
   "pr_url": null,
   "subtasks": [],
   "children": [
-    "08-26-s1-runtime-lifecycle"
+    "08-26-s1-runtime-lifecycle",
+    "08-27-s1-config-features"
   ],
   "parent": null,
   "relatedFiles": [],

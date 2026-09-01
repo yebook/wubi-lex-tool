@@ -1,0 +1,12 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Verify package-manager pins, exact dependencies, lockfiles and forbidden alternate tooling."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Review complete load/update/import/event/snapshot and Cargo-feature-to-store data flows."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Reject misplaced config policy, direct Win32 calls or command-layer business logic."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Audit AppError codes, native stages, combined restore failures, redaction and production panic paths."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Verify bounded parsing, deterministic fault injection, ownership cleanup and real Windows tests."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Run and review Rust, bindings, docs, deny, package and workflow quality gates."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Check native error/restore evidence and prove no ImTip integration or placeholder exists."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Review first-store ownership, in-flight deduplication, retry and absence of WebView persistence."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check every IPC/store model uses generated Rust contracts with no duplicated feature union."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Run TypeScript, ESLint, Vitest and focused loading/failure/selector regression checks."}
+{"file":".trellis/tasks/08-27-s1-config-features/research/config-feature-contracts.md","reason":"Compare implementation against the approved schema, whole-import and feature catalog decisions."}
+{"file":".trellis/tasks/08-27-s1-config-features/research/windows-atomic-config.md","reason":"Verify unsupported flags are absent and native 1177/backup/restore topologies are covered."}

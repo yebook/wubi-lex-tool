@@ -1,0 +1,15 @@
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"Use only project Volta Node/pnpm pins, exact dependency versions and the existing lockfile workflow."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Trace config revisions, AppError, events and feature availability across disk, Rust IPC and Zustand."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Keep schema defaults, feature IDs, error codes and persistence helpers single-sourced."}
+{"file":".trellis/spec/backend/index.md","reason":"Apply current backend evidence states and update only guides established by this implementation."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep config policy in the app layer and direct Win32 file operations in the approved lower crate."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Implement the first generated AppError boundary with staged native and persistence evidence."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Apply deterministic malformed-input, fault-injection, Windows integration and no-panic test rules."}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"Preserve canonical bindings, dependency, document and Windows repository gates."}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"Follow reversible native-operation evidence and the permanent ImTip prohibition."}
+{"file":".trellis/spec/frontend/index.md","reason":"Apply current frontend evidence states when establishing the first real store."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Establish the first Zustand feature store without browser persistence or a second config source."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Consume Rust-generated config, error and feature contracts without handwritten wire types."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Cover store loading, failure, retry and typed selector behavior with the pinned frontend gates."}
+{"file":".trellis/tasks/08-27-s1-config-features/research/config-feature-contracts.md","reason":"Use the inspected schema, import, catalog, dependency and StrictMode store decisions."}
+{"file":".trellis/tasks/08-27-s1-config-features/research/windows-atomic-config.md","reason":"Implement the verified ReplaceFileW/MoveFileExW, backup recovery, ownership and test contract."}

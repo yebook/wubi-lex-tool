@@ -29,7 +29,7 @@
   - 验收：`/tray` 无闪窗、托盘清理、离屏恢复、不同 DPI 和退出拦截 Windows smoke；不存在 ImTip 或通用“相关工具”入口。
 
 - [ ] 4. `s1-ui-foundation`
-  - 安装经批准且最小的 React Router、Zustand、i18next、Lucide、shadcn 所需依赖，并更新 lockfile。
+  - 安装经批准且尚未由前序任务引入的 React Router、i18next、Lucide、shadcn 所需依赖，并更新 lockfile；Zustand 由首个真实消费者 `s1-config-features` 引入。
   - 建立 `theme.css`、首帧主题引导、密度、字体、五区令牌和简体中文资源。
   - 实现经过评审的基础按钮、输入、菜单、对话框、tooltip、kbd 和 overlay host。
   - 验收：Tailwind v4 `@theme inline`、无字面令牌、深浅对比度、reduced-motion、200% 字号和 icon accessible name。
