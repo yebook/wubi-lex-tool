@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+use crate::config::ConfigSnapshot;
 use crate::launch::{LaunchNotice, LaunchRequest, ParsedLaunch};
 
 /// A validated launch request submitted by a secondary process.
@@ -26,4 +27,86 @@ impl From<ParsedLaunch> for LaunchRequestedEvent {
 
 impl tauri_specta::Event for LaunchRequestedEvent {
     const NAME: &'static str = "app://launch-requested";
+}
+
+/// Full configuration snapshot published after a successful commit.
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct ConfigChangedEvent {
+    pub snapshot: ConfigSnapshot,
+}
+
+impl tauri_specta::Event for ConfigChangedEvent {
+    const NAME: &'static str = "config://changed";
+}
+
+/// Runtime-independent event adapter consumed by generic command signatures.
+pub struct ConfigEventEmitter {
+    emit: Box<dyn Fn(ConfigChangedEvent) -> Result<(), String> + Send + Sync>,
+}
+
+impl ConfigEventEmitter {
+    pub fn new(
+        emit: impl Fn(ConfigChangedEvent) -> Result<(), String> + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            emit: Box::new(emit),
+        }
+    }
+
+    pub fn emit_changed(&self, snapshot: ConfigSnapshot) {
+        if let Err(error) = (self.emit)(ConfigChangedEvent { snapshot }) {
+            tracing::warn!(
+                event = "config_event_emit_failed",
+                stage = "config_commit",
+                error = %error,
+                pid = std::process::id(),
+                app_version = env!("CARGO_PKG_VERSION")
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ConfigChangedEvent;
+    use crate::config::{AppConfig, ConfigPersistence, ConfigSnapshot};
+    use std::sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    };
+    use tauri_specta::Event;
+
+    #[test]
+    fn config_event_name_and_snapshot_fields_are_stable() {
+        let event = ConfigChangedEvent {
+            snapshot: ConfigSnapshot {
+                revision: 4,
+                config: AppConfig::default(),
+                persistence: ConfigPersistence::Ready,
+                notices: Vec::new(),
+            },
+        };
+        let value = serde_json::to_value(event).expect("event must serialize");
+        assert_eq!(ConfigChangedEvent::NAME, "config://changed");
+        assert_eq!(value["snapshot"]["revision"], 4);
+        assert_eq!(value["snapshot"]["config"]["schemaVersion"], 1);
+    }
+
+    #[test]
+    fn config_emit_failure_is_observed_once_without_becoming_a_command_error() {
+        let calls = Arc::new(AtomicUsize::new(0));
+        let observed = Arc::clone(&calls);
+        let emitter = super::ConfigEventEmitter::new(move |_| {
+            observed.fetch_add(1, Ordering::Relaxed);
+            Err("simulated listener failure".to_owned())
+        });
+        emitter.emit_changed(ConfigSnapshot {
+            revision: 2,
+            config: AppConfig::default(),
+            persistence: ConfigPersistence::Ready,
+            notices: Vec::new(),
+        });
+        assert_eq!(calls.load(Ordering::Relaxed), 1);
+    }
 }

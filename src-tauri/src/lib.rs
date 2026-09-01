@@ -2,7 +2,10 @@
 
 pub mod bindings;
 pub mod commands;
+pub mod config;
+pub mod error;
 pub mod events;
+pub mod features;
 pub mod launch;
 pub mod logging;
 pub mod recovery;
@@ -12,6 +15,7 @@ pub mod runtime;
 use std::{
     ffi::OsString,
     io,
+    sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -43,6 +47,22 @@ pub fn run() -> Result<i32, tauri::Error> {
         .invoke_handler(invoke_handler)
         .setup(move |app| {
             registry.mount_events(app);
+            let config_service = match app.path().app_config_dir() {
+                Ok(directory) => {
+                    config::ConfigService::load(directory, config::WindowsConfigFileOps)
+                }
+                Err(error) => config::ConfigService::unavailable(
+                    format!("stage=resolve_app_config_directory; error={error}"),
+                    config::WindowsConfigFileOps,
+                ),
+            };
+            app.manage(Arc::new(config_service));
+            let config_event_handle = app.handle().clone();
+            app.manage(events::ConfigEventEmitter::new(move |event| {
+                event
+                    .emit(&config_event_handle)
+                    .map_err(|error| error.to_string())
+            }));
             let mut notices = Vec::new();
             let app_data_directory = app.path().app_data_dir();
 

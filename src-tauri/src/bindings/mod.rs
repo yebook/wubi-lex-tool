@@ -15,8 +15,19 @@ pub fn builder<R: Runtime>() -> Builder<R> {
     Builder::<R>::new()
         .commands(collect_commands![
             crate::commands::app::app_runtime_snapshot,
+            crate::commands::app::config::config_snapshot,
+            crate::commands::app::config::config_update_window,
+            crate::commands::app::config::config_update_ui,
+            crate::commands::app::config::config_update_keymap,
+            crate::commands::app::config::config_restore_defaults,
+            crate::commands::app::config::config_import,
+            crate::commands::app::config::config_export,
+            crate::commands::app::features::app_features,
         ])
-        .events(collect_events![crate::events::LaunchRequestedEvent])
+        .events(collect_events![
+            crate::events::LaunchRequestedEvent,
+            crate::events::ConfigChangedEvent
+        ])
 }
 
 /// Exports the canonical registry without constructing a Wry runtime.

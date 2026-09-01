@@ -15,6 +15,7 @@ import {
   runtimeErrorMessage,
 } from "./runtime-view";
 import type { StatusPresentation } from "./runtime-view";
+import { featuresStore } from "./stores/features";
 import "./styles/runtime-status.css";
 
 const appIconUrl = new URL("../src-tauri/icons/icon.ico", import.meta.url).href;
@@ -30,6 +31,10 @@ function RuntimeApp() {
   const [refreshWarning, setRefreshWarning] = useState<string | null>(null);
   const latestLaunch = useRef<LaunchRequestedEvent | null>(null);
   const launchSequence = useRef(0);
+
+  useEffect(() => {
+    void featuresStore.getState().initialize();
+  }, []);
 
   const refresh = useCallback(async (showLoading = true) => {
     const sequenceAtStart = launchSequence.current;

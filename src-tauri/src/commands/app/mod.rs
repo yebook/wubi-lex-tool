@@ -1,5 +1,8 @@
 //! Application-shell commands.
 
+pub(crate) mod config;
+pub(crate) mod features;
+
 use tauri::State;
 
 use crate::runtime::{RuntimeSnapshot, RuntimeState};

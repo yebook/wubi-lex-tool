@@ -8,14 +8,123 @@ import * as __TAURI_EVENT from "@tauri-apps/api/event";
 export const commands = {
 	/**  Returns the authoritative runtime state, including events missed during bootstrap. */
 	appRuntimeSnapshot: () => __TAURI_INVOKE<RuntimeSnapshot>("app_runtime_snapshot"),
+	configSnapshot: () => typedError<ConfigSnapshot, AppError>(__TAURI_INVOKE("config_snapshot")),
+	configUpdateWindow: (window: WindowConfig) => typedError<ConfigSnapshot, AppError>(__TAURI_INVOKE("config_update_window", { window })),
+	configUpdateUi: (ui: UiConfig) => typedError<ConfigSnapshot, AppError>(__TAURI_INVOKE("config_update_ui", { ui })),
+	configUpdateKeymap: (keymap: KeymapConfig) => typedError<ConfigSnapshot, AppError>(__TAURI_INVOKE("config_update_keymap", { keymap })),
+	configRestoreDefaults: (group: ConfigGroup) => typedError<ConfigSnapshot, AppError>(__TAURI_INVOKE("config_restore_defaults", { group })),
+	configImport: (request: ConfigPathRequest) => typedError<ConfigSnapshot, AppError>(__TAURI_INVOKE("config_import", { request })),
+	configExport: (request: ConfigPathRequest) => typedError<ConfigExportResult, AppError>(__TAURI_INVOKE("config_export", { request })),
+	appFeatures: () => __TAURI_INVOKE<AppFeatureCatalog>("app_features"),
 };
 
 /** Events */
 export const events = {
 	appLaunchRequested: makeEvent<LaunchRequestedEvent>("app://launch-requested"),
+	configChanged: makeEvent<ConfigChangedEvent>("config://changed"),
 };
 
 /* Types */
+/**  Complete versioned application configuration. */
+export type AppConfig = {
+	schemaVersion: number,
+	window?: WindowConfig,
+	ui?: UiConfig,
+	keymap?: KeymapConfig,
+};
+
+/**  Serializable error returned by every fallible application command. */
+export type AppError = {
+	code: AppErrorCode,
+	kind: AppErrorKind,
+	module: RequirementModule,
+	message: string,
+	detail: string | null,
+	recoverable: boolean,
+};
+
+/**  Stable error identifiers for application commands. */
+export type AppErrorCode = "configUnavailable" | "configInvalidPath" | "configReadFailed" | "configParseFailed" | "configUnsupportedVersion" | "configValidationFailed" | "configPreservationFailed" | "configBackupFailed" | "configWriteFailed" | "configReplaceFailed" | "configImportFailed" | "configExportFailed" | "configStateFailed";
+
+/**  Cross-command error categories. */
+export type AppErrorKind = "io" | "parse" | "network" | "permission" | "system" | "validation" | "cancelled";
+
+/**  One stable capability record. */
+export type AppFeature = {
+	id: AppFeatureId,
+	available: boolean,
+	targetMilestone: TargetMilestone,
+	unavailableReason: FeatureUnavailableReason | null,
+};
+
+/**  Complete feature snapshot returned at frontend startup. */
+export type AppFeatureCatalog = {
+	features: AppFeature[],
+};
+
+/**  Stable identifiers consumed by routes, actions, and settings. */
+export type AppFeatureId = "lexiconRead" | "phraseRead" | "reverseLookup" | "systemWrite" | "lexiconEdit" | "phraseEdit" | "radicalReference" | "resourceSync" | "systemSettings" | "resourceUpdate" | "legacyMigration" | "selfLearning";
+
+/**  Supported application locale. */
+export type AppLocale = "zh-CN";
+
+/**  Distinguishes a custom binding from an explicitly cleared action binding. */
+export type BindingOverride = { kind: "custom"; accelerator: string } | { kind: "unbound" };
+
+/**  Close-button behavior consumed by the later window/tray task. */
+export type CloseAction = "minimizeToTray" | "exit";
+
+/**  Full configuration snapshot published after a successful commit. */
+export type ConfigChangedEvent = {
+	snapshot: ConfigSnapshot,
+};
+
+/**  Result of exporting the canonical configuration document. */
+export type ConfigExportResult = {
+	path: string,
+	bytesWritten: number,
+};
+
+/**  Complete config group accepted by update and reset commands. */
+export type ConfigGroup = "window" | "ui" | "keymap" | "all";
+
+/**  Bounded visible evidence for degraded configuration behavior. */
+export type ConfigNotice = {
+	code: ConfigNoticeCode,
+	message: string,
+	detail: string | null,
+};
+
+/**  Stable startup and recovery notice identifiers. */
+export type ConfigNoticeCode = "corruptConfigPreserved" | "backupRecovered" | "unsupportedVersion" | "persistenceUnavailable" | "replacementRecoveryFailed";
+
+/**  OS path request generated for import and export commands. */
+export type ConfigPathRequest = {
+	path: string,
+};
+
+/**  Whether routine configuration writes are currently permitted. */
+export type ConfigPersistence = "ready" | "readOnly";
+
+/**  Complete authoritative configuration state. */
+export type ConfigSnapshot = {
+	revision: number,
+	config: AppConfig,
+	persistence: ConfigPersistence,
+	notices: ConfigNotice[],
+};
+
+/**  Interface density preference. */
+export type Density = "standard" | "compact";
+
+/**  Typed reason a catalog entry is not available in the current build. */
+export type FeatureUnavailableReason = "notIncludedInBuild";
+
+/**  Durable keymap overrides. Registered actions and conflict checks are later concerns. */
+export type KeymapConfig = {
+	bindings?: { [key in string]: BindingOverride },
+};
+
 /**  A bounded, user-visible launch warning that never contains raw argv text. */
 export type LaunchNotice = {
 	/**  Stable machine-readable code. */
@@ -74,6 +183,9 @@ export type PrivilegeStatus = {
 	failure: PrivilegeFailure | null,
 };
 
+/**  Requirement module responsible for an operation. */
+export type RequirementModule = "m1" | "m2" | "m3" | "m4" | "m5" | "m6" | "m7" | "m8";
+
 /**  A bounded warning safe to render in the status view. */
 export type RuntimeNotice = {
 	code: RuntimeNoticeCode,
@@ -93,7 +205,47 @@ export type RuntimeSnapshot = {
 	notices: RuntimeNotice[],
 };
 
+/**  Milestone that owns a capability implementation. */
+export type TargetMilestone = "s2" | "s3" | "s4" | "s5" | "s6" | "s7" | "s8";
+
+/**  Theme preference; rendering belongs to the theme task. */
+export type ThemePreference = "system" | "light" | "dark";
+
+/**  Durable user-interface preferences. */
+export type UiConfig = {
+	theme?: ThemePreference,
+	density?: Density,
+	locale?: AppLocale,
+	sidebarCollapsed?: boolean,
+	onboardingVersion?: number,
+};
+
+/**  Saved logical window rectangle and scale factor. */
+export type WindowBounds = {
+	x: number,
+	y: number,
+	width: number,
+	height: number,
+	scaleFactor: number,
+};
+
+/**  Durable window preferences. Display correction belongs to the window layer. */
+export type WindowConfig = {
+	bounds?: WindowBounds | null,
+	maximized?: boolean,
+	closeAction?: CloseAction,
+};
+
 /* Tauri Specta runtime */
+async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {
+    try {
+        return { status: "ok", data: await result };
+    } catch (e) {
+        if (e instanceof Error) throw e;
+        return { status: "error", error: e as any };
+    }
+}
+
 type EventEmit<T> = [T] extends [null] ? () => Promise<void> : (payload: T) => Promise<void>;
 
 function makeEvent<T>(name: string, serialize?: (payload: T) => unknown, deserialize?: (payload: any) => T) {
