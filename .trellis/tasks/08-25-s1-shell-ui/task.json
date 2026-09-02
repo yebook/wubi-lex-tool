@@ -20,7 +20,8 @@
   "subtasks": [],
   "children": [
     "08-26-s1-runtime-lifecycle",
-    "08-27-s1-config-features"
+    "08-27-s1-config-features",
+    "09-01-s1-window-tray"
   ],
   "parent": null,
   "relatedFiles": [],

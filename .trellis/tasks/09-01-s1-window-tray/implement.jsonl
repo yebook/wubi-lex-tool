@@ -1,0 +1,9 @@
+{"file":".trellis/tasks/09-01-s1-window-tray/research/window-tray-contracts.md","reason":"窗口协调器、bounds、延迟托盘、保存 worker、IPC、capability 与 smoke 的任务专属技术契约。"}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"约束 src-tauri 应用状态、commands、events、config 与 bindings 的所有权和目录。"}
+{"file":".trellis/spec/backend/error-handling.md","reason":"扩展统一 AppError、保留失败阶段并限制用户可见 detail。"}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"窗口、托盘、保存和退出失败必须使用脱敏结构化日志。"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Rust 单测、clippy、doc 与 Windows 行为变更的质量门禁。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"标题栏原生按钮、Lucide、可访问名称、焦点和组件边界。"}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"listener-first bootstrap、清理订阅、竞态和错误可见性的 Hook 约束。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"window command/event/state 必须由 Rust registry 生成并经薄 IPC wrapper 消费。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Volta 项目 pnpm、Vitest 组件覆盖、bindings freshness 与前端全量门禁。"}

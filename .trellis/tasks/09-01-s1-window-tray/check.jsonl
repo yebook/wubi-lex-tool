@@ -1,0 +1,8 @@
+{"file":".trellis/tasks/09-01-s1-window-tray/research/window-tray-contracts.md","reason":"逐项核对必要范围、竞态、几何算法、权限、失败恢复和 smoke 覆盖。"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"检查 Rust 全量门禁、真实行为断言和非阻塞实现。"}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"检查 bindings/docs/dependency policy、Windows workflow 与 runtime smoke 一致性。"}
+{"file":".trellis/spec/backend/error-handling.md","reason":"检查 AppError/runtime notice 的统一形状、脱敏和失败传播。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"检查 pnpm、TypeScript、ESLint、Vitest、build 和组件状态覆盖。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"检查 generated registry、事件序列化、wrapper 和无手写 wire type。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查 Rust state/command/event 到 Hook/组件/可见警告的完整跨层数据流。"}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"检查 package.json.volta.pnpm 是唯一 pnpm 来源且命令符合项目工具链。"}

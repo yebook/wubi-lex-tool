@@ -30,7 +30,7 @@ ui foundation -> routing + shell ----+                     |
 
 Tauri capability 只开放实际使用的窗口、托盘、事件和必要 OS 能力；CSP 禁止 `eval`、内联业务脚本和非 HTTPS 网络源。首帧主题引导脚本必须是最小的、固定哈希或 Tauri 允许的受控入口，不能把 CSP 放宽为任意 inline script。
 
-一期 bundle manifest 请求管理员权限，运行时仍独立检测实际 token，避免“manifest 存在”被误当作权限事实。所有后续领域系统操作在 S1 都不可用；托盘和命令面板只能显示禁用的 feature placeholder。
+一期 bundle manifest 请求管理员权限，运行时仍独立检测实际 token，避免“manifest 存在”被误当作权限事实。所有后续领域系统操作在 S1 都不可用；命令面板可以显示禁用的 feature placeholder，窗口子任务的最小托盘只显示窗口与退出动作。
 
 `M7-WIN-005` 是永久 P3 禁止项，不是 feature placeholder。应用不定义 ImTip route、action、tray item、setting、feature ID、command、capability、process adapter、URL 或 dependency，也不建立通用“相关工具”入口来绕过该决定。
 
@@ -97,7 +97,7 @@ Cargo feature 是能力开关唯一来源。`app_features` 返回稳定 feature 
 - `minimize`：阻止关闭、隐藏任务栏窗口并保留托盘。
 - `exit`：检查未保存状态和不可中断任务，完成热键/托盘/会话标记清理后退出。
 
-托盘菜单从共享动作目录投影，避免维护另一套命令文本。窗口/导航动作可用；后续领域项 disabled 并带阶段文本。动态状态优先从事件驱动缓存读取，只有真实模块交付后才在菜单弹出附近查询系统。
+窗口子任务先交付固定且真实可用的“显示 WubiLex / 退出”最小托盘，不建立领域 descriptor 或 disabled placeholder。统一动作目录与路由交付后，完整领域托盘菜单再从共享动作目录投影并替换该最小构建；动态状态只在真实模块交付后接入事件驱动缓存。
 
 内部 route ID 与 URL path 建立一一映射。合法来源包括侧栏、命令面板、托盘、第二实例参数和 `navigate` event；所有来源进入同一 route validator。未知或当前 feature 不可用的深链接跳到对应占位页并显示 warning，而不是白屏。
 
@@ -110,7 +110,7 @@ Rust 静态动作目录定义：`id`、i18n key、group、scope、default bindin
 - frontend target：页面跳转、打开命令面板、切换主题等，由统一 frontend dispatcher 处理。
 - native target：窗口、托盘、全局热键等，通过 typed command 执行。
 
-全局热键触发后发出 `action://invoked`，再走同一 dispatcher。命令面板、托盘、键盘和按钮只提交 action ID，不复制执行逻辑。
+全局热键触发后发出 `action://invoked`，再走同一 dispatcher。统一动作目录交付后，命令面板、扩展托盘、键盘和按钮只提交 action ID，不复制执行逻辑；此前窗口子任务的两项最小托盘由 native coordinator 直接所有。
 
 绑定变更是事务：语法/保留键/应用内冲突校验 -> 尝试建立新全局注册 -> 更新内存 keymap -> 保存配置 -> 撤销旧注册。任一步失败都撤销新注册并恢复旧绑定。使用可替换的 global-shortcut adapter 做占用和 rollback 单测。
 

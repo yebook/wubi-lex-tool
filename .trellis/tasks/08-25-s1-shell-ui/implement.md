@@ -25,7 +25,7 @@
 - [ ] 3. `s1-window-tray`
   - 实现无边框标题栏和 native window coordinator。
   - 实现多显示器 bounds 校正、最大化状态、关闭策略和任务栏/托盘切换。
-  - 从动作目录构建托盘菜单，接入还原、置前、退出和后续阶段禁用项。
+  - 构建只含“显示 WubiLex / 退出”的最小托盘菜单，接入还原、置前和显式退出；不预建领域动作或禁用占位。
   - 验收：`/tray` 无闪窗、托盘清理、离屏恢复、不同 DPI 和退出拦截 Windows smoke；不存在 ImTip 或通用“相关工具”入口。
 
 - [ ] 4. `s1-ui-foundation`
@@ -41,7 +41,7 @@
   - 验收：侧栏/快捷路由/深链接/返回一致，七入口可达，未实现 feature 不调用缺失 command。
 
 - [ ] 6. `s1-actions-keymap`
-  - 实现 Rust 动作目录、typed descriptor、frontend dispatcher 和托盘/命令面板共用投影。
+  - 实现 Rust 动作目录、typed descriptor、frontend dispatcher 和命令面板投影；路由就绪后再评估并扩展领域托盘投影。
   - 实现应用内快捷键、全局热键 adapter、事务式改绑、冲突/保留键检测和配置持久化。
   - 实现命令面板、键帽、热键录制器和快捷键设置完整流程。
   - 验收：所有来源提交同一 action ID；占用失败保留旧绑定；默认表、清除、恢复和导入导出测试通过。
@@ -63,7 +63,7 @@
 - [ ] G1：真实 frontend/runtime entry 通过后，才能让其他子任务依赖可运行壳。
 - [ ] G2：config schema、feature IDs、route IDs、action IDs、event names 和 error codes 在首个消费者前冻结。
 - [ ] G3：任何 Rust IPC 变更同提交包含生成 bindings 和 freshness check。
-- [ ] G4：托盘、命令面板、快捷键和按钮不得各自复制动作名称、可用性或执行逻辑。
+- [ ] G4：窗口子任务只拥有显示/退出两项 native 托盘动作；领域托盘扩展必须等待统一动作目录，不得与命令面板、快捷键或按钮复制动作名称、可用性和执行逻辑。
 - [ ] G5：S1 的 placeholder 绝不触发 S2/S3 command；没有用假数据伪装系统状态。
 - [ ] G6：超过 100 ms 的测试操作放后台；互斥和取消由 Rust registry 强制，UI disabled 只做反馈。
 - [ ] G7：视觉子任务在开始和结束时分别使用 `ui-ux-pro-max` 规则检查；若本机脚本仍缺失，记录降级并执行仓库令牌、对比度、键盘和截图验收。
