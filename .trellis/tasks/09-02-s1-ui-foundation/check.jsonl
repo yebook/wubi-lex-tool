@@ -1,0 +1,11 @@
+{"file":".trellis/tasks/09-02-s1-ui-foundation/research/ui-foundation-contracts.md","reason":"逐项检查 MVP 边界、依赖、首帧、provider、i18n、primitives、overlay 和 smoke。"}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"检查 token 单一来源、两主题值、@theme inline、compact 和禁止 v3 文件。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"检查 native semantics、variants、accessible name/state、focus 和组件边界。"}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"检查 listener race、revision、update queue、rollback、media/event cleanup。"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"检查不使用 Web Storage、无第二 config schema、上下文更新有界。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"检查 generated UiConfig/ConfigSnapshot/Event、无手写 union/cast。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"检查 format/typecheck/lint/tests/build/browser 和 frozen audit。"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"检查 ui bootstrap Rust tests、Clippy/doc 和 workspace regression。"}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"检查 CI、docs/bindings/dependency policy、Windows runtime smoke。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查 config snapshot/event/update 经 provider 到 DOM/可见 warning 的完整数据流。"}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"检查 package.json.volta.pnpm 为唯一 pnpm 来源且不出现禁用工具。"}

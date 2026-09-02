@@ -1,0 +1,11 @@
+{"file":".trellis/tasks/09-02-s1-ui-foundation/research/ui-foundation-contracts.md","reason":"UI foundation 的依赖、首帧 bootstrap、主题同步、i18n、primitive、overlay 与验证技术合同。"}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"约束唯一 theme.css、@theme inline、dark/compact variants 和禁止 v3 配置。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"延续现有可访问组件合同并建立通用 primitive 的真实证据。"}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"约束 config event listener-first、revision merge、异步 cleanup 和错误可见性。"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"持久配置保持 backend-owned，provider/store 不得成为第二数据库。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"UiConfig/ConfigSnapshot/Event 只消费生成 bindings，不手写 wire type。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"pnpm、format、TypeScript、ESLint、Vitest、build 与 browser checks 的门禁。"}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"native document-start UI bootstrap 属于 Tauri 应用适配层并复用一次 config snapshot。"}
+{"file":".trellis/spec/backend/error-handling.md","reason":"配置/bootstrap 失败必须默认继续、脱敏记录并进入可见 warning。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查 Rust config 到 WebView 首帧、provider、DOM 和 visible warning 的完整链路。"}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"固定项目 Volta pnpm、精确依赖和禁止其它 package manager/version source。"}
