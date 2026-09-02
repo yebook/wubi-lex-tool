@@ -334,3 +334,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 15: 完成 S1 窗口与托盘
+
+**Date**: 2026-09-02
+**Task**: 完成 S1 窗口与托盘
+**Branch**: `main`
+
+### Summary
+
+实现无边框主窗口、托盘生命周期、DPI/多屏恢复、异步 placement 持久化、生成式窗口 IPC、可访问标题栏和隔离 Windows runtime smoke；补齐前后端规范并通过全量门禁。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `25064a7` | (see git log) |
+| `d0f3085` | (see git log) |
+| `e96d331` | (see git log) |
+
+### Status
+
+[OK] **Completed**
