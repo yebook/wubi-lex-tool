@@ -1,5 +1,6 @@
 import { createStore } from "zustand/vanilla";
 
+import { i18n } from "../i18n";
 import type {
   AppFeature,
   AppFeatureCatalog,
@@ -64,8 +65,12 @@ export function createFeatureStore(client: FeatureClient) {
       initialize: () => load(false),
       retry: () => load(true),
       replace: (catalog) => set({ status: "ready", catalog, error: null }),
-      feature: (id) => get().catalog.features.find((feature) => feature.id === id),
-      isAvailable: (id) => get().catalog.features.some((feature) => feature.id === id && feature.available),
+      feature: (id) =>
+        get().catalog.features.find((feature) => feature.id === id),
+      isAvailable: (id) =>
+        get().catalog.features.some(
+          (feature) => feature.id === id && feature.available,
+        ),
     };
   });
 }
@@ -76,12 +81,16 @@ export const selectFeatureStatus = (state: FeaturesState) => state.status;
 export const selectFeatureError = (state: FeaturesState) => state.error;
 export const selectFeature = (id: AppFeatureId) => (state: FeaturesState) =>
   state.catalog.features.find((feature) => feature.id === id);
-export const selectFeatureAvailable = (id: AppFeatureId) => (state: FeaturesState) =>
-  state.catalog.features.some((feature) => feature.id === id && feature.available);
+export const selectFeatureAvailable =
+  (id: AppFeatureId) => (state: FeaturesState) =>
+    state.catalog.features.some(
+      (feature) => feature.id === id && feature.available,
+    );
 
 function invocationFailure(error: unknown): FeatureClientFailure {
-  const message = error instanceof Error && error.message
-    ? error.message
-    : "无法读取应用功能目录。";
+  const message =
+    error instanceof Error && error.message
+      ? error.message
+      : i18n.t("runtime:featureCatalogFallback");
   return { message: [...message].slice(0, 512).join("") };
 }

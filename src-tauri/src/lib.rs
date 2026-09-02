@@ -10,6 +10,8 @@ pub mod launch;
 pub mod logging;
 pub mod recovery;
 pub mod runtime;
+#[cfg(feature = "desktop")]
+pub mod ui_bootstrap;
 pub mod window;
 
 #[cfg(feature = "desktop")]
@@ -67,10 +69,7 @@ pub fn run() -> Result<i32, tauri::Error> {
                     ),
                 }
             });
-            let (window_config, window_config_error) = match config_service.snapshot() {
-                Ok(snapshot) => (snapshot.config.window, None),
-                Err(error) => (config::WindowConfig::default(), Some(error.code)),
-            };
+            let initial_config = initial_config(config_service.snapshot());
             app.manage(Arc::clone(&config_service));
             let config_event_handle = app.handle().clone();
             app.manage(events::ConfigEventEmitter::new(move |event| {
@@ -98,7 +97,7 @@ pub fn run() -> Result<i32, tauri::Error> {
                 }
             };
 
-            if let Some(error_code) = window_config_error {
+            if let Some(error_code) = initial_config.error_code {
                 notices.push(runtime::RuntimeNotice::window_persistence_failed(
                     "read_window_config",
                 ));
@@ -153,7 +152,8 @@ pub fn run() -> Result<i32, tauri::Error> {
                 app.manage(guard);
             }
 
-            let window =
+            let ui_bootstrap = ui_bootstrap::UiBootstrap::from_config(&initial_config.ui);
+            let window = ui_bootstrap::apply_to_builder(
                 WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
                     .title("WubiLex")
                     .decorations(false)
@@ -161,10 +161,12 @@ pub fn run() -> Result<i32, tauri::Error> {
                     .min_inner_size(1024.0, 640.0)
                     .skip_taskbar(start_hidden)
                     .visible(false)
-                    .focused(false)
-                    .build()?;
+                    .focused(false),
+                ui_bootstrap,
+            )
+            .build()?;
 
-            for stage in window::apply_initial_placement(&window, &window_config) {
+            for stage in window::apply_initial_placement(&window, &initial_config.window) {
                 runtime_state.push_notice(runtime::RuntimeNotice::window_operation_failed(stage));
                 tracing::warn!(
                     event = "window_restore_failed",
@@ -173,13 +175,15 @@ pub fn run() -> Result<i32, tauri::Error> {
                     app_version = env!("CARGO_PKG_VERSION")
                 );
             }
-            let initial_maximized = window.is_maximized().unwrap_or(window_config.maximized);
+            let initial_maximized = window
+                .is_maximized()
+                .unwrap_or(initial_config.window.maximized);
             let coordinator = window::WindowCoordinator::new(
                 app.handle().clone(),
                 Arc::clone(&config_service),
                 window::WindowVisibility::Hidden,
                 initial_maximized,
-                window_config.bounds.clone(),
+                initial_config.window.bounds.clone(),
             );
             app.manage(Arc::clone(&coordinator));
             let event_coordinator = Arc::clone(&coordinator);
@@ -299,6 +303,29 @@ fn log_launch_notices(stage: &'static str, notices: &[launch::LaunchNotice]) {
 }
 
 #[cfg(feature = "desktop")]
+struct InitialConfig {
+    window: config::WindowConfig,
+    ui: config::UiConfig,
+    error_code: Option<error::AppErrorCode>,
+}
+
+#[cfg(feature = "desktop")]
+fn initial_config(snapshot: Result<config::ConfigSnapshot, error::AppError>) -> InitialConfig {
+    match snapshot {
+        Ok(snapshot) => InitialConfig {
+            window: snapshot.config.window,
+            ui: snapshot.config.ui,
+            error_code: None,
+        },
+        Err(error) => InitialConfig {
+            window: config::WindowConfig::default(),
+            ui: config::UiConfig::default(),
+            error_code: Some(error.code),
+        },
+    }
+}
+
+#[cfg(feature = "desktop")]
 #[derive(Debug, Eq, PartialEq)]
 struct LaunchNoticeEvidence {
     code: launch::LaunchNoticeCode,
@@ -375,7 +402,11 @@ fn validated_smoke_data_root(requested_root: &Path, executable: &Path) -> io::Re
 
 #[cfg(all(test, feature = "desktop"))]
 mod desktop_tests {
-    use super::{LaunchNoticeEvidence, launch_notice_evidence, validated_smoke_data_root};
+    use super::{
+        LaunchNoticeEvidence, initial_config, launch_notice_evidence, validated_smoke_data_root,
+    };
+    use crate::config::{AppConfig, ConfigPersistence, ConfigSnapshot, Density, ThemePreference};
+    use crate::error::{AppError, AppErrorCode, AppErrorKind, RequirementModule};
     use crate::launch::{LaunchNotice, LaunchNoticeCode};
     use std::{fs, io};
 
@@ -422,5 +453,36 @@ mod desktop_tests {
                 .kind(),
             io::ErrorKind::PermissionDenied
         );
+    }
+
+    #[test]
+    fn initial_config_projects_one_snapshot_and_defaults_on_failure() {
+        let mut config = AppConfig::default();
+        config.window.maximized = true;
+        config.ui.theme = ThemePreference::Dark;
+        config.ui.density = Density::Compact;
+        let projected = initial_config(Ok(ConfigSnapshot {
+            revision: 7,
+            config,
+            persistence: ConfigPersistence::Ready,
+            notices: Vec::new(),
+        }));
+
+        assert!(projected.window.maximized);
+        assert_eq!(projected.ui.theme, ThemePreference::Dark);
+        assert_eq!(projected.ui.density, Density::Compact);
+        assert_eq!(projected.error_code, None);
+
+        let fallback = initial_config(Err(AppError {
+            code: AppErrorCode::ConfigStateFailed,
+            kind: AppErrorKind::System,
+            module: RequirementModule::M7,
+            message: "配置状态不可用。".to_owned(),
+            detail: Some("stage=initial_snapshot".to_owned()),
+            recoverable: true,
+        }));
+        assert_eq!(fallback.window, Default::default());
+        assert_eq!(fallback.ui, Default::default());
+        assert_eq!(fallback.error_code, Some(AppErrorCode::ConfigStateFailed));
     }
 }

@@ -91,7 +91,9 @@ describe("feature store", () => {
 
     expect(store.getState().feature("lexiconRead")?.available).toBe(false);
     expect(store.getState().isAvailable("lexiconRead")).toBe(false);
-    expect(selectFeature("systemWrite")(store.getState())?.targetMilestone).toBe("s3");
+    expect(
+      selectFeature("systemWrite")(store.getState())?.targetMilestone,
+    ).toBe("s3");
 
     store.getState().replace(enabledCatalog);
     expect(store.getState().catalog.features).toHaveLength(1);

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { i18n } from "./i18n";
 import type { RuntimeSnapshot } from "./types/generated/bindings";
 import {
   collectVisibleNotices,
@@ -10,6 +11,8 @@ import {
   mergeRuntimeNotices,
   runtimeErrorMessage,
 } from "./runtime-view";
+
+const t = i18n.getFixedT("zh-CN", "runtime");
 
 const baseline: RuntimeSnapshot = {
   privilege: { state: "elevated", failure: null },
@@ -24,52 +27,68 @@ const baseline: RuntimeSnapshot = {
 
 describe("runtime status presentation", () => {
   it("keeps actual elevation and recovery evidence visible", () => {
-    expect(describePrivilege(baseline.privilege).tone).toBe("positive");
+    expect(describePrivilege(baseline.privilege, t).tone).toBe("positive");
     expect(
-      describePrivilege({
-        state: "unavailable",
-        failure: { stage: "OpenProcessToken", code: 5 },
-      }).detail,
+      describePrivilege(
+        {
+          state: "unavailable",
+          failure: { stage: "OpenProcessToken", code: 5 },
+        },
+        t,
+      ).detail,
     ).toContain("OpenProcessToken");
-    expect(describeRecovery(2)).toMatchObject({
+    expect(describeRecovery(2, t)).toMatchObject({
       tone: "warning",
       label: "发现 2 个异常会话标记",
     });
     expect(
-      describePrivilege({ state: "notElevated", failure: null }).detail,
+      describePrivilege({ state: "notElevated", failure: null }, t).detail,
     ).toContain("以管理员身份重新启动");
   });
 
   it("keeps loading failures actionable without assuming an Error object", () => {
-    expect(runtimeErrorMessage(new Error("IPC unavailable"))).toBe("IPC unavailable");
-    expect(runtimeErrorMessage({ reason: "unknown" })).toBe("无法读取本地运行时状态。");
+    expect(runtimeErrorMessage(new Error("IPC unavailable"), t)).toBe(
+      "IPC unavailable",
+    );
+    expect(runtimeErrorMessage({ reason: "unknown" }, t)).toBe(
+      "无法读取本地运行时状态。",
+    );
   });
 
   it("distinguishes hidden, navigation and fallback launches", () => {
     expect(
-      describeLaunch({
-        request: { startHidden: true, navigationPath: null },
-        notices: [],
-      }).label,
+      describeLaunch(
+        {
+          request: { startHidden: true, navigationPath: null },
+          notices: [],
+        },
+        t,
+      ).label,
     ).toBe("后台启动");
     expect(
-      describeLaunch({
-        request: { startHidden: false, navigationPath: "/settings/runtime" },
-        notices: [],
-      }).label,
+      describeLaunch(
+        {
+          request: { startHidden: false, navigationPath: "/settings/runtime" },
+          notices: [],
+        },
+        t,
+      ).label,
     ).toBe("带导航目标启动");
     expect(
-      describeLaunch({
-        request: { startHidden: false, navigationPath: null },
-        notices: [
-          {
-            code: "unknownArgument",
-            summary: "参数无效",
-            detail: null,
-            argumentPosition: 1,
-          },
-        ],
-      }).tone,
+      describeLaunch(
+        {
+          request: { startHidden: false, navigationPath: null },
+          notices: [
+            {
+              code: "unknownArgument",
+              summary: "参数无效",
+              detail: null,
+              argumentPosition: 1,
+            },
+          ],
+        },
+        t,
+      ).tone,
     ).toBe("warning");
   });
 
@@ -108,7 +127,9 @@ describe("runtime status presentation", () => {
       notices: [],
     };
 
-    expect(mergeLatestLaunch(baseline, launch).latestSecondaryLaunch).toEqual(launch);
+    expect(mergeLatestLaunch(baseline, launch).latestSecondaryLaunch).toEqual(
+      launch,
+    );
     expect(mergeLatestLaunch(baseline, null)).toBe(baseline);
   });
 

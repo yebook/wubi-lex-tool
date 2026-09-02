@@ -1,8 +1,12 @@
 // @vitest-environment jsdom
 
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
+import { createElement } from "react";
+import type { ReactNode } from "react";
+import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { i18n } from "../i18n";
 import type { WindowClient } from "../lib/window-client";
 import type {
   RuntimeNotice,
@@ -17,6 +21,10 @@ const initial: WindowStateSnapshot = {
   visibility: "visible",
   maximized: false,
 };
+
+function I18nTestProvider({ children }: { children: ReactNode }) {
+  return createElement(I18nextProvider, { i18n }, children);
+}
 
 describe("useWindowControls", () => {
   it("registers listeners before snapshot and rejects a stale bootstrap response", async () => {
@@ -43,8 +51,12 @@ describe("useWindowControls", () => {
       control: vi.fn(async () => initial),
     };
 
-    const { result } = renderHook(() => useWindowControls(client));
-    await waitFor(() => expect(order).toEqual(["state-listener", "notice-listener", "snapshot"]));
+    const { result } = renderHook(() => useWindowControls(client), {
+      wrapper: I18nTestProvider,
+    });
+    await waitFor(() =>
+      expect(order).toEqual(["state-listener", "notice-listener", "snapshot"]),
+    );
     act(() => {
       stateListener?.({ revision: 2, visibility: "hidden", maximized: true });
     });
@@ -75,7 +87,9 @@ describe("useWindowControls", () => {
         throw new Error("窗口命令失败");
       }),
     };
-    const { result, unmount } = renderHook(() => useWindowControls(client));
+    const { result, unmount } = renderHook(() => useWindowControls(client), {
+      wrapper: I18nTestProvider,
+    });
     await waitFor(() => expect(result.current.snapshot).toEqual(initial));
 
     const notice: RuntimeNotice = {

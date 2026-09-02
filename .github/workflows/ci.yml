@@ -124,6 +124,9 @@ jobs:
       - name: Frontend vulnerability audit
         run: pnpm audit --audit-level high
 
+      - name: Frontend format
+        run: pnpm format:check
+
       - name: TypeScript
         run: pnpm typecheck
 
@@ -132,3 +135,6 @@ jobs:
 
       - name: Vitest
         run: pnpm test --run
+
+      - name: Frontend build
+        run: pnpm build

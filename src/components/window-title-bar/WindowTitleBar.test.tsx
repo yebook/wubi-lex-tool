@@ -2,8 +2,11 @@
 
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactElement, ReactNode } from "react";
+import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { i18n } from "../../i18n";
 import type { WindowStateSnapshot } from "../../types/generated/bindings";
 import { WindowTitleBar } from "./WindowTitleBar";
 
@@ -15,9 +18,17 @@ const visible: WindowStateSnapshot = {
   maximized: false,
 };
 
+function renderWithI18n(element: ReactElement) {
+  return render(element, {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+    ),
+  });
+}
+
 describe("WindowTitleBar", () => {
   it("renders accessible native controls outside the drag region", () => {
-    const { container } = render(
+    const { container } = renderWithI18n(
       <WindowTitleBar
         iconUrl="/icon.ico"
         version="0.1.0"
@@ -47,7 +58,7 @@ describe("WindowTitleBar", () => {
   it("submits all intents from keyboard-operable buttons", async () => {
     const user = userEvent.setup();
     const onControl = vi.fn();
-    render(
+    renderWithI18n(
       <WindowTitleBar
         iconUrl="/icon.ico"
         version="0.1.0"
@@ -69,7 +80,7 @@ describe("WindowTitleBar", () => {
   });
 
   it("switches to restore semantics and disables controls while exiting", () => {
-    const { rerender } = render(
+    const { rerender } = renderWithI18n(
       <WindowTitleBar
         iconUrl="/icon.ico"
         version="0.1.0"

@@ -1,9 +1,23 @@
-import { StrictMode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  StrictMode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createRoot } from "react-dom/client";
+import { I18nextProvider, useTranslation } from "react-i18next";
 import packageMetadata from "../package.json";
 
+import {
+  UiPreferencesProvider,
+  useUiPreferences,
+} from "./app/providers/ui-preferences-provider";
+import { Button, OverlayProvider } from "./components/ui";
 import { WindowTitleBar } from "./components/window-title-bar/WindowTitleBar";
 import { useWindowControls } from "./hooks/use-window-controls";
+import { i18n } from "./i18n";
 import { commands, events } from "./types/generated/bindings";
 import type {
   LaunchRequestedEvent,
@@ -20,6 +34,7 @@ import {
 } from "./runtime-view";
 import type { StatusPresentation } from "./runtime-view";
 import { featuresStore } from "./stores/features";
+import "./styles/theme.css";
 import "./styles/runtime-status.css";
 
 const appIconUrl = new URL("../src-tauri/icons/icon.ico", import.meta.url).href;
@@ -30,6 +45,8 @@ type LoadState =
   | { status: "error"; message: string };
 
 function RuntimeApp() {
+  const { t } = useTranslation("runtime");
+  const uiPreferences = useUiPreferences();
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [listenerWarning, setListenerWarning] = useState<string | null>(null);
   const [refreshWarning, setRefreshWarning] = useState<string | null>(null);
@@ -41,28 +58,36 @@ function RuntimeApp() {
     void featuresStore.getState().initialize();
   }, []);
 
-  const refresh = useCallback(async (showLoading = true) => {
-    const sequenceAtStart = launchSequence.current;
-    if (showLoading) {
-      setLoadState({ status: "loading" });
-    }
-    try {
-      const snapshot = await commands.appRuntimeSnapshot();
-      const launchDuringRequest =
-        launchSequence.current === sequenceAtStart ? null : latestLaunch.current;
-      setLoadState({
-        status: "ready",
-        snapshot: mergeLatestLaunch(snapshot, launchDuringRequest),
-      });
-      setRefreshWarning(null);
-    } catch (error) {
+  const refresh = useCallback(
+    async (showLoading = true) => {
+      const sequenceAtStart = launchSequence.current;
       if (showLoading) {
-        setLoadState({ status: "error", message: runtimeErrorMessage(error) });
-      } else {
-        setRefreshWarning("启动请求已收到，但完整运行状态暂时无法刷新。可稍后重新读取。");
+        setLoadState({ status: "loading" });
       }
-    }
-  }, []);
+      try {
+        const snapshot = await commands.appRuntimeSnapshot();
+        const launchDuringRequest =
+          launchSequence.current === sequenceAtStart
+            ? null
+            : latestLaunch.current;
+        setLoadState({
+          status: "ready",
+          snapshot: mergeLatestLaunch(snapshot, launchDuringRequest),
+        });
+        setRefreshWarning(null);
+      } catch (error) {
+        if (showLoading) {
+          setLoadState({
+            status: "error",
+            message: runtimeErrorMessage(error, t),
+          });
+        } else {
+          setRefreshWarning(t("warning.refresh"));
+        }
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     let disposed = false;
@@ -70,19 +95,24 @@ function RuntimeApp() {
 
     const initialize = async () => {
       try {
-        const stopListening = await events.appLaunchRequested.listen((event) => {
-          latestLaunch.current = event.payload;
-          launchSequence.current += 1;
-          setLoadState((current) =>
-            current.status === "ready"
-              ? {
-                  status: "ready",
-                  snapshot: mergeLatestLaunch(current.snapshot, event.payload),
-                }
-              : current,
-          );
-          void refresh(false);
-        });
+        const stopListening = await events.appLaunchRequested.listen(
+          (event) => {
+            latestLaunch.current = event.payload;
+            launchSequence.current += 1;
+            setLoadState((current) =>
+              current.status === "ready"
+                ? {
+                    status: "ready",
+                    snapshot: mergeLatestLaunch(
+                      current.snapshot,
+                      event.payload,
+                    ),
+                  }
+                : current,
+            );
+            void refresh(false);
+          },
+        );
         if (disposed) {
           stopListening();
           return;
@@ -90,7 +120,7 @@ function RuntimeApp() {
         unlisten = stopListening;
       } catch {
         if (!disposed) {
-          setListenerWarning("实时启动监听不可用；重新打开窗口可刷新完整状态。");
+          setListenerWarning(t("warning.listener"));
         }
       }
       if (!disposed) {
@@ -103,7 +133,7 @@ function RuntimeApp() {
       disposed = true;
       unlisten?.();
     };
-  }, [refresh]);
+  }, [refresh, t]);
 
   return (
     <div className="app-shell">
@@ -117,26 +147,34 @@ function RuntimeApp() {
       <main id="main-content" className="runtime-main">
         <div className="page-heading">
           <div>
-            <p className="eyebrow">应用外壳</p>
-            <h1>运行状态</h1>
+            <p className="eyebrow">{t("eyebrow")}</p>
+            <h1>{t("title")}</h1>
           </div>
           {loadState.status === "ready" ? (
             <span className="sync-state" aria-live="polite">
               <span className="status-dot positive" aria-hidden="true" />
-              已连接本地运行时
+              {t("connected")}
             </span>
           ) : null}
         </div>
 
         {loadState.status === "loading" ? <LoadingState /> : null}
         {loadState.status === "error" ? (
-          <LoadError message={loadState.message} onRetry={() => void refresh()} />
+          <LoadError
+            message={loadState.message}
+            onRetry={() => void refresh()}
+          />
         ) : null}
         {loadState.status === "ready" ? (
           <RuntimeStatus
             snapshot={loadState.snapshot}
             nativeNotices={windowControls.notices}
-            eventWarning={listenerWarning ?? refreshWarning ?? windowControls.warning}
+            eventWarning={
+              uiPreferences.warning ??
+              listenerWarning ??
+              refreshWarning ??
+              windowControls.warning
+            }
           />
         ) : null}
       </main>
@@ -145,27 +183,33 @@ function RuntimeApp() {
 }
 
 function LoadingState() {
+  const { t } = useTranslation("runtime");
   return (
     <section className="load-state" aria-live="polite" aria-busy="true">
       <span className="loading-indicator" aria-hidden="true" />
       <div>
-        <h2>正在读取运行时状态</h2>
-        <p>正在检查进程权限、会话标记和启动请求。</p>
+        <h2>{t("loading.title")}</h2>
+        <p>{t("loading.detail")}</p>
       </div>
     </section>
   );
 }
 
-function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
+function LoadError({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  const { t } = useTranslation(["runtime", "common"]);
   return (
     <section className="load-error" role="alert">
       <div>
-        <h2>无法连接本地运行时</h2>
+        <h2>{t("runtime:loadError.title")}</h2>
         <p>{message}</p>
       </div>
-      <button type="button" onClick={onRetry}>
-        重新读取
-      </button>
+      <Button onClick={onRetry}>{t("common:retry")}</Button>
     </section>
   );
 }
@@ -179,14 +223,21 @@ function RuntimeStatus({
   nativeNotices: RuntimeSnapshot["notices"];
   eventWarning: string | null;
 }) {
+  const { t } = useTranslation("runtime");
   const latestLaunch = snapshot.latestSecondaryLaunch ?? snapshot.primaryLaunch;
   const statuses = [
-    { label: "进程权限", presentation: describePrivilege(snapshot.privilege) },
     {
-      label: "会话检查",
-      presentation: describeRecovery(snapshot.previousAbnormalSessionCount),
+      label: t("summary.privilege"),
+      presentation: describePrivilege(snapshot.privilege, t),
     },
-    { label: "最近启动", presentation: describeLaunch(latestLaunch) },
+    {
+      label: t("summary.recovery"),
+      presentation: describeRecovery(snapshot.previousAbnormalSessionCount, t),
+    },
+    {
+      label: t("summary.launch"),
+      presentation: describeLaunch(latestLaunch, t),
+    },
   ];
   const notices = useMemo(
     () => collectVisibleNotices(mergeRuntimeNotices(snapshot, nativeNotices)),
@@ -195,50 +246,65 @@ function RuntimeStatus({
 
   return (
     <>
-      <section className="status-grid" aria-label="运行时摘要">
+      <section className="status-grid" aria-label={t("summary.label")}>
         {statuses.map((status) => (
-          <StatusCell key={status.label} label={status.label} presentation={status.presentation} />
+          <StatusCell
+            key={status.label}
+            label={status.label}
+            presentation={status.presentation}
+          />
         ))}
       </section>
 
       <section className="detail-section" aria-labelledby="launch-heading">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">最近请求</p>
-            <h2 id="launch-heading">启动参数</h2>
+            <p className="eyebrow">{t("request.eyebrow")}</p>
+            <h2 id="launch-heading">{t("request.title")}</h2>
           </div>
           <span className="request-source">
-            {snapshot.latestSecondaryLaunch ? "第二实例" : "主实例"}
+            {snapshot.latestSecondaryLaunch
+              ? t("request.secondary")
+              : t("request.primary")}
           </span>
         </div>
         <LaunchDetails launch={latestLaunch} />
       </section>
 
-      <section className="detail-section" aria-labelledby="notice-heading" aria-live="polite">
+      <section
+        className="detail-section"
+        aria-labelledby="notice-heading"
+        aria-live="polite"
+      >
         <div className="section-heading">
           <div>
-            <p className="eyebrow">诊断</p>
-            <h2 id="notice-heading">可见警告</h2>
+            <p className="eyebrow">{t("notices.eyebrow")}</p>
+            <h2 id="notice-heading">{t("notices.title")}</h2>
           </div>
-          <span className="notice-count">{notices.length + (eventWarning ? 1 : 0)}</span>
+          <span className="notice-count">
+            {notices.length + (eventWarning ? 1 : 0)}
+          </span>
         </div>
 
         {notices.length === 0 && !eventWarning ? (
-          <p className="empty-notice">当前没有需要处理的运行时警告。</p>
+          <p className="empty-notice">{t("notices.empty")}</p>
         ) : (
           <ul className="notice-list">
             {eventWarning ? (
               <li className="notice-row warning">
                 <span className="status-dot warning" aria-hidden="true" />
                 <div>
-                  <strong>实时监听受限</strong>
+                  <strong>{t("warning.restricted")}</strong>
                   <p>{eventWarning}</p>
                 </div>
               </li>
             ) : null}
             {notices.map((notice) => (
               <li key={notice.key} className={`notice-row ${notice.tone}`}>
-                <span className={`status-dot ${notice.tone}`} aria-hidden="true" />
+                <span
+                  className={`status-dot ${notice.tone}`}
+                  aria-hidden="true"
+                />
                 <div>
                   <strong>{notice.summary}</strong>
                   {notice.detail ? <p>{notice.detail}</p> : null}
@@ -263,7 +329,10 @@ function StatusCell({
     <div className="status-cell">
       <span className="status-label">{label}</span>
       <div className="status-title">
-        <span className={`status-dot ${presentation.tone}`} aria-hidden="true" />
+        <span
+          className={`status-dot ${presentation.tone}`}
+          aria-hidden="true"
+        />
         <strong>{presentation.label}</strong>
       </div>
       <p>{presentation.detail}</p>
@@ -272,24 +341,29 @@ function StatusCell({
 }
 
 function LaunchDetails({ launch }: { launch: LaunchRequestedEvent }) {
+  const { t } = useTranslation("runtime");
   return (
     <dl className="launch-details">
       <div>
-        <dt>窗口模式</dt>
-        <dd>{launch.request.startHidden ? "隐藏" : "可见"}</dd>
+        <dt>{t("request.windowMode")}</dt>
+        <dd>
+          {launch.request.startHidden
+            ? t("request.hidden")
+            : t("request.visible")}
+        </dd>
       </div>
       <div>
-        <dt>内部导航</dt>
+        <dt>{t("request.navigation")}</dt>
         <dd>
           {launch.request.navigationPath ? (
             <code>{launch.request.navigationPath}</code>
           ) : (
-            "未指定"
+            t("request.unspecified")
           )}
         </dd>
       </div>
       <div>
-        <dt>参数警告</dt>
+        <dt>{t("request.warnings")}</dt>
         <dd>{launch.notices.length}</dd>
       </div>
     </dl>
@@ -303,6 +377,12 @@ if (!root) {
 
 createRoot(root).render(
   <StrictMode>
-    <RuntimeApp />
+    <I18nextProvider i18n={i18n}>
+      <UiPreferencesProvider>
+        <OverlayProvider>
+          <RuntimeApp />
+        </OverlayProvider>
+      </UiPreferencesProvider>
+    </I18nextProvider>
   </StrictMode>,
 );

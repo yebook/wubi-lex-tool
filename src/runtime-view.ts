@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next";
+
 import type {
   LaunchRequestedEvent,
   PrivilegeStatus,
@@ -20,10 +22,13 @@ export interface VisibleNotice {
   tone: "warning" | "critical";
 }
 
-export function runtimeErrorMessage(error: unknown): string {
+export function runtimeErrorMessage(
+  error: unknown,
+  t: TFunction<"runtime">,
+): string {
   return error instanceof Error && error.message
     ? error.message
-    : "无法读取本地运行时状态。";
+    : t("loadError.fallback");
 }
 
 export function mergeLatestLaunch(
@@ -44,7 +49,8 @@ export function mergeRuntimeNotices(
   for (const notice of incoming) {
     if (
       !notices.some(
-        (current) => current.code === notice.code && current.detail === notice.detail,
+        (current) =>
+          current.code === notice.code && current.detail === notice.detail,
       )
     ) {
       notices.push(notice);
@@ -53,26 +59,32 @@ export function mergeRuntimeNotices(
   return { ...snapshot, notices: notices.slice(-8) };
 }
 
-export function describePrivilege(status: PrivilegeStatus): StatusPresentation {
+export function describePrivilege(
+  status: PrivilegeStatus,
+  t: TFunction<"runtime">,
+): StatusPresentation {
   switch (status.state) {
     case "elevated":
       return {
-        label: "已获得管理员权限",
-        detail: "当前进程令牌已通过系统检查。",
+        label: t("privilege.elevated.label"),
+        detail: t("privilege.elevated.detail"),
         tone: "positive",
       };
     case "notElevated":
       return {
-        label: "未以管理员身份运行",
-        detail: "请关闭应用并以管理员身份重新启动；获得权限前不会执行系统写入。",
+        label: t("privilege.notElevated.label"),
+        detail: t("privilege.notElevated.detail"),
         tone: "critical",
       };
     case "unavailable": {
       const evidence = status.failure
-        ? `${status.failure.stage}，系统代码 ${status.failure.code}`
-        : "未返回系统诊断信息";
+        ? t("privilege.unavailable.evidence", {
+            stage: status.failure.stage,
+            code: status.failure.code,
+          })
+        : t("privilege.unavailable.noEvidence");
       return {
-        label: "权限状态未知",
+        label: t("privilege.unavailable.label"),
         detail: evidence,
         tone: "warning",
       };
@@ -80,51 +92,59 @@ export function describePrivilege(status: PrivilegeStatus): StatusPresentation {
   }
 }
 
-export function describeRecovery(count: number): StatusPresentation {
+export function describeRecovery(
+  count: number,
+  t: TFunction<"runtime">,
+): StatusPresentation {
   if (count === 0) {
     return {
-      label: "未发现异常会话",
-      detail: "当前启动前没有遗留的会话标记。",
+      label: t("recovery.clean.label"),
+      detail: t("recovery.clean.detail"),
       tone: "positive",
     };
   }
   return {
-    label: `发现 ${count} 个异常会话标记`,
-    detail: "这只表示应用上次未正常退出，暂未执行系统恢复。",
+    label: t("recovery.abnormal.label", { count }),
+    detail: t("recovery.abnormal.detail"),
     tone: "warning",
   };
 }
 
-export function describeLaunch(launch: LaunchRequestedEvent): StatusPresentation {
+export function describeLaunch(
+  launch: LaunchRequestedEvent,
+  t: TFunction<"runtime">,
+): StatusPresentation {
   if (launch.notices.length > 0) {
     return {
-      label: "已回退为普通启动",
-      detail: "启动参数存在问题，请查看下方警告。",
+      label: t("launch.fallback.label"),
+      detail: t("launch.fallback.detail"),
       tone: "warning",
     };
   }
   if (launch.request.startHidden) {
     return {
-      label: "后台启动",
-      detail: "窗口按 /tray 请求创建为隐藏状态。",
+      label: t("launch.hidden.label"),
+      detail: t("launch.hidden.detail"),
       tone: "neutral",
     };
   }
   if (launch.request.navigationPath) {
     return {
-      label: "带导航目标启动",
-      detail: "目标已通过传输校验，将由后续路由层处理。",
+      label: t("launch.navigation.label"),
+      detail: t("launch.navigation.detail"),
       tone: "neutral",
     };
   }
   return {
-    label: "普通启动",
-    detail: "窗口按默认方式显示。",
+    label: t("launch.normal.label"),
+    detail: t("launch.normal.detail"),
     tone: "neutral",
   };
 }
 
-export function collectVisibleNotices(snapshot: RuntimeSnapshot): VisibleNotice[] {
+export function collectVisibleNotices(
+  snapshot: RuntimeSnapshot,
+): VisibleNotice[] {
   const runtime = snapshot.notices.map((notice, index) => ({
     key: `runtime-${notice.code}-${index}`,
     summary: notice.summary,

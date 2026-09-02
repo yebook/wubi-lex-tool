@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import type { WindowClient } from "../lib/window-client";
 import { windowClient } from "../lib/window-client";
@@ -18,6 +19,7 @@ export function mergeWindowState(
 }
 
 export function useWindowControls(client: WindowClient = windowClient) {
+  const { t } = useTranslation("window");
   const [snapshot, setSnapshot] = useState<WindowStateSnapshot | null>(null);
   const [notices, setNotices] = useState<RuntimeNotice[]>([]);
   const [listenerWarning, setListenerWarning] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export function useWindowControls(client: WindowClient = windowClient) {
       } catch (error) {
         if (!disposed) {
           setListenerWarning(
-            windowWarningMessage(error, "窗口状态实时监听暂时不可用。"),
+            windowWarningMessage(error, t("warning.stateListener")),
           );
         }
       }
@@ -60,7 +62,7 @@ export function useWindowControls(client: WindowClient = windowClient) {
       } catch (error) {
         if (!disposed) {
           setListenerWarning(
-            windowWarningMessage(error, "窗口告警实时监听暂时不可用。"),
+            windowWarningMessage(error, t("warning.noticeListener")),
           );
         }
       }
@@ -71,7 +73,9 @@ export function useWindowControls(client: WindowClient = windowClient) {
         }
       } catch (error) {
         if (!disposed) {
-          setListenerWarning(windowWarningMessage(error, "窗口状态暂时不可用。"));
+          setListenerWarning(
+            windowWarningMessage(error, t("warning.stateSnapshot")),
+          );
         }
       }
     };
@@ -83,7 +87,7 @@ export function useWindowControls(client: WindowClient = windowClient) {
         stopListening();
       }
     };
-  }, [client]);
+  }, [client, t]);
 
   const control = useCallback(
     async (intent: WindowControlIntent) => {
@@ -92,10 +96,10 @@ export function useWindowControls(client: WindowClient = windowClient) {
         setSnapshot((current) => mergeWindowState(current, next));
         setCommandWarning(null);
       } catch (error) {
-        setCommandWarning(windowWarningMessage(error, "窗口操作未能完成。"));
+        setCommandWarning(windowWarningMessage(error, t("warning.command")));
       }
     },
-    [client],
+    [client, t],
   );
 
   return {
@@ -106,10 +110,14 @@ export function useWindowControls(client: WindowClient = windowClient) {
   };
 }
 
-function appendNotice(current: RuntimeNotice[], incoming: RuntimeNotice): RuntimeNotice[] {
+function appendNotice(
+  current: RuntimeNotice[],
+  incoming: RuntimeNotice,
+): RuntimeNotice[] {
   if (
     current.some(
-      (notice) => notice.code === incoming.code && notice.detail === incoming.detail,
+      (notice) =>
+        notice.code === incoming.code && notice.detail === incoming.detail,
     )
   ) {
     return current;

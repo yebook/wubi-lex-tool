@@ -8,7 +8,9 @@ import { commands, events } from "../types/generated/bindings";
 export interface WindowClient {
   fetchState(): Promise<WindowStateSnapshot>;
   control(intent: WindowControlIntent): Promise<WindowStateSnapshot>;
-  listenState(listener: (snapshot: WindowStateSnapshot) => void): Promise<() => void>;
+  listenState(
+    listener: (snapshot: WindowStateSnapshot) => void,
+  ): Promise<() => void>;
   listenNotice(listener: (notice: RuntimeNotice) => void): Promise<() => void>;
 }
 
@@ -22,7 +24,9 @@ export const windowClient: WindowClient = {
     return result.data;
   },
   listenState: async (listener) =>
-    events.windowStateChanged.listen((event) => listener(event.payload.snapshot)),
+    events.windowStateChanged.listen((event) =>
+      listener(event.payload.snapshot),
+    ),
   listenNotice: async (listener) =>
     events.appRuntimeNotice.listen((event) => listener(event.payload.notice)),
 };

@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
-import type { WindowControlIntent, WindowStateSnapshot } from "../../types/generated/bindings";
+import type {
+  WindowControlIntent,
+  WindowStateSnapshot,
+} from "../../types/generated/bindings";
 import { Copy, Minus, Square, X } from "../../icons/window-controls";
 
 interface WindowTitleBarProps {
@@ -16,21 +20,28 @@ export function WindowTitleBar({
   snapshot,
   onControl,
 }: WindowTitleBarProps) {
+  const { t } = useTranslation("window");
   const maximized = snapshot?.maximized ?? false;
   const exiting = snapshot?.visibility === "exiting";
-  const maximizeLabel = maximized ? "还原窗口" : "最大化窗口";
+  const maximizeLabel = maximized ? t("restore") : t("maximize");
   const MaximizeIcon = maximized ? Copy : Square;
 
   return (
     <header className="window-title-bar">
       <div className="window-drag-region" data-tauri-drag-region="deep">
-        <img className="window-brand-icon" src={iconUrl} alt="" width="24" height="24" />
+        <img
+          className="window-brand-icon"
+          src={iconUrl}
+          alt=""
+          width="24"
+          height="24"
+        />
         <strong className="window-brand-name">WubiLex</strong>
         <span className="window-version">v{version}</span>
       </div>
-      <div className="window-controls" aria-label="窗口控制">
+      <div className="window-controls" aria-label={t("controls")}>
         <WindowButton
-          label="最小化到托盘"
+          label={t("minimizeToTray")}
           disabled={exiting}
           onClick={() => onControl("minimizeToTray")}
         >
@@ -44,7 +55,7 @@ export function WindowTitleBar({
           <MaximizeIcon aria-hidden="true" strokeWidth={1.8} />
         </WindowButton>
         <WindowButton
-          label="关闭窗口"
+          label={t("close")}
           className="window-close-button"
           disabled={exiting}
           onClick={() => onControl("close")}
