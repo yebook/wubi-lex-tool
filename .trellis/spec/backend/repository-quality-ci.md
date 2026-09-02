@@ -105,9 +105,20 @@ visible UAC request and waits for the elevated result.
 - Capture pre-existing marker and log baselines before starting product
   processes. Track every process and marker created by the current invocation;
   cleanup may stop or remove only those tracked resources.
-- Verify four stages: hidden `/tray` startup, two second-instance handoffs with
-  one redacted invalid-argument notice, clean-exit marker removal, and forced
-  termination followed by abnormal-session detection and clean recovery.
+- Verify four stages: hidden `/tray` startup; second-instance restore with one
+  redacted invalid-argument notice and no late tray; close-to-tray plus a second
+  restore without duplicate tray creation; forced termination followed by
+  abnormal-session detection and `closeAction=exit` cleanup.
+- Windows Known Folder resolution ignores a process-local `APPDATA` override.
+  The debug application therefore accepts `WUBILEX_SMOKE_DATA_ROOT` only when
+  its canonical path is the current debug executable's sibling
+  `target/smoke-runtime-appdata`. Release builds ignore the variable. The smoke
+  creates this root, uses its app-identifier child for config/log/session data,
+  and removes it after owned process cleanup.
+- A second instance can arrive before window readiness, in which case the
+  activation queue is consumed without scheduling a tray delay. If a delay was
+  scheduled, cancellation must be logged. Both paths must remain tray-free for
+  more than three seconds after restore.
 - PowerShell 5.1 unwraps a function's single `PSCustomObject` output. Every
   count or indexed read from `Get-LogEvents` must first force an array with
   `@(Get-LogEvents ...)`; a direct `.Count` is invalid for the one-record case.
@@ -131,19 +142,23 @@ visible UAC request and waits for the elevated result.
 | A secondary does not exit or activate the primary | Fail with the named wait stage |
 | Exactly one log event is returned | Treat it as an array of count one |
 | A launch has no arguments | Omit `-ArgumentList`; do not pass an empty collection |
+| Smoke data root is absent, renamed, outside `target/`, or resolves through a junction outside `target/` | Debug startup rejects the override; never fall back to real user config |
+| Early secondary activation occurs before delay scheduling | Restore directly; do not require a synthetic cancellation event and do not create a late tray |
+| A scheduled hidden-start delay survives secondary restore | Fail after the three-second boundary if cancellation is absent or a tray appears |
 | Clean exit leaves its owned marker | Fail; preserve unrelated baseline markers |
 | Forced termination removes its marker | Fail because abnormal evidence was lost |
 | Recovery does not observe the abnormal baseline | Fail without performing system recovery |
 
 ### 5. Good / Base / Bad Cases
 
-- Good: all four stages pass, no debug process or transcript remains, the
-  forced-test marker is removed, and pre-existing markers remain unchanged.
-- Base: historical markers already exist; they increase the recovery baseline
-  but are never adopted or deleted by the smoke invocation.
-- Bad: counting a scalar log object through `.Count`, passing `@()` to
-  `-ArgumentList`, deleting every marker in the session directory, or treating
-  an unapproved UAC request as a passed smoke.
+- Good: all four stages pass inside the canonical isolated target directory;
+  no debug process, transcript, isolated root, or owned marker remains.
+- Base: the second instance is consumed before delayed-tray scheduling, so no
+  cancellation event exists; waiting past the deadline still proves no tray
+  was created after restore.
+- Bad: changing `APPDATA` and assuming Tauri follows it, requiring cancellation
+  when no delay was scheduled, counting a scalar log object through `.Count`,
+  deleting every marker, or treating a rejected UAC request as success.
 
 ### 6. Tests Required
 
@@ -154,6 +169,11 @@ visible UAC request and waits for the elevated result.
   one or more arguments select the explicit branch.
 - Run `pnpm run smoke:runtime` in an interactive Windows session and require
   all four named stages plus `runtime smoke: passed`.
+- Unit-test canonical smoke-root acceptance and rejection of an outside path;
+  run the real smoke to prove all app data appears only below the isolated root.
+- Exercise or tolerate both hidden-start races: early activation without delay,
+  and a scheduled delay that is cancelled. In either case assert no tray exists
+  after waiting longer than three seconds from restore.
 - From an elevated terminal, run Tauri dev and assert the real main window
   loads the local Vite React entry; a compile followed by error 740 is not this
   assertion.
@@ -163,11 +183,15 @@ visible UAC request and waits for the elevated result.
 ### 7. Wrong vs Correct
 
 ```powershell
+# Wrong: APPDATA does not redirect the Windows Known Folder used by Tauri.
+$env:APPDATA = $smokeRoot
+
 # Wrong: scalar output has no reliable Count, and an empty ArgumentList fails.
 (Get-LogEvents "launch_argument_notice").Count
 Start-Process -FilePath $executable -ArgumentList @() -PassThru
 
-# Correct: force collection semantics and omit the empty parameter.
+# Correct: use the debug-only, executable-owned root; force arrays; omit args.
+$env:WUBILEX_SMOKE_DATA_ROOT = $smokeRoot
 @(Get-LogEvents "launch_argument_notice").Count
 Start-Process -FilePath $executable -PassThru
 ```

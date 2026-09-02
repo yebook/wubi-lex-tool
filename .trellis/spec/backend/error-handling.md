@@ -6,7 +6,7 @@
 
 ## Current Status
 
-The library-side contract is established by `wubilex_codec::{CodecError, CodecErrorKind, SourceLocation}`. Repository automation also has established stage-preserving failures. S1 configuration commands establish the application-side generated `AppError` boundary in `src-tauri/src/error/mod.rs`; later modules must extend that shared contract instead of creating command-local payloads.
+The library-side contract is established by `wubilex_codec::{CodecError, CodecErrorKind, SourceLocation}`. Repository automation also has established stage-preserving failures. S1 configuration commands establish the application-side generated `AppError` boundary in `src-tauri/src/error/mod.rs`; the S1 window coordinator extends it with `windowUnavailable` and `windowOperationFailed` rather than creating a command-local payload.
 
 ## Error Ownership
 
@@ -18,7 +18,7 @@ The shared application error contract contains:
 
 | Field | Contract |
 |---|---|
-| `code` | Stable camelCase operation identifier such as `configValidationFailed` or `configReplaceFailed` |
+| `code` | Stable camelCase operation identifier such as `configValidationFailed`, `windowUnavailable`, or `windowOperationFailed` |
 | `kind` | One of the approved categories: I/O, parse, network, permission, system, validation, or cancelled |
 | `module` | Owning requirement module, such as `M1` or `M4` |
 | `message` | User-readable Chinese description |
@@ -34,6 +34,7 @@ The shared application error contract contains:
 - Functional resource failures are surfaced. Silent degradation is reserved for resources explicitly classified as decorative.
 - Cancellation is represented as the approved cancelled error category, not disguised as I/O or an empty successful result.
 - Preserve the original source and add context at layer boundaries; do not discard a lower-layer error and replace it with a generic message.
+- Window command failures use module `m7`, system kind, a stable stage-only detail, and a matching bounded runtime notice. Background tray or placement failures write the authoritative runtime notice before emitting its event; duplicate code/detail pairs are not rebroadcast.
 
 ## Established Codec Pattern
 

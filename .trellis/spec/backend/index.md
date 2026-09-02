@@ -25,13 +25,15 @@
 | [Repository Quality And CI](./repository-quality-ci.md) | xtask signatures, generated bindings, document checks, audits, caches, Windows workflow, and runtime smoke | **Established** |
 | [Windows System Integration](./windows-system-integration.md) | Elevation detection, reversible TSF/ACL/Scheduler contracts, and forbidden companion-tool boundary | **Baseline with S1 runtime evidence** |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging fields, retention, levels, and redaction | **Established by S1 runtime** |
+| [Window Coordinator](./window-coordinator.md) | Native window/tray lifecycle, placement persistence, and window IPC | **Established by S1 window/tray** |
 
 The baseline guides include compiled S0 examples from the codecs, test-only
 real-fixture automation, the Rust-owned IPC binding registry, document
 validation, dependency policy, the Windows quality workflow, reversible Windows
 risk-spike evidence, and the S1 runtime lifecycle. Bootstrap completeness means
 every guide is non-placeholder and honest about its evidence state; database
-decisions remain pending while logging now has executable product evidence.
+decisions remain pending while logging and native window coordination now have
+executable product evidence.
 
 ---
 

@@ -1,15 +1,15 @@
 # Component Guidelines
 
-> Approved UI boundaries before the first product component implementation.
+> Product component boundaries established by the first native window control surface.
 
 ---
 
 ## Current Status
 
-**Pending implementation evidence.** The repository has no runnable frontend
-entry or product component. S0 contains only toolchain infrastructure and an
-isolated virtual-scroll spike, so no component file, export, props or
-composition pattern is established yet.
+**Established by S1 window/tray.** `WindowTitleBar` is the first reviewed
+product component with a colocated Testing Library test. It establishes only
+the native window-control patterns below; it does not settle generic variants,
+ref forwarding, route composition, or shadcn/ui conventions.
 
 ## Approved Boundary
 
@@ -30,21 +30,33 @@ composition pattern is established yet.
 - Large lexicon views must keep DOM and frontend ownership bounded. The S0
   virtual-scroll spike is performance evidence, not a component template.
 
+## Established S1 Pattern
+
+- A reusable product component lives in its named `src/components/` directory,
+  uses a named export, declares a local props interface, and colocates its
+  `*.test.tsx` file.
+- Native window controls are semantic `button type="button"` elements with
+  Chinese `aria-label` and `title`, visual-order DOM flow, visible focus, and a
+  fixed 44 by 44 pixel target. Icons come through a narrow Lucide re-export.
+- The drag attribute belongs only to the noninteractive brand region. Buttons
+  and the control container do not carry `data-tauri-drag-region`.
+- The component receives generated state and emits generated intent; transport,
+  native state transitions, warning storage, and tray behavior stay outside it.
+
 ## Decisions Not Yet Established
 
 The project has not established:
 
-- component filename, export or colocated-test conventions;
-- the standard props declaration, ref forwarding or composition API;
+- a repository-wide file/export policy beyond the first named component;
+- ref forwarding or a generic composition API;
 - variant/class composition helpers or a component-generation command;
 - loading, empty, failure, disabled and feature-placeholder component APIs;
-- the product component test renderer, accessibility test helper or snapshot
-  policy.
+- a shared accessibility test helper or snapshot policy.
 
 ## Forbidden Premature Assumptions
 
-- Do not present a scaffold directory or the spike's `app.tsx` as a product
-  component example.
+- Do not generalize the title-bar's native-window constraints into unrelated
+  route or domain components.
 - Do not copy shadcn/ui source before a product task needs and reviews that
   component.
 - Do not invent props, variant or barrel-export rules from generic React
@@ -56,10 +68,77 @@ The project has not established:
 
 ## Update Trigger
 
-Update this guide when S1 adds the first reviewed product components. Record
-only patterns demonstrated by those components and their tests, including
-their actual file/export, props, composition, styling, state and accessibility
-contracts.
+Update this guide when the UI foundation establishes general tokens, primitives,
+variants, ref forwarding, or route composition. Keep native title-bar rules
+scoped to the window component.
+
+## Scenario: Native Window Title Bar
+
+### 1. Scope / Trigger
+
+Apply this scenario when changing the frameless title bar, its controls, drag
+region, icons, state props, or component tests.
+
+### 2. Signatures
+
+```typescript
+interface WindowTitleBarProps {
+  iconUrl: string;
+  version: string;
+  snapshot: WindowStateSnapshot | null;
+  onControl: (intent: WindowControlIntent) => void;
+}
+```
+
+### 3. Contracts
+
+- Render product icon/name/version and minimize, maximize/restore, and close in
+  one compact header; do not add routing, settings, theme, or tray ownership.
+- Maximize label/icon derives only from `snapshot.maximized`; all controls are
+  disabled while visibility is `exiting`.
+- Use Lucide `Minus`, `Square`/`Copy`, and `X` through
+  `src/icons/window-controls.ts`.
+- Interactive descendants are outside the drag region and remain keyboard
+  operable at 200 percent system text scaling.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| Snapshot is not loaded | Render restore-safe non-maximized controls without inventing native state |
+| Snapshot is maximized | Show `还原窗口` and the restore icon |
+| Snapshot is exiting | Disable every native window control |
+| Keyboard Enter or Space activates a button | Emit exactly the generated intent for that button |
+| Control is inside a drag-marked element | Treat as a component defect; move it outside the drag region |
+
+### 5. Good / Base / Bad Cases
+
+- Good: a keyboard user can identify and invoke every 44 by 44 control, and
+  maximize state changes its accessible name and Lucide icon.
+- Base: a null bootstrap snapshot still renders stable controls and layout.
+- Bad: icon-only controls have no accessible name, a button carries the drag
+  attribute, or the component directly calls `@tauri-apps/api/window`.
+
+### 6. Tests Required
+
+- Query all controls by accessible role/name and assert matching `title` text.
+- Invoke minimize with Enter, maximize with Space, and close with pointer input;
+  assert the exact generated intents and order.
+- Assert maximize/restore semantics, exiting disabled state, brand/version, and
+  drag-region isolation.
+- Keep browser viewport checks for fixed 44 by 44 controls and no horizontal
+  overflow at the native minimum window size.
+
+### 7. Wrong vs Correct
+
+```tsx
+// Wrong: a glyph div has no native keyboard or accessible behavior.
+<div data-tauri-drag-region onClick={() => close()}>x</div>
+
+// Correct: generated intent leaves native behavior in the coordinator.
+<button type="button" aria-label="关闭窗口" title="关闭窗口"
+  onClick={() => onControl("close")}><X aria-hidden="true" /></button>
+```
 
 ## Sources
 
@@ -68,3 +147,5 @@ contracts.
 - [`docs/20-nonfunctional.md` NFR-A11Y-001..007](../../../docs/20-nonfunctional.md)
 - [Frontend directory structure](./directory-structure.md)
 - [Virtualization and performance](./virtualization-performance.md)
+- [Window title bar](../../../src/components/window-title-bar/WindowTitleBar.tsx)
+- [Window title bar tests](../../../src/components/window-title-bar/WindowTitleBar.test.tsx)
