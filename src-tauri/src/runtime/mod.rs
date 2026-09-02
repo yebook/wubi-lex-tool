@@ -65,6 +65,9 @@ pub enum RuntimeNoticeCode {
     SessionMarkerUnavailable,
     ElevationProbeFailed,
     WindowActivationFailed,
+    WindowOperationFailed,
+    WindowPersistenceFailed,
+    TrayUnavailable,
 }
 
 /// A bounded warning safe to render in the status view.
@@ -109,6 +112,30 @@ impl RuntimeNotice {
             code: RuntimeNoticeCode::WindowActivationFailed,
             summary: "收到新的启动请求，但窗口未能完全置前。".to_owned(),
             detail: None,
+        }
+    }
+
+    pub fn window_operation_failed(stage: &'static str) -> Self {
+        Self {
+            code: RuntimeNoticeCode::WindowOperationFailed,
+            summary: "窗口操作未能完全完成，应用仍可继续使用。".to_owned(),
+            detail: Some(format!("失败阶段：{stage}。")),
+        }
+    }
+
+    pub fn window_persistence_failed(stage: &'static str) -> Self {
+        Self {
+            code: RuntimeNoticeCode::WindowPersistenceFailed,
+            summary: "窗口位置暂时无法保存，当前窗口状态不受影响。".to_owned(),
+            detail: Some(format!("失败阶段：{stage}。")),
+        }
+    }
+
+    pub fn tray_unavailable(stage: &'static str) -> Self {
+        Self {
+            code: RuntimeNoticeCode::TrayUnavailable,
+            summary: "系统托盘入口不可用，主窗口已保持可见。".to_owned(),
+            detail: Some(format!("失败阶段：{stage}。")),
         }
     }
 }
@@ -182,10 +209,18 @@ impl RuntimeState {
         data.activation_requested = true;
     }
 
-    pub fn push_notice(&self, notice: RuntimeNotice) {
+    pub fn push_notice(&self, notice: RuntimeNotice) -> bool {
         let mut data = self.lock();
-        if data.snapshot.notices.len() < MAX_RUNTIME_NOTICES {
+        let duplicate = data
+            .snapshot
+            .notices
+            .iter()
+            .any(|current| current.code == notice.code && current.detail == notice.detail);
+        if !duplicate && data.snapshot.notices.len() < MAX_RUNTIME_NOTICES {
             data.snapshot.notices.push(notice);
+            true
+        } else {
+            false
         }
     }
 
@@ -225,8 +260,8 @@ fn take_activation_request(data: &mut RuntimeData) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        MAX_RUNTIME_NOTICES, PrivilegeState, PrivilegeStatus, RuntimeNotice, RuntimeSnapshot,
-        RuntimeState,
+        MAX_RUNTIME_NOTICES, PrivilegeState, PrivilegeStatus, RuntimeNotice, RuntimeNoticeCode,
+        RuntimeSnapshot, RuntimeState,
     };
     use crate::{events::LaunchRequestedEvent, launch::LaunchRequest};
     use std::sync::Arc;
@@ -353,9 +388,21 @@ mod tests {
         })
         .join();
 
-        for _ in 0..16 {
-            state.push_notice(RuntimeNotice::window_activation_failed());
+        for index in 0..16 {
+            state.push_notice(RuntimeNotice {
+                code: RuntimeNoticeCode::WindowOperationFailed,
+                summary: "窗口操作失败。".to_owned(),
+                detail: Some(format!("stage={index}")),
+            });
         }
         assert_eq!(state.snapshot().notices.len(), MAX_RUNTIME_NOTICES);
+    }
+
+    #[test]
+    fn identical_runtime_notices_are_deduplicated() {
+        let state = state();
+        assert!(state.push_notice(RuntimeNotice::window_activation_failed()));
+        assert!(!state.push_notice(RuntimeNotice::window_activation_failed()));
+        assert_eq!(state.snapshot().notices.len(), 1);
     }
 }

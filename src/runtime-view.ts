@@ -1,6 +1,7 @@
 import type {
   LaunchRequestedEvent,
   PrivilegeStatus,
+  RuntimeNotice,
   RuntimeSnapshot,
 } from "./types/generated/bindings";
 
@@ -30,6 +31,26 @@ export function mergeLatestLaunch(
   launch: LaunchRequestedEvent | null,
 ): RuntimeSnapshot {
   return launch ? { ...snapshot, latestSecondaryLaunch: launch } : snapshot;
+}
+
+export function mergeRuntimeNotices(
+  snapshot: RuntimeSnapshot,
+  incoming: RuntimeNotice[],
+): RuntimeSnapshot {
+  if (incoming.length === 0) {
+    return snapshot;
+  }
+  const notices = [...snapshot.notices];
+  for (const notice of incoming) {
+    if (
+      !notices.some(
+        (current) => current.code === notice.code && current.detail === notice.detail,
+      )
+    ) {
+      notices.push(notice);
+    }
+  }
+  return { ...snapshot, notices: notices.slice(-8) };
 }
 
 export function describePrivilege(status: PrivilegeStatus): StatusPresentation {

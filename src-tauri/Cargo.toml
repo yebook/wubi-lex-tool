@@ -16,7 +16,7 @@ bench = false
 
 [features]
 default = ["desktop"]
-desktop = ["dep:tauri-plugin-single-instance", "tauri/wry"]
+desktop = ["dep:tauri-plugin-single-instance", "tauri/tray-icon", "tauri/wry"]
 feat-m1-read = []
 feat-m1-edit = []
 feat-m2-read = []

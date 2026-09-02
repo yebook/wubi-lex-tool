@@ -103,7 +103,20 @@ if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
     throw "Debug executable is missing: $executable"
 }
 
-$appDataDirectory = Join-Path $env:APPDATA "com.wubilex.tool"
+$originalSmokeDataRoot = $env:WUBILEX_SMOKE_DATA_ROOT
+$smokeAppDataRoot = [IO.Path]::GetFullPath(
+    (Join-Path $expectedTargetRoot "smoke-runtime-appdata")
+)
+if (-not $smokeAppDataRoot.StartsWith($expectedTargetRoot, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "Resolved smoke APPDATA escaped the repository target directory."
+}
+if (Test-Path -LiteralPath $smokeAppDataRoot) {
+    Remove-Item -LiteralPath $smokeAppDataRoot -Recurse -Force
+}
+New-Item -ItemType Directory -Path $smokeAppDataRoot | Out-Null
+$env:WUBILEX_SMOKE_DATA_ROOT = $smokeAppDataRoot
+
+$appDataDirectory = Join-Path $smokeAppDataRoot "com.wubilex.tool"
 $sessionDirectory = Join-Path $appDataDirectory "sessions"
 $logDirectory = Join-Path $appDataDirectory "logs"
 
@@ -194,6 +207,9 @@ try {
     $baselineMarkers = @(Get-MarkerPaths)
     $secondaryEventBaseline = @(Get-LogEvents "secondary_launch_received").Count
     $argumentNoticeBaseline = @(Get-LogEvents "launch_argument_notice").Count
+    $trayCreatedBaseline = @(Get-LogEvents "tray_created").Count
+    $delayScheduledBaseline = @(Get-LogEvents "tray_delay_scheduled").Count
+    $delayCancelledBaseline = @(Get-LogEvents "tray_delay_cancelled").Count
 
     Write-Host "[1/4] Starting hidden primary instance"
     $primary = Start-OwnedProcess @("/tray")
@@ -216,6 +232,19 @@ try {
     Wait-Until {
         Test-MainWindowVisible $primary
     } "primary window activation"
+    Start-Sleep -Milliseconds 3500
+    $delayWasScheduled = @(
+        Get-LogEvents "tray_delay_scheduled"
+    ).Count -gt $delayScheduledBaseline
+    if (
+        $delayWasScheduled -and
+        @(Get-LogEvents "tray_delay_cancelled").Count -le $delayCancelledBaseline
+    ) {
+        throw "A scheduled tray delay was not cancelled by the secondary request."
+    }
+    if (@(Get-LogEvents "tray_created").Count -ne $trayCreatedBaseline) {
+        throw "A tray icon was created after the hidden launch was restored."
+    }
 
     $invalid = Start-OwnedProcess @("--unsupported-smoke-argument")
     Wait-ForExit $invalid "invalid-argument secondary instance"
@@ -226,35 +255,71 @@ try {
         @(Get-LogEvents "launch_argument_notice").Count -ge ($argumentNoticeBaseline + 1)
     } "redacted invalid-argument log record"
 
-    Write-Host "[3/4] Verifying clean-exit marker ownership"
+    Write-Host "[3/4] Verifying close-to-tray and second-instance restore"
     if (-not $primary.CloseMainWindow()) {
         throw "Primary window did not accept a normal close request."
     }
-    Wait-ForExit $primary "clean primary instance"
-    Wait-Until { -not (Test-Path -LiteralPath $primaryMarker) } "clean marker removal"
-    [void]$script:ownedMarkerPaths.Remove($primaryMarker)
+    Wait-Until { -not (Test-MainWindowVisible $primary) } "primary window hide"
+    $primary.Refresh()
+    if ($primary.HasExited) {
+        throw "Default close action exited instead of hiding to tray."
+    }
+    Wait-Until {
+        @(Get-LogEvents "tray_created").Count -eq ($trayCreatedBaseline + 1)
+    } "single owned tray creation"
 
-    Write-Host "[4/4] Verifying abnormal evidence and restart detection"
-    $beforeAbnormalMarkers = @(Get-MarkerPaths)
-    $abnormal = Start-OwnedProcess @()
-    $abnormalMarker = Wait-ForSingleNewMarker -baseline $beforeAbnormalMarkers -description "abnormal session marker"
-    [void]$script:ownedMarkerPaths.Add($abnormalMarker)
-    Stop-Process -Id $abnormal.Id -Force
-    Wait-ForExit $abnormal "forced abnormal instance"
-    if (-not (Test-Path -LiteralPath $abnormalMarker -PathType Leaf)) {
+    $restore = Start-OwnedProcess @()
+    Wait-ForExit $restore "restore secondary instance"
+    Wait-Until { Test-MainWindowVisible $primary } "close-to-tray restore"
+    if (@(Get-LogEvents "tray_created").Count -ne ($trayCreatedBaseline + 1)) {
+        throw "Restore created a duplicate tray icon."
+    }
+
+    Write-Host "[4/4] Verifying abnormal evidence and closeAction=exit cleanup"
+    Stop-Process -Id $primary.Id -Force
+    Wait-ForExit $primary "forced abnormal primary instance"
+    if (-not (Test-Path -LiteralPath $primaryMarker -PathType Leaf)) {
         throw "Forced termination did not preserve its session marker."
     }
 
+    $configPath = Join-Path $appDataDirectory "config.toml"
+    if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
+        throw "Isolated runtime config was not created."
+    }
+    $configText = Get-Content -LiteralPath $configPath -Raw
+    $closeActionPattern = '(?m)^closeAction = "minimizeToTray"$'
+    $closeActionMatches = [regex]::Matches($configText, $closeActionPattern)
+    if ($closeActionMatches.Count -ne 1) {
+        throw "Expected one default closeAction in the isolated runtime config."
+    }
+    $exitConfig = [regex]::Replace(
+        $configText,
+        $closeActionPattern,
+        'closeAction = "exit"',
+        1
+    )
+    [IO.File]::WriteAllText(
+        $configPath,
+        $exitConfig,
+        [Text.UTF8Encoding]::new($false)
+    )
+
     $beforeRecoveryMarkers = @(Get-MarkerPaths)
     $recoveryLogBaseline = @(Get-LogEvents "application_started").Count
+    $recoveryTrayBaseline = @(Get-LogEvents "tray_created").Count
     $recovery = Start-OwnedProcess @()
     $recoveryMarker = Wait-ForSingleNewMarker -baseline $beforeRecoveryMarkers -description "recovery session marker"
     [void]$script:ownedMarkerPaths.Add($recoveryMarker)
     Wait-Until {
         $events = @(Get-LogEvents "application_started")
         $events.Count -gt $recoveryLogBaseline -and
-            [int]$events[-1].previous_abnormal_session_count -ge ($baselineMarkers.Count + 1)
+            [int]$events[-1].previous_abnormal_session_count -ge 1
     } "abnormal-session detection log record"
+    Wait-Until { Test-MainWindowVisible $recovery } "normal recovery window"
+    Start-Sleep -Milliseconds 800
+    if (@(Get-LogEvents "tray_created").Count -ne $recoveryTrayBaseline) {
+        throw "Normal visible startup created a tray icon before hide."
+    }
     if (-not $recovery.CloseMainWindow()) {
         throw "Recovery window did not accept a normal close request."
     }
@@ -262,8 +327,9 @@ try {
     Wait-Until { -not (Test-Path -LiteralPath $recoveryMarker) } "recovery marker removal"
     [void]$script:ownedMarkerPaths.Remove($recoveryMarker)
 
-    Remove-Item -LiteralPath $abnormalMarker -Force
-    [void]$script:ownedMarkerPaths.Remove($abnormalMarker)
+    Remove-Item -LiteralPath $primaryMarker -Force
+    [void]$script:ownedMarkerPaths.Remove($primaryMarker)
+    Write-Host "      visible checklist: drag/double-click/title buttons, taskbar/tray left-click, two-item tray menu, tray exit, DPI/multi-monitor restore"
     Write-Host "runtime smoke: passed"
 } catch {
     $script:smokeFailed = $true
@@ -295,6 +361,10 @@ try {
     }
     if ($transcribing) {
         Stop-Transcript | Out-Null
+    }
+    $env:WUBILEX_SMOKE_DATA_ROOT = $originalSmokeDataRoot
+    if (Test-Path -LiteralPath $smokeAppDataRoot) {
+        Remove-Item -LiteralPath $smokeAppDataRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 

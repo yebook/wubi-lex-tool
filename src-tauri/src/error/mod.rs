@@ -22,6 +22,8 @@ pub enum AppErrorCode {
     ConfigImportFailed,
     ConfigExportFailed,
     ConfigStateFailed,
+    WindowUnavailable,
+    WindowOperationFailed,
 }
 
 /// Cross-command error categories.
@@ -89,6 +91,23 @@ impl AppError {
             Some(format!("stage={stage}; error={detail}")),
             true,
         )
+    }
+
+    #[cfg(feature = "desktop")]
+    pub(crate) fn window(
+        code: AppErrorCode,
+        message: impl Into<String>,
+        stage: &'static str,
+        recoverable: bool,
+    ) -> Self {
+        Self {
+            code,
+            kind: AppErrorKind::System,
+            module: RequirementModule::M7,
+            message: message.into(),
+            detail: Some(format!("stage={stage}")),
+            recoverable,
+        }
     }
 }
 

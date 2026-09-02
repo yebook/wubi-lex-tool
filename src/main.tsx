@@ -1,6 +1,9 @@
 import { StrictMode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import packageMetadata from "../package.json";
 
+import { WindowTitleBar } from "./components/window-title-bar/WindowTitleBar";
+import { useWindowControls } from "./hooks/use-window-controls";
 import { commands, events } from "./types/generated/bindings";
 import type {
   LaunchRequestedEvent,
@@ -12,6 +15,7 @@ import {
   describePrivilege,
   describeRecovery,
   mergeLatestLaunch,
+  mergeRuntimeNotices,
   runtimeErrorMessage,
 } from "./runtime-view";
 import type { StatusPresentation } from "./runtime-view";
@@ -31,6 +35,7 @@ function RuntimeApp() {
   const [refreshWarning, setRefreshWarning] = useState<string | null>(null);
   const latestLaunch = useRef<LaunchRequestedEvent | null>(null);
   const launchSequence = useRef(0);
+  const windowControls = useWindowControls();
 
   useEffect(() => {
     void featuresStore.getState().initialize();
@@ -102,16 +107,12 @@ function RuntimeApp() {
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <div className="brand-lockup">
-          <img className="brand-icon" src={appIconUrl} alt="" width="40" height="40" />
-          <div>
-            <strong className="brand-name">WubiLex</strong>
-            <span className="brand-context">五笔词库工具</span>
-          </div>
-        </div>
-        <span className="stage-badge">S1 Runtime</span>
-      </header>
+      <WindowTitleBar
+        iconUrl={appIconUrl}
+        version={packageMetadata.version}
+        snapshot={windowControls.snapshot}
+        onControl={(intent) => void windowControls.control(intent)}
+      />
 
       <main id="main-content" className="runtime-main">
         <div className="page-heading">
@@ -134,7 +135,8 @@ function RuntimeApp() {
         {loadState.status === "ready" ? (
           <RuntimeStatus
             snapshot={loadState.snapshot}
-            eventWarning={listenerWarning ?? refreshWarning}
+            nativeNotices={windowControls.notices}
+            eventWarning={listenerWarning ?? refreshWarning ?? windowControls.warning}
           />
         ) : null}
       </main>
@@ -170,9 +172,11 @@ function LoadError({ message, onRetry }: { message: string; onRetry: () => void 
 
 function RuntimeStatus({
   snapshot,
+  nativeNotices,
   eventWarning,
 }: {
   snapshot: RuntimeSnapshot;
+  nativeNotices: RuntimeSnapshot["notices"];
   eventWarning: string | null;
 }) {
   const latestLaunch = snapshot.latestSecondaryLaunch ?? snapshot.primaryLaunch;
@@ -184,7 +188,10 @@ function RuntimeStatus({
     },
     { label: "最近启动", presentation: describeLaunch(latestLaunch) },
   ];
-  const notices = useMemo(() => collectVisibleNotices(snapshot), [snapshot]);
+  const notices = useMemo(
+    () => collectVisibleNotices(mergeRuntimeNotices(snapshot, nativeNotices)),
+    [nativeNotices, snapshot],
+  );
 
   return (
     <>

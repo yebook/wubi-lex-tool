@@ -166,6 +166,20 @@ impl<F: ConfigFileOps> ConfigService<F> {
         self.update(false, move |config| config.window = window)
     }
 
+    #[cfg(feature = "desktop")]
+    pub(crate) fn update_window_placement(
+        &self,
+        bounds: Option<WindowBounds>,
+        maximized: bool,
+    ) -> Result<ConfigSnapshot, AppError> {
+        self.update(false, move |config| {
+            if let Some(bounds) = bounds {
+                config.window.bounds = Some(bounds);
+            }
+            config.window.maximized = maximized;
+        })
+    }
+
     pub fn update_ui(&self, ui: UiConfig) -> Result<ConfigSnapshot, AppError> {
         self.update(false, move |config| config.ui = ui)
     }
@@ -1022,7 +1036,7 @@ fn unavailable_path_error() -> AppError {
 #[cfg(test)]
 mod tests {
     use super::{
-        AppConfig, BindingOverride, ConfigGroup, ConfigPathRequest, ConfigPersistence,
+        AppConfig, BindingOverride, CloseAction, ConfigGroup, ConfigPathRequest, ConfigPersistence,
         ConfigService, UiConfig, WindowBounds, WindowsConfigFileOps,
     };
     use crate::config::storage::{ConfigFileOps, ConfigIoError};
@@ -1287,6 +1301,30 @@ mod tests {
         let snapshot = service.snapshot().expect("final snapshot");
         assert_eq!(snapshot.revision, 3);
         assert!(snapshot.config.ui.sidebar_collapsed);
+        assert!(snapshot.config.window.maximized);
+    }
+
+    #[test]
+    fn placement_update_preserves_the_latest_close_action() {
+        let directory = tempfile::tempdir().expect("config directory");
+        let service = ConfigService::load(directory.path().to_path_buf(), WindowsConfigFileOps);
+        let mut window = service.snapshot().expect("snapshot").config.window;
+        window.close_action = CloseAction::Exit;
+        service.update_window(window).expect("close action update");
+
+        let placement = WindowBounds {
+            x: 120,
+            y: 80,
+            width: 1_280,
+            height: 720,
+            scale_factor: 1.25,
+        };
+        let snapshot = service
+            .update_window_placement(Some(placement.clone()), true)
+            .expect("placement update");
+
+        assert_eq!(snapshot.config.window.close_action, CloseAction::Exit);
+        assert_eq!(snapshot.config.window.bounds, Some(placement));
         assert!(snapshot.config.window.maximized);
     }
 

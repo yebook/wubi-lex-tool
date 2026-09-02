@@ -7,6 +7,7 @@ import {
   describePrivilege,
   describeRecovery,
   mergeLatestLaunch,
+  mergeRuntimeNotices,
   runtimeErrorMessage,
 } from "./runtime-view";
 
@@ -109,5 +110,25 @@ describe("runtime status presentation", () => {
 
     expect(mergeLatestLaunch(baseline, launch).latestSecondaryLaunch).toEqual(launch);
     expect(mergeLatestLaunch(baseline, null)).toBe(baseline);
+  });
+
+  it("merges live runtime notices without duplicating the authoritative snapshot", () => {
+    const notice = {
+      code: "trayUnavailable" as const,
+      summary: "托盘不可用",
+      detail: "失败阶段：create_tray。",
+    };
+    const snapshot = { ...baseline, notices: [notice] };
+
+    expect(mergeRuntimeNotices(snapshot, [notice])).toEqual(snapshot);
+    expect(
+      mergeRuntimeNotices(snapshot, [
+        {
+          code: "windowPersistenceFailed",
+          summary: "保存失败",
+          detail: null,
+        },
+      ]).notices,
+    ).toHaveLength(2);
   });
 });

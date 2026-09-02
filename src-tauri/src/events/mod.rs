@@ -5,6 +5,8 @@ use specta::Type;
 
 use crate::config::ConfigSnapshot;
 use crate::launch::{LaunchNotice, LaunchRequest, ParsedLaunch};
+use crate::runtime::RuntimeNotice;
+use crate::window::WindowStateSnapshot;
 
 /// A validated launch request submitted by a secondary process.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, Type)]
@@ -40,6 +42,28 @@ impl tauri_specta::Event for ConfigChangedEvent {
     const NAME: &'static str = "config://changed";
 }
 
+/// Authoritative main-window state published after a native transition.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct WindowStateChangedEvent {
+    pub snapshot: WindowStateSnapshot,
+}
+
+impl tauri_specta::Event for WindowStateChangedEvent {
+    const NAME: &'static str = "window://state-changed";
+}
+
+/// A bounded native warning emitted after frontend bootstrap.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct RuntimeNoticeEvent {
+    pub notice: RuntimeNotice,
+}
+
+impl tauri_specta::Event for RuntimeNoticeEvent {
+    const NAME: &'static str = "app://runtime-notice";
+}
+
 /// Runtime-independent event adapter consumed by generic command signatures.
 pub struct ConfigEventEmitter {
     emit: Box<dyn Fn(ConfigChangedEvent) -> Result<(), String> + Send + Sync>,
@@ -69,8 +93,10 @@ impl ConfigEventEmitter {
 
 #[cfg(test)]
 mod tests {
-    use super::ConfigChangedEvent;
+    use super::{ConfigChangedEvent, RuntimeNoticeEvent, WindowStateChangedEvent};
     use crate::config::{AppConfig, ConfigPersistence, ConfigSnapshot};
+    use crate::runtime::RuntimeNotice;
+    use crate::window::{WindowStateSnapshot, WindowVisibility};
     use std::sync::{
         Arc,
         atomic::{AtomicUsize, Ordering},
@@ -108,5 +134,27 @@ mod tests {
             notices: Vec::new(),
         });
         assert_eq!(calls.load(Ordering::Relaxed), 1);
+    }
+
+    #[test]
+    fn window_and_runtime_event_names_and_fields_are_stable() {
+        let state = WindowStateChangedEvent {
+            snapshot: WindowStateSnapshot {
+                revision: 7,
+                visibility: WindowVisibility::Hidden,
+                maximized: false,
+            },
+        };
+        let state_value = serde_json::to_value(state).expect("window state event");
+        assert_eq!(WindowStateChangedEvent::NAME, "window://state-changed");
+        assert_eq!(state_value["snapshot"]["revision"], 7);
+        assert_eq!(state_value["snapshot"]["visibility"], "hidden");
+
+        let notice = RuntimeNoticeEvent {
+            notice: RuntimeNotice::tray_unavailable("create_tray"),
+        };
+        let notice_value = serde_json::to_value(notice).expect("runtime notice event");
+        assert_eq!(RuntimeNoticeEvent::NAME, "app://runtime-notice");
+        assert_eq!(notice_value["notice"]["code"], "trayUnavailable");
     }
 }

@@ -23,10 +23,14 @@ pub fn builder<R: Runtime>() -> Builder<R> {
             crate::commands::app::config::config_import,
             crate::commands::app::config::config_export,
             crate::commands::app::features::app_features,
+            crate::commands::app::window::window_state,
+            crate::commands::app::window::window_control,
         ])
         .events(collect_events![
             crate::events::LaunchRequestedEvent,
-            crate::events::ConfigChangedEvent
+            crate::events::ConfigChangedEvent,
+            crate::events::WindowStateChangedEvent,
+            crate::events::RuntimeNoticeEvent
         ])
 }
 

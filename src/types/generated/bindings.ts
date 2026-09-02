@@ -16,12 +16,16 @@ export const commands = {
 	configImport: (request: ConfigPathRequest) => typedError<ConfigSnapshot, AppError>(__TAURI_INVOKE("config_import", { request })),
 	configExport: (request: ConfigPathRequest) => typedError<ConfigExportResult, AppError>(__TAURI_INVOKE("config_export", { request })),
 	appFeatures: () => __TAURI_INVOKE<AppFeatureCatalog>("app_features"),
+	windowState: () => __TAURI_INVOKE<WindowStateSnapshot>("window_state"),
+	windowControl: (intent: WindowControlIntent) => typedError<WindowStateSnapshot, AppError>(__TAURI_INVOKE("window_control", { intent })),
 };
 
 /** Events */
 export const events = {
 	appLaunchRequested: makeEvent<LaunchRequestedEvent>("app://launch-requested"),
+	appRuntimeNotice: makeEvent<RuntimeNoticeEvent>("app://runtime-notice"),
 	configChanged: makeEvent<ConfigChangedEvent>("config://changed"),
+	windowStateChanged: makeEvent<WindowStateChangedEvent>("window://state-changed"),
 };
 
 /* Types */
@@ -44,7 +48,7 @@ export type AppError = {
 };
 
 /**  Stable error identifiers for application commands. */
-export type AppErrorCode = "configUnavailable" | "configInvalidPath" | "configReadFailed" | "configParseFailed" | "configUnsupportedVersion" | "configValidationFailed" | "configPreservationFailed" | "configBackupFailed" | "configWriteFailed" | "configReplaceFailed" | "configImportFailed" | "configExportFailed" | "configStateFailed";
+export type AppErrorCode = "configUnavailable" | "configInvalidPath" | "configReadFailed" | "configParseFailed" | "configUnsupportedVersion" | "configValidationFailed" | "configPreservationFailed" | "configBackupFailed" | "configWriteFailed" | "configReplaceFailed" | "configImportFailed" | "configExportFailed" | "configStateFailed" | "windowUnavailable" | "windowOperationFailed";
 
 /**  Cross-command error categories. */
 export type AppErrorKind = "io" | "parse" | "network" | "permission" | "system" | "validation" | "cancelled";
@@ -194,7 +198,12 @@ export type RuntimeNotice = {
 };
 
 /**  Stable categories for non-launch runtime warnings. */
-export type RuntimeNoticeCode = "loggingUnavailable" | "sessionMarkerUnavailable" | "elevationProbeFailed" | "windowActivationFailed";
+export type RuntimeNoticeCode = "loggingUnavailable" | "sessionMarkerUnavailable" | "elevationProbeFailed" | "windowActivationFailed" | "windowOperationFailed" | "windowPersistenceFailed" | "trayUnavailable";
+
+/**  A bounded native warning emitted after frontend bootstrap. */
+export type RuntimeNoticeEvent = {
+	notice: RuntimeNotice,
+};
 
 /**  Complete process state returned on every frontend bootstrap. */
 export type RuntimeSnapshot = {
@@ -235,6 +244,21 @@ export type WindowConfig = {
 	maximized?: boolean,
 	closeAction?: CloseAction,
 };
+
+export type WindowControlIntent = "minimizeToTray" | "toggleMaximize" | "close";
+
+/**  Authoritative main-window state published after a native transition. */
+export type WindowStateChangedEvent = {
+	snapshot: WindowStateSnapshot,
+};
+
+export type WindowStateSnapshot = {
+	revision: number,
+	visibility: WindowVisibility,
+	maximized: boolean,
+};
+
+export type WindowVisibility = "visible" | "hidden" | "exiting";
 
 /* Tauri Specta runtime */
 async function typedError<T, E>(result: Promise<T>): Promise<{ status: "ok"; data: T } | { status: "error"; error: E }> {

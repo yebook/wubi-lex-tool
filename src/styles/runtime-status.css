@@ -65,47 +65,99 @@ button:focus-visible {
 }
 
 .app-shell {
+  display: flex;
   min-height: 100vh;
-}
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 72px;
-  padding: 12px clamp(20px, 4vw, 48px);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.brand-lockup {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  gap: 12px;
-}
-
-.brand-icon {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  object-fit: contain;
-}
-
-.brand-lockup div {
-  display: flex;
-  min-width: 0;
   flex-direction: column;
 }
 
-.brand-name {
-  font-size: 18px;
-  line-height: 1.25;
+.window-title-bar {
+  display: grid;
+  min-height: 48px;
+  align-items: center;
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  grid-template-columns: minmax(0, 1fr) auto;
+  user-select: none;
 }
 
-.brand-context {
+.window-drag-region {
+  display: flex;
+  min-height: 47px;
+  align-items: center;
+  min-width: 0;
+  padding: 0 14px;
+  gap: 9px;
+}
+
+.window-brand-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  object-fit: contain;
+}
+
+.window-brand-name {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.window-version {
+  flex: 0 0 auto;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.window-controls {
+  display: flex;
+  height: 47px;
+  align-items: stretch;
+}
+
+.window-control-button {
+  display: inline-grid;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.window-control-button svg {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.window-control-button:hover {
+  background: var(--surface-muted);
+  filter: none;
+}
+
+.window-control-button:focus-visible {
+  z-index: 1;
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.window-control-button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.window-close-button:hover:not(:disabled) {
+  background: var(--critical);
+  color: #ffffff;
 }
 
 .stage-badge,
@@ -133,6 +185,7 @@ button:focus-visible {
 .runtime-main {
   width: min(1120px, 100%);
   margin: 0 auto;
+  flex: 1 1 auto;
   padding: 32px clamp(20px, 4vw, 48px) 48px;
 }
 
@@ -389,7 +442,6 @@ h2 {
 }
 
 @media (max-width: 480px) {
-  .app-header,
   .page-heading,
   .section-heading,
   .load-error {
@@ -399,10 +451,6 @@ h2 {
   .page-heading,
   .load-error {
     flex-direction: column;
-  }
-
-  .stage-badge {
-    display: none;
   }
 
   .load-error button {
@@ -436,7 +484,7 @@ h2 {
     --focus: #7cc8f1;
   }
 
-  button {
+  button:not(.window-control-button) {
     background: #237d84;
     border-color: #62c3c7;
   }

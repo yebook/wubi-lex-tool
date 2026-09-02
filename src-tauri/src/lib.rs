@@ -10,14 +10,19 @@ pub mod launch;
 pub mod logging;
 pub mod recovery;
 pub mod runtime;
+pub mod window;
 
 #[cfg(feature = "desktop")]
 use std::{
     ffi::OsString,
     io,
+    path::PathBuf,
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
+
+#[cfg(all(feature = "desktop", debug_assertions))]
+use std::path::Path;
 
 #[cfg(feature = "desktop")]
 use tauri::{Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, Wry};
@@ -47,16 +52,26 @@ pub fn run() -> Result<i32, tauri::Error> {
         .invoke_handler(invoke_handler)
         .setup(move |app| {
             registry.mount_events(app);
-            let config_service = match app.path().app_config_dir() {
-                Ok(directory) => {
-                    config::ConfigService::load(directory, config::WindowsConfigFileOps)
+            let smoke_data_directory =
+                debug_smoke_data_directory(&app.config().identifier).map_err(Box::new)?;
+            let config_service = Arc::new(if let Some(directory) = &smoke_data_directory {
+                config::ConfigService::load(directory.clone(), config::WindowsConfigFileOps)
+            } else {
+                match app.path().app_config_dir() {
+                    Ok(directory) => {
+                        config::ConfigService::load(directory, config::WindowsConfigFileOps)
+                    }
+                    Err(error) => config::ConfigService::unavailable(
+                        format!("stage=resolve_app_config_directory; error={error}"),
+                        config::WindowsConfigFileOps,
+                    ),
                 }
-                Err(error) => config::ConfigService::unavailable(
-                    format!("stage=resolve_app_config_directory; error={error}"),
-                    config::WindowsConfigFileOps,
-                ),
+            });
+            let (window_config, window_config_error) = match config_service.snapshot() {
+                Ok(snapshot) => (snapshot.config.window, None),
+                Err(error) => (config::WindowConfig::default(), Some(error.code)),
             };
-            app.manage(Arc::new(config_service));
+            app.manage(Arc::clone(&config_service));
             let config_event_handle = app.handle().clone();
             app.manage(events::ConfigEventEmitter::new(move |event| {
                 event
@@ -64,7 +79,8 @@ pub fn run() -> Result<i32, tauri::Error> {
                     .map_err(|error| error.to_string())
             }));
             let mut notices = Vec::new();
-            let app_data_directory = app.path().app_data_dir();
+            let app_data_directory =
+                smoke_data_directory.map_or_else(|| app.path().app_data_dir(), Ok);
 
             let logging_guard = match &app_data_directory {
                 Ok(directory) => match logging::initialize(&directory.join("logs")) {
@@ -81,6 +97,19 @@ pub fn run() -> Result<i32, tauri::Error> {
                     None
                 }
             };
+
+            if let Some(error_code) = window_config_error {
+                notices.push(runtime::RuntimeNotice::window_persistence_failed(
+                    "read_window_config",
+                ));
+                tracing::warn!(
+                    event = "window_config_read_failed",
+                    stage = "read_window_config",
+                    ?error_code,
+                    pid = std::process::id(),
+                    app_version = env!("CARGO_PKG_VERSION")
+                );
+            }
 
             let (marker, previous_abnormal_session_count) = match &app_data_directory {
                 Ok(directory) => match create_session_marker(&directory.join("sessions")) {
@@ -124,17 +153,44 @@ pub fn run() -> Result<i32, tauri::Error> {
                 app.manage(guard);
             }
 
-            WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
-                .title("WubiLex")
-                .inner_size(960.0, 680.0)
-                .min_inner_size(720.0, 520.0)
-                .center()
-                .visible(!start_hidden)
-                .focused(!start_hidden)
-                .build()?;
+            let window =
+                WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
+                    .title("WubiLex")
+                    .decorations(false)
+                    .inner_size(1024.0, 680.0)
+                    .min_inner_size(1024.0, 640.0)
+                    .skip_taskbar(start_hidden)
+                    .visible(false)
+                    .focused(false)
+                    .build()?;
+
+            for stage in window::apply_initial_placement(&window, &window_config) {
+                runtime_state.push_notice(runtime::RuntimeNotice::window_operation_failed(stage));
+                tracing::warn!(
+                    event = "window_restore_failed",
+                    stage,
+                    pid = std::process::id(),
+                    app_version = env!("CARGO_PKG_VERSION")
+                );
+            }
+            let initial_maximized = window.is_maximized().unwrap_or(window_config.maximized);
+            let coordinator = window::WindowCoordinator::new(
+                app.handle().clone(),
+                Arc::clone(&config_service),
+                window::WindowVisibility::Hidden,
+                initial_maximized,
+                window_config.bounds.clone(),
+            );
+            app.manage(Arc::clone(&coordinator));
+            let event_coordinator = Arc::clone(&coordinator);
+            window.on_window_event(move |event| event_coordinator.handle_window_event(event));
 
             if runtime_state.mark_window_ready() {
                 activate_main_window(app.handle(), &runtime_state);
+            } else if start_hidden {
+                coordinator.start_delayed_tray();
+            } else {
+                let _ = coordinator.restore();
             }
 
             tracing::info!(
@@ -150,23 +206,26 @@ pub fn run() -> Result<i32, tauri::Error> {
         .build(tauri::generate_context!())?;
 
     Ok(app.run_return(|app_handle, event| {
-        if matches!(event, RunEvent::Exit)
-            && let Some(lifecycle) = app_handle.try_state::<recovery::SessionLifecycle>()
-        {
-            if lifecycle.clean_exit().is_ok() {
-                tracing::info!(
-                    event = "application_exit",
-                    stage = "session_cleanup",
-                    pid = std::process::id(),
-                    app_version = env!("CARGO_PKG_VERSION")
-                );
-            } else {
-                tracing::error!(
-                    event = "session_marker_cleanup_failed",
-                    stage = "session_cleanup",
-                    pid = std::process::id(),
-                    app_version = env!("CARGO_PKG_VERSION")
-                );
+        if matches!(event, RunEvent::Exit) {
+            if let Some(coordinator) = app_handle.try_state::<Arc<window::WindowCoordinator>>() {
+                coordinator.cleanup_on_run_exit();
+            }
+            if let Some(lifecycle) = app_handle.try_state::<recovery::SessionLifecycle>() {
+                if lifecycle.clean_exit().is_ok() {
+                    tracing::info!(
+                        event = "application_exit",
+                        stage = "session_cleanup",
+                        pid = std::process::id(),
+                        app_version = env!("CARGO_PKG_VERSION")
+                    );
+                } else {
+                    tracing::error!(
+                        event = "session_marker_cleanup_failed",
+                        stage = "session_cleanup",
+                        pid = std::process::id(),
+                        app_version = env!("CARGO_PKG_VERSION")
+                    );
+                }
             }
         }
     }))
@@ -208,12 +267,9 @@ fn handle_secondary_launch(
 
 #[cfg(feature = "desktop")]
 fn activate_main_window(app_handle: &tauri::AppHandle<Wry>, state: &runtime::RuntimeState) {
-    let activation_succeeded = app_handle.get_webview_window("main").is_some_and(|window| {
-        let unminimized = window.unminimize().is_ok();
-        let shown = window.show().is_ok();
-        let focused = window.set_focus().is_ok();
-        unminimized && shown && focused
-    });
+    let activation_succeeded = app_handle
+        .try_state::<Arc<window::WindowCoordinator>>()
+        .is_some_and(|coordinator| coordinator.restore().is_ok());
     if activation_succeeded {
         return;
     }
@@ -276,10 +332,52 @@ fn create_session_marker(directory: &std::path::Path) -> io::Result<recovery::Se
     )
 }
 
+#[cfg(all(feature = "desktop", debug_assertions))]
+const SMOKE_DATA_ROOT_ENV: &str = "WUBILEX_SMOKE_DATA_ROOT";
+
+#[cfg(all(feature = "desktop", debug_assertions))]
+fn debug_smoke_data_directory(identifier: &str) -> io::Result<Option<PathBuf>> {
+    let Some(requested_root) = std::env::var_os(SMOKE_DATA_ROOT_ENV) else {
+        return Ok(None);
+    };
+    let executable = std::env::current_exe()?;
+    validated_smoke_data_root(Path::new(&requested_root), &executable)
+        .map(|root| Some(root.join(identifier)))
+}
+
+#[cfg(all(feature = "desktop", not(debug_assertions)))]
+fn debug_smoke_data_directory(_identifier: &str) -> io::Result<Option<PathBuf>> {
+    Ok(None)
+}
+
+#[cfg(all(feature = "desktop", debug_assertions))]
+fn validated_smoke_data_root(requested_root: &Path, executable: &Path) -> io::Result<PathBuf> {
+    let target_root = executable
+        .parent()
+        .and_then(Path::parent)
+        .ok_or_else(|| io::Error::other("debug executable has no target root"))?
+        .canonicalize()?;
+    let requested_root = requested_root.canonicalize()?;
+    let is_owned_root = requested_root
+        .parent()
+        .is_some_and(|parent| parent == target_root)
+        && requested_root
+            .file_name()
+            .is_some_and(|name| name == "smoke-runtime-appdata");
+    if !is_owned_root {
+        return Err(io::Error::new(
+            io::ErrorKind::PermissionDenied,
+            "smoke data root is outside the executable target directory",
+        ));
+    }
+    Ok(requested_root)
+}
+
 #[cfg(all(test, feature = "desktop"))]
 mod desktop_tests {
-    use super::{LaunchNoticeEvidence, launch_notice_evidence};
+    use super::{LaunchNoticeEvidence, launch_notice_evidence, validated_smoke_data_root};
     use crate::launch::{LaunchNotice, LaunchNoticeCode};
+    use std::{fs, io};
 
     #[test]
     fn launch_log_projection_excludes_summary_detail_and_argument_value() {
@@ -300,5 +398,29 @@ mod desktop_tests {
         let rendered = format!("{evidence:?}");
         assert!(!rendered.contains("secret-summary"));
         assert!(!rendered.contains("secret-argument-value"));
+    }
+
+    #[test]
+    fn debug_smoke_data_root_is_limited_to_the_executable_target() {
+        let repository = tempfile::tempdir().expect("repository root");
+        let target = repository.path().join("target");
+        let debug = target.join("debug");
+        let owned = target.join("smoke-runtime-appdata");
+        let outside = repository.path().join("outside");
+        fs::create_dir_all(&debug).expect("debug directory");
+        fs::create_dir_all(&owned).expect("owned smoke directory");
+        fs::create_dir_all(&outside).expect("outside directory");
+        let executable = debug.join("wubilex-app.exe");
+
+        assert_eq!(
+            validated_smoke_data_root(&owned, &executable).expect("owned root"),
+            owned.canonicalize().expect("canonical owned root")
+        );
+        assert_eq!(
+            validated_smoke_data_root(&outside, &executable)
+                .expect_err("outside root")
+                .kind(),
+            io::ErrorKind::PermissionDenied
+        );
     }
 }
