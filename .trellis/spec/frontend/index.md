@@ -19,11 +19,12 @@
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Route, shared UI, infrastructure, and generated-type placement | **Baseline with S1 runtime evidence** |
-| [Component Guidelines](./component-guidelines.md) | Component ownership, props, and composition | **Established by S1 window/tray** |
+| [Directory Structure](./directory-structure.md) | Route, shared UI, infrastructure, and generated-type placement | **Established through S1 UI foundation** |
+| [Component Guidelines](./component-guidelines.md) | Component ownership, props, composition, and accessible primitives | **Established through S1 UI foundation** |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks and effect boundaries | **Established by S1 window/tray** |
 | [State Management](./state-management.md) | Zustand store ownership and selector patterns | **Established by S1 feature catalog** |
-| [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Baseline with S1 runtime evidence** |
+| [UI Platform](./ui-platform.md) | First-frame appearance, UI preferences, bundled i18n, and provider composition | **Established through S1 UI foundation** |
+| [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Established through S1 UI foundation** |
 | [Type Safety](./type-safety.md) | Generated IPC contracts and frontend-owned type boundaries | **Baseline with S1 runtime evidence** |
 | [Virtualization And Performance](./virtualization-performance.md) | Bounded large-list ownership and visible-browser benchmark contracts | **Baseline with S0 risk-spike evidence** |
 | [Tailwind v4 Token Convention](./tailwind-v4-tokens.md) | `@theme inline`, v3-to-v4 mapping, and named tokens | **Established** |
@@ -34,8 +35,11 @@ measurement. The S1 runtime adds the first generated command/event consumer.
 The S1 feature catalog establishes the first Zustand vanilla store, injected
 client, async loading/retry shape, in-flight deduplication, and typed selectors.
 The S1 window/tray task establishes the first accessible product component and
-listener-first custom Hook. General UI primitives, query/cache behavior, and
-route patterns remain pending until their owning S1 tasks provide code/tests.
+listener-first custom Hook. The S1 UI foundation establishes first-frame and
+runtime appearance, bundled localization, shared tokens, accessible primitives,
+overlay ownership, frontend formatting, and the production build gate.
+Query/cache behavior and route patterns remain pending until their owning S1
+tasks provide code and tests.
 
 ---
 

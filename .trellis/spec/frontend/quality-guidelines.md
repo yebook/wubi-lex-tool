@@ -6,11 +6,30 @@
 
 ## Required Gates
 
-Frontend changes use the direct `pnpm` command resolved by the project Volta pin and must pass frozen installation, `pnpm audit --audit-level high`, the TypeScript compiler with no emit, ESLint with zero warnings, and Vitest. Node and pnpm come only from `package.json.volta.node` and `package.json.volta.pnpm`; Volta 2.0.2 requires `VOLTA_FEATURE_PNPM=1` in the user environment and CI. Do not introduce `engines.pnpm`, npm, yarn, npx, corepack, `.nvmrc`, a competing `packageManager` version source, or a second pnpm setup path.
+Frontend changes use the direct `pnpm` command resolved by the project Volta
+pin and must pass frozen installation, `pnpm audit --audit-level high`,
+`pnpm format:check`, the TypeScript compiler with no emit, ESLint with zero
+warnings, Vitest, and `pnpm build`. Node and pnpm come only from
+`package.json.volta.node` and `package.json.volta.pnpm`; Volta 2.0.2 requires
+`VOLTA_FEATURE_PNPM=1` in the user environment and CI. Do not introduce
+`engines.pnpm`, npm, yarn, npx, corepack, `.nvmrc`, a competing
+`packageManager` version source, or a second pnpm setup path.
 
 When a change touches IPC, `cargo xtask bindings --check` is part of the frontend gate even if TypeScript compilation succeeds. `cargo xtask check-docs` also guards requirement references consumed by frontend work.
 
-The checked-in Windows workflow reads versions from those repository fields, keys the pnpm store cache by `pnpm-lock.yaml`, and runs every frontend command after the Rust, audit, binding, and documentation gates. Cache restoration never replaces `pnpm install --frozen-lockfile`. A developer mirror that lacks the npm audit endpoint may be diagnosed with a command-local official `--registry` override; do not commit an `.npmrc` or report the missing endpoint as a clean audit.
+The checked-in Windows workflow reads versions from those repository fields,
+keys the pnpm store cache by `pnpm-lock.yaml`, and runs every frontend command
+after the Rust, audit, binding, and documentation gates. Cache restoration
+never replaces `pnpm install --frozen-lockfile`. A developer mirror that lacks
+the npm audit endpoint may be diagnosed with a command-local official
+`--registry` override; do not commit an `.npmrc` or report the missing endpoint
+as a clean audit.
+
+Prettier 3 owns frontend TypeScript, TSX, CSS, the HTML entry, and its listed
+configuration files. `prettier-plugin-tailwindcss` must use
+`tailwindStylesheet: "./src/styles/theme.css"`. Generated bindings remain
+excluded because `cargo xtask bindings` owns their exact bytes. CI runs check
+mode and never reformats contributor code.
 
 ## Required Boundaries
 
@@ -23,11 +42,16 @@ The checked-in Windows workflow reads versions from those repository fields, key
 ## Testing Requirements
 
 - Vitest covers frontend units and components as they are introduced.
+- CSS contract tests read `src/styles/theme.css` through `node:fs`; importing
+  it with Vite `?raw` is forbidden because the Tailwind transform can return an
+  empty test string and let source assertions pass against no stylesheet.
 - Component tests cover empty, loading, failure, disabled, and placeholder states when those states are part of the component contract.
 - Cross-layer tests verify command and event serialization through generated types rather than duplicating fixture interfaces in TypeScript.
 - End-to-end tests are required for the documented critical flow once the runnable shell and relevant stages exist: load a lexicon, edit it, and install it.
 - Feature-placeholder behavior is tested with backend feature switches disabled so unfinished commands cannot appear active.
 - The S1 feature store tests loading, ready, failed, retry, StrictMode-style in-flight deduplication, enabled/disabled typed lookup, and full-snapshot replacement. Backend tests own catalog ordering and Cargo-feature projection.
+- `pnpm build` remains a separate final gate even though it invokes typecheck;
+  it verifies the real Tailwind/Vite production transform and output graph.
 
 ## Forbidden Patterns
 
@@ -35,6 +59,8 @@ The checked-in Windows workflow reads versions from those repository fields, key
 - Full-file parsing or full-lexicon ownership in the WebView.
 - Handwritten IPC type mirrors or edits to generated output.
 - A second toolchain version source or non-pnpm package-manager commands.
+- Formatting generated bindings with Prettier or expanding format globs to
+  unrelated Rust, documentation, legacy, resource, or build-output trees.
 - A floating third-party Action ref, `continue-on-error`, or a cache condition that bypasses install, audit, typecheck, lint, or tests.
 - Treating a scaffold directory as proof of a component, hook, or state convention.
 
@@ -44,7 +70,8 @@ The checked-in Windows workflow reads versions from those repository fields, key
 - Does data cross IPC through the generated contract and a single typed boundary?
 - Are loading, empty, failure, cancellation, and feature-disabled outcomes handled where relevant?
 - Are large collections paged or virtualized rather than copied into frontend state?
-- Do the TypeScript, ESLint, Vitest, and binding checks cover the changed surface?
+- Do format check, TypeScript, ESLint, Vitest, production build, and binding
+  freshness cover the changed surface?
 - Does styling use the approved Tailwind v4 token mechanism?
 
 ## Sources
@@ -56,4 +83,8 @@ The checked-in Windows workflow reads versions from those repository fields, key
 - [Windows quality workflow](../../../.github/workflows/ci.yml)
 - [Frontend toolchain version sources](../../../package.json)
 
-The binding freshness and Volta-pinned pnpm CI gates are established. S1 runtime and feature bootstrap add focused Vitest coverage for privilege, recovery, launch warning, load failure, snapshot/event merge projections, feature initialization, failure/retry, selectors, and stale-entry removal. Final component and browser-flow conventions remain pending until the frontend shell exists.
+The binding freshness and Volta-pinned pnpm CI gates are established. S1 UI
+foundation adds Prettier check mode, production build verification, real-source
+token/contrast tests, provider/i18n tests, primitive interaction tests, and
+browser layout checks. End-to-end product flows remain pending until their
+routes and domain stages exist.
