@@ -45,6 +45,7 @@ export interface UiPreferencesContextValue {
   setTheme(theme: ThemePreference): Promise<void>;
   setDensity(density: Density): Promise<void>;
   setLocale(locale: AppLocale): Promise<void>;
+  setSidebarCollapsed(collapsed: boolean): Promise<void>;
   clearWarning(): void;
 }
 ```
@@ -72,6 +73,10 @@ redeclare their unions or payload fields.
 - Preference setters optimistically project the DOM, then use one serialized
   queue to send complete `UiConfig` groups. Every queued job is based on the
   latest confirmed config plus its patch, so sibling fields are not lost.
+- A setter invoked before any authoritative revision exists performs no update
+  and exposes a bounded warning. Sidebar and Settings controls remain natively
+  disabled while the provider is loading or failed without a confirmed
+  snapshot, so bootstrap defaults cannot overwrite unseen sibling fields.
 - Failed updates remove only the failed pending job, restore the latest
   confirmed values plus any remaining jobs, and expose a warning bounded to
   512 Unicode scalar values. Listener, snapshot, native-theme, and update
@@ -81,8 +86,8 @@ redeclare their unions or payload fields.
   have cleanup paths that are safe under React StrictMode and unmount races.
 - Localization uses one synchronously initialized, bundled i18next instance.
   The current registry contains only `zh-CN`, split into `common`, `window`,
-  `runtime`, and `ui` namespaces. React escapes interpolated values; no network
-  loader is installed.
+  `runtime`, `ui`, and `shell` namespaces. React escapes interpolated values;
+  no network loader is installed.
 - Frontend-authored visible strings, accessible names, and fallback warnings
   are translation keys. Brand, version, codes, paths, and backend-provided
   message/detail fields remain data and are rendered without translation.
@@ -101,6 +106,7 @@ redeclare their unions or payload fields.
 | Script executes in a subframe | Return without modifying that frame |
 | Newer event arrives before the initial snapshot | Keep the event revision and reject the stale snapshot |
 | Two preference setters run concurrently | Project both immediately and persist full groups serially without sibling-field loss |
+| A setter runs before the first authoritative revision | Perform no write, retain bootstrap projection, and expose a bounded warning |
 | Update fails while another job remains pending | Restore confirmed values, reapply remaining patches, and show a bounded warning |
 | System color preference changes | Recompute `.dark` only while theme preference is `system` |
 | Listener registration resolves after unmount | Invoke the returned unlisten function immediately; perform no state write |
@@ -152,4 +158,3 @@ await useUiPreferences().setTheme(theme);
 - [UI preferences provider](../../../src/app/providers/ui-preferences-provider.tsx)
 - [Bundled i18n registry](../../../src/i18n/index.ts)
 - [UI preferences tests](../../../src/app/providers/ui-preferences-provider.test.tsx)
-

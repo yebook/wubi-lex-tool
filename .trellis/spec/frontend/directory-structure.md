@@ -8,11 +8,11 @@
 
 The `src/` directory tree matches the approved architecture and now contains a
 runnable S1 React bootstrap, the committed generated IPC contract, app-level UI
-providers, bundled localization, the product token source, and reviewed UI
-primitives. The runtime status surface remains temporary and does not establish
-the final route or shell layout conventions owned by later S1 tasks. Generated
-bindings and compiled consumers are implementation evidence; `.gitkeep` files
-are not.
+providers, bundled localization, the product token source, reviewed UI
+primitives, and the seven-domain routing shell. Runtime diagnostics now belong
+to Overview; route composition, shell layout, feature placeholders, and
+application navigation have durable owners. Generated bindings and compiled
+consumers are implementation evidence; `.gitkeep` files are not.
 
 ## Directory Layout
 
@@ -52,7 +52,7 @@ are not.
 
 Existing route and reusable-component directory names use lower-case kebab
 form. Project-owned UI primitives use lower-case files and named exports through
-`src/components/ui/index.ts`; final route-module naming remains pending.
+`src/components/ui/index.ts`; top-level route modules use `<Domain>Route.tsx`.
 
 ## Sources
 
@@ -64,4 +64,6 @@ form. Project-owned UI primitives use lower-case files and named exports through
 
 Generated binding placement, app providers, shared UI primitives, the first
 runtime command/event consumers, hooks, and the feature store are established.
-Route modules and the final shell remain pending.
+The routing shell establishes real route, layout, provider, and reusable
+feature-placeholder examples. Domain parsing and business behavior remain
+Rust-owned and pending their milestone tasks.

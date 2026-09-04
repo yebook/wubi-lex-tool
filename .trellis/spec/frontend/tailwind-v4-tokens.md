@@ -51,6 +51,10 @@ through `@tailwindcss/vite`; Prettier resolves class order through
 - Spacing follows the 4 px scale; radii are 4/8/12 px; control and native title
   bar sizes remain stable at 44/48 px. Density changes spacing tokens, not the
   required interactive target size.
+- Shell dimensions use the named `sidebar-expanded`, `sidebar-collapsed`,
+  `statusbar-min-height`, `route-max-width`, and `placeholder-min-height`
+  spacing mappings. Their `--wl-*` values remain in this file; shell CSS does
+  not create component-local dimension systems.
 - Surface separation uses color and borders. `--wl-shadow-overlay` is reserved
   for real menus, tooltips, and dialogs, with named dropdown/tooltip/dialog
   z-index tokens.

@@ -6,10 +6,12 @@
 
 ## Current Status
 
-**Established through S1 UI foundation.** `WindowTitleBar` establishes the
-native window-control contract. The project-owned Button, Input, Kbd, Dialog,
-Dropdown Menu, Tooltip, and OverlayProvider establish the reviewed generic
-primitive and overlay conventions below. Route composition remains pending.
+**Established through S1 routing shell.** `WindowTitleBar` establishes the
+native window-control contract and now serves as the one application bar. The
+project-owned Button, Input, Kbd, Dialog, Dropdown Menu, Tooltip,
+OverlayProvider, and FeaturePlaceholder establish the reviewed generic,
+overlay, and deferred-capability conventions below. Route composition is owned
+by the routing-shell specification.
 
 ## Approved Boundary
 
@@ -66,15 +68,19 @@ primitive and overlay conventions below. Route composition remains pending.
 - Only icons required by reviewed components are re-exported from `src/icons/`.
   Icon-only controls still require an accessible name; tooltip content is
   supplementary and never substitutes for that name.
+- `FeaturePlaceholder` has `page`, `section`, and `inline` variants with a
+  visible non-color state, concrete capability copy, and a real backend
+  milestone when one exists. `FeatureGate` reads the generated feature ID from
+  the single Zustand catalog and fails closed for loading, failure, and missing
+  records without probing a command.
 
 ## Decisions Not Yet Established
 
 The project has not established:
 
-- route-level page and layout composition;
 - a component-generation command or automated shadcn update policy;
 - full form-field label/help/error composition;
-- loading, empty, failure, confirmation, toast and feature-placeholder APIs;
+- shared empty, confirmation, toast, and task-feedback APIs;
 - a shared accessibility test helper or snapshot policy.
 
 ## Forbidden Premature Assumptions
@@ -109,6 +115,7 @@ region, icons, state props, or component tests.
 interface WindowTitleBarProps {
   iconUrl: string;
   version: string;
+  pageTitle?: string;
   snapshot: WindowStateSnapshot | null;
   onControl: (intent: WindowControlIntent) => void;
 }
@@ -116,8 +123,10 @@ interface WindowTitleBarProps {
 
 ### 3. Contracts
 
-- Render product icon/name/version and minimize, maximize/restore, and close in
-  one compact header; do not add routing, settings, theme, or tray ownership.
+- Render product icon/name/version, the optional current page title, and
+  minimize, maximize/restore, and close in one compact header. The title is a
+  view-only prop; the component does not acquire router, settings, theme, or
+  tray ownership.
 - Maximize label/icon derives only from `snapshot.maximized`; all controls are
   disabled while visibility is `exiting`.
 - Use Lucide `Minus`, `Square`/`Copy`, and `X` through
@@ -148,8 +157,8 @@ interface WindowTitleBarProps {
 - Query all controls by accessible role/name and assert matching `title` text.
 - Invoke minimize with Enter, maximize with Space, and close with pointer input;
   assert the exact generated intents and order.
-- Assert maximize/restore semantics, exiting disabled state, brand/version, and
-  drag-region isolation.
+- Assert maximize/restore semantics, exiting disabled state,
+  brand/version/page title, and drag-region isolation.
 - Keep browser viewport checks for fixed 44 by 44 controls and no horizontal
   overflow at the native minimum window size.
 

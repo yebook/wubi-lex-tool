@@ -24,6 +24,7 @@
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks and effect boundaries | **Established by S1 window/tray** |
 | [State Management](./state-management.md) | Zustand store ownership and selector patterns | **Established by S1 feature catalog** |
 | [UI Platform](./ui-platform.md) | First-frame appearance, UI preferences, bundled i18n, and provider composition | **Established through S1 UI foundation** |
+| [Routing And Application Shell](./routing-shell.md) | Canonical paths, runtime navigation, internal history/focus, shell, and feature placeholders | **Established by S1 routing shell** |
 | [Quality Guidelines](./quality-guidelines.md) | Frontend gates and Rust/frontend responsibility boundaries | **Established through S1 UI foundation** |
 | [Type Safety](./type-safety.md) | Generated IPC contracts and frontend-owned type boundaries | **Baseline with S1 runtime evidence** |
 | [Virtualization And Performance](./virtualization-performance.md) | Bounded large-list ownership and visible-browser benchmark contracts | **Baseline with S0 risk-spike evidence** |
@@ -37,9 +38,12 @@ client, async loading/retry shape, in-flight deduplication, and typed selectors.
 The S1 window/tray task establishes the first accessible product component and
 listener-first custom Hook. The S1 UI foundation establishes first-frame and
 runtime appearance, bundled localization, shared tokens, accessible primitives,
-overlay ownership, frontend formatting, and the production build gate.
-Query/cache behavior and route patterns remain pending until their owning S1
-tasks provide code and tests.
+overlay ownership, frontend formatting, and the production build gate. The S1
+routing shell establishes the canonical seven-route catalog, hash/memory router
+factories, runtime launch bridge, session-owned history and focus, one app bar,
+Sidebar/StatusBar, Settings appearance controls, and backend-catalog feature
+placeholders. Query/cache behavior remains pending until a real consumer owns
+it.
 
 ---
 

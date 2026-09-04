@@ -54,8 +54,9 @@ export const featuresStore: StoreApi<FeaturesState>;
   event, or consumer patches individual feature records.
 - Invocation errors are reduced to a user-readable message bounded to 512
   Unicode scalar values. The store retains no raw command payload or stack.
-- The production store starts from `src/main.tsx`; the runtime shell does not
-  invent route placeholders or infer a feature from command failure.
+- The production store starts once from `src/app/app.tsx`; StrictMode calls are
+  deduplicated by the store. Route placeholders consume selectors and never
+  infer a feature from command failure.
 
 ### 4. Validation & Error Matrix
 
