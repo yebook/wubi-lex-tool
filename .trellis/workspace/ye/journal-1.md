@@ -380,3 +380,26 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 17: 完成 S1 路由与应用外壳
+
+**Date**: 2026-09-04
+**Task**: 完成 S1 路由与应用外壳
+**Branch**: `main`
+
+### Summary
+
+完成七领域路由、可折叠桌面外壳、深链接与返回语义、概览和设置骨架及功能占位；完成全量质量检查并固化前端路由外壳规范，按决定跳过 npm audit。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b8c6089` | (see git log) |
+| `47a10bf` | (see git log) |
+| `3f551e3` | (see git log) |
+
+### Status
+
+[OK] **Completed**
