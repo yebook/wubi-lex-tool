@@ -1,0 +1,15 @@
+{"file":".trellis/tasks/09-03-s1-routing-shell/research/routing-shell-contracts.md","reason":"逐项核对 scope、dependency、route、runtime、history/focus、placeholder 和 smoke 决策。"}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"检查 route-specific、shared component、provider、lib 和 bootstrap 的 owner 没有漂移。"}
+{"file":".trellis/spec/frontend/ui-platform.md","reason":"检查 sidebar config 复用同一队列、provider order、warning 和 i18n。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"检查 titlebar、links、buttons、tooltips、overlays、accessible name/state 和 focus。"}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"检查 runtime event/snapshot race、cleanup、错误与旧 snapshot 合并。"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"检查 generated feature catalog 为唯一 availability source，无第二 persistence。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"检查无 handwritten IPC mirror、feature union 或 generated binding 手改。"}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"检查 light/dark、density、44px target、focus、200% text、reduced motion 和无第二色板。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"检查所有 frontend gates、route/placeholder states、browser layout 和 production build。"}
+{"file":".trellis/spec/backend/window-coordinator.md","reason":"检查 native activate/restore/tray/window 行为无回归且 frontend 不形成第二 owner。"}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"检查无 ImTip、root resource、系统写入、capability 或 CSP 扩展。"}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"检查 frozen install/audit、bindings/docs、Rust 回归和 Windows smoke。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查 primary/secondary/hash 到 route、warning、focus 和 status 的端到端一致性。"}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"检查项目 Volta pnpm 是唯一来源且 package/lock 无工具链漂移。"}
+{"file":".trellis/spec/frontend/routing-shell.md","reason":"检查 canonical route、runtime bridge、history/focus、shell 与 feature placeholder 的既有合同。"}

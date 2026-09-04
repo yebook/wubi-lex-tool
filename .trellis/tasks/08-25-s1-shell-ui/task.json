@@ -22,7 +22,8 @@
     "08-26-s1-runtime-lifecycle",
     "08-27-s1-config-features",
     "09-01-s1-window-tray",
-    "09-02-s1-ui-foundation"
+    "09-02-s1-ui-foundation",
+    "09-03-s1-routing-shell"
   ],
   "parent": null,
   "relatedFiles": [],

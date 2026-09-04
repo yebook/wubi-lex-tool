@@ -1,0 +1,15 @@
+{"file":".trellis/tasks/09-03-s1-routing-shell/research/routing-shell-contracts.md","reason":"路由依赖、现有 runtime/config/feature/window 边界、初始导航优先级、history/focus 与验证研究。"}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"约束 app/layout/router/routes/components/lib 的 owner 和 main.tsx bootstrap 边界。"}
+{"file":".trellis/spec/frontend/ui-platform.md","reason":"保持 provider 顺序、UiConfig 单一持久源、listener-first 更新队列和 bundled i18n。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"复用 WindowTitleBar、UI primitives、Lucide 与 Radix overlay 的语义和焦点合同。"}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"实现 runtime/window listener-first、snapshot race、cleanup 和 visible warning。"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"FeatureGate 只消费 backend Zustand catalog，配置不进入第二 store 或 Web Storage。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"LaunchRequest、RuntimeSnapshot、UiConfig 和 AppFeatureId 只使用 generated contracts。"}
+{"file":".trellis/spec/frontend/tailwind-v4-tokens.md","reason":"Shell/sidebar/status/placeholder 只使用唯一 theme token、density、focus 和 reduced-motion 系统。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"执行 format/typecheck/lint/Vitest/build、placeholder state、browser 与 binding freshness 门禁。"}
+{"file":".trellis/spec/backend/window-coordinator.md","reason":"深链接前端导航不得重复 native restore/focus，窗口与托盘生命周期保持单 owner。"}
+{"file":".trellis/spec/backend/windows-system-integration.md","reason":"保持 Windows 安全边界与永久禁止 ImTip，不引入系统写入或 companion integration。"}
+{"file":".trellis/spec/backend/repository-quality-ci.md","reason":"遵循 dependency、bindings/docs、Windows runtime smoke 和完整 CI contract。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查 launch snapshot/event 经 validator/router 到可见 route/warning 的完整数据流。"}
+{"file":".trellis/spec/guides/toolchain-conventions.md","reason":"只使用 package.json.volta.pnpm 的项目 pnpm、精确依赖和冻结锁文件。"}
+{"file":".trellis/spec/frontend/routing-shell.md","reason":"遵循本任务形成的 canonical route、runtime bridge、history/focus、shell 与 feature placeholder 合同。"}
