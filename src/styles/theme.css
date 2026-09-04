@@ -39,6 +39,11 @@
   --spacing-icon-sm: var(--wl-icon-sm);
   --spacing-icon-md: var(--wl-icon-md);
   --spacing-icon-lg: var(--wl-icon-lg);
+  --spacing-sidebar-expanded: var(--wl-sidebar-expanded);
+  --spacing-sidebar-collapsed: var(--wl-sidebar-collapsed);
+  --spacing-statusbar-min-height: var(--wl-statusbar-min-height);
+  --spacing-route-max-width: var(--wl-route-max-width);
+  --spacing-placeholder-min-height: var(--wl-placeholder-min-height);
 
   --radius-sm: var(--wl-radius-sm);
   --radius-md: var(--wl-radius-md);
@@ -135,6 +140,11 @@
   --wl-spinner-border-width: 0.125rem;
   --wl-warning-border-width: 0.1875rem;
   --wl-page-gutter: clamp(1.25rem, 4vw, 3rem);
+  --wl-sidebar-expanded: 15rem;
+  --wl-sidebar-collapsed: 4.25rem;
+  --wl-statusbar-min-height: 2.25rem;
+  --wl-route-max-width: 72rem;
+  --wl-placeholder-min-height: 9rem;
   --wl-density-block: var(--wl-space-4);
   --wl-density-inline: var(--wl-space-6);
 }

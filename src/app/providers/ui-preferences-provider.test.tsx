@@ -49,6 +49,31 @@ function wrapper(
 }
 
 describe("UiPreferencesProvider", () => {
+  it("does not persist a full UI group before an authoritative snapshot", async () => {
+    let resolveSnapshot: ((value: ConfigSnapshot) => void) | undefined;
+    const pendingSnapshot = new Promise<ConfigSnapshot>((resolve) => {
+      resolveSnapshot = resolve;
+    });
+    const client: UiConfigClient = {
+      listenChanged: vi.fn(async () => vi.fn()),
+      fetchSnapshot: vi.fn(() => pendingSnapshot),
+      updateUi: vi.fn(),
+    };
+    const { result } = renderHook(() => useUiPreferences(), {
+      wrapper: wrapper(client, environment()),
+    });
+
+    await act(async () => result.current.setSidebarCollapsed(true));
+    expect(result.current.ui.sidebarCollapsed).toBe(false);
+    expect(result.current.warning).toBe("界面设置读取完成前无法保存更改。");
+    expect(client.updateUi).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveSnapshot?.(snapshot(1, { sidebarCollapsed: true }));
+      await pendingSnapshot;
+    });
+  });
+
   it("listens before snapshot and rejects an older snapshot", async () => {
     const order: string[] = [];
     let listener: ((incoming: ConfigSnapshot) => void) | undefined;
@@ -175,6 +200,37 @@ describe("UiPreferencesProvider", () => {
     await act(async () => result.current.setTheme("dark"));
     expect(result.current.ui.theme).toBe("light");
     expect(result.current.warning).toBe("保存通道不可用");
+  });
+
+  it("persists sidebar state through the same full-group queue", async () => {
+    const updateUi = vi.fn(async (ui: UiConfig) => snapshot(2, ui));
+    const client: UiConfigClient = {
+      listenChanged: vi.fn(async () => vi.fn()),
+      fetchSnapshot: vi.fn(async () =>
+        snapshot(1, {
+          theme: "dark",
+          density: "compact",
+          locale: "zh-CN",
+          sidebarCollapsed: false,
+          onboardingVersion: 4,
+        }),
+      ),
+      updateUi,
+    };
+    const { result } = renderHook(() => useUiPreferences(), {
+      wrapper: wrapper(client, environment()),
+    });
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    await act(async () => result.current.setSidebarCollapsed(true));
+    expect(result.current.ui.sidebarCollapsed).toBe(true);
+    expect(updateUi).toHaveBeenCalledWith({
+      theme: "dark",
+      density: "compact",
+      locale: "zh-CN",
+      sidebarCollapsed: true,
+      onboardingVersion: 4,
+    });
   });
 
   it("synchronizes explicit and system preferences to the native window theme", async () => {

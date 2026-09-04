@@ -7,6 +7,7 @@ import {
   describeLaunch,
   describePrivilege,
   describeRecovery,
+  latestRuntimeNotice,
   mergeLatestLaunch,
   mergeRuntimeNotices,
   runtimeErrorMessage,
@@ -151,5 +152,23 @@ describe("runtime status presentation", () => {
         },
       ]).notices,
     ).toHaveLength(2);
+  });
+
+  it("selects a newer live runtime notice ahead of snapshot history", () => {
+    const older = {
+      code: "loggingUnavailable" as const,
+      summary: "旧通知",
+      detail: null,
+    };
+    const newer = {
+      code: "windowPersistenceFailed" as const,
+      summary: "新通知",
+      detail: "保存窗口位置失败",
+    };
+
+    expect(
+      latestRuntimeNotice({ ...baseline, notices: [older] }, [newer]),
+    ).toEqual(newer);
+    expect(latestRuntimeNotice(null, [newer])).toEqual(newer);
   });
 });

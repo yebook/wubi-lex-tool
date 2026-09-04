@@ -248,7 +248,9 @@ h2 {
   margin-bottom: var(--wl-space-2);
 }
 
-.status-title strong {
+.status-title strong,
+.notice-row strong,
+.notice-row p {
   overflow-wrap: anywhere;
 }
 

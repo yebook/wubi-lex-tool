@@ -33,7 +33,7 @@ import type {
 
 type UiPreferencesStatus = "loading" | "ready" | "failed";
 type UiPreferencePatch = Partial<
-  Pick<ResolvedUiConfig, "theme" | "density" | "locale">
+  Pick<ResolvedUiConfig, "theme" | "density" | "locale" | "sidebarCollapsed">
 >;
 
 interface UpdateJob {
@@ -47,6 +47,7 @@ export interface UiPreferencesContextValue {
   setTheme(theme: ThemePreference): Promise<void>;
   setDensity(density: Density): Promise<void>;
   setLocale(locale: AppLocale): Promise<void>;
+  setSidebarCollapsed(collapsed: boolean): Promise<void>;
   clearWarning(): void;
 }
 
@@ -226,6 +227,14 @@ export function UiPreferencesProvider({
 
   const enqueue = useCallback(
     (patch: UiPreferencePatch): Promise<void> => {
+      if (confirmed.current.revision < 0) {
+        setView((current) => ({
+          ...current,
+          warning: translation.t("ui:preferences.updateUnavailable"),
+        }));
+        return Promise.resolve();
+      }
+
       const job = { patch } satisfies UpdateJob;
       pending.current.push(job);
       refreshOptimisticView();
@@ -262,6 +271,7 @@ export function UiPreferencesProvider({
       setTheme: (theme) => enqueue({ theme }),
       setDensity: (density) => enqueue({ density }),
       setLocale: (locale) => enqueue({ locale }),
+      setSidebarCollapsed: (sidebarCollapsed) => enqueue({ sidebarCollapsed }),
       clearWarning: () => setView((current) => ({ ...current, warning: null })),
     }),
     [enqueue, view],

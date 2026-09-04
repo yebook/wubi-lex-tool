@@ -211,8 +211,8 @@ try {
     $delayScheduledBaseline = @(Get-LogEvents "tray_delay_scheduled").Count
     $delayCancelledBaseline = @(Get-LogEvents "tray_delay_cancelled").Count
 
-    Write-Host "[1/4] Starting hidden primary instance"
-    $primary = Start-OwnedProcess @("/tray")
+    Write-Host "[1/4] Starting hidden primary instance with canonical navigation"
+    $primary = Start-OwnedProcess @("/tray", "--navigate", "/settings")
     $primaryMarker = Wait-ForSingleNewMarker -baseline $baselineMarkers -description "primary session marker"
     Write-Host "      primary marker created"
     [void]$script:ownedMarkerPaths.Add($primaryMarker)
@@ -227,7 +227,7 @@ try {
     Write-Host "      primary window is hidden"
 
     Write-Host "[2/4] Verifying second-instance handoff and visible warning"
-    $secondary = Start-OwnedProcess @("--navigate", "/settings/runtime")
+    $secondary = Start-OwnedProcess @("--navigate", "/lexicons")
     Wait-ForExit $secondary "navigation secondary instance"
     Wait-Until {
         Test-MainWindowVisible $primary
@@ -246,11 +246,14 @@ try {
         throw "A tray icon was created after the hidden launch was restored."
     }
 
+    $unknown = Start-OwnedProcess @("--navigate", "/settings/runtime")
+    Wait-ForExit $unknown "unknown product path secondary instance"
+
     $invalid = Start-OwnedProcess @("--unsupported-smoke-argument")
     Wait-ForExit $invalid "invalid-argument secondary instance"
     Wait-Until {
-        @(Get-LogEvents "secondary_launch_received").Count -ge ($secondaryEventBaseline + 2)
-    } "two secondary launch log records"
+        @(Get-LogEvents "secondary_launch_received").Count -ge ($secondaryEventBaseline + 3)
+    } "three secondary launch log records"
     Wait-Until {
         @(Get-LogEvents "launch_argument_notice").Count -ge ($argumentNoticeBaseline + 1)
     } "redacted invalid-argument log record"

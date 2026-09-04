@@ -59,6 +59,15 @@ export function mergeRuntimeNotices(
   return { ...snapshot, notices: notices.slice(-8) };
 }
 
+export function latestRuntimeNotice(
+  snapshot: RuntimeSnapshot | null,
+  incoming: RuntimeNotice[],
+): RuntimeNotice | undefined {
+  return snapshot
+    ? mergeRuntimeNotices(snapshot, incoming).notices.at(-1)
+    : incoming.at(-1);
+}
+
 export function describePrivilege(
   status: PrivilegeStatus,
   t: TFunction<"runtime">,

@@ -7,6 +7,7 @@ const runtimeCss = readFileSync(
   new URL("runtime-status.css", import.meta.url),
   "utf8",
 );
+const shellCss = readFileSync(new URL("shell.css", import.meta.url), "utf8");
 const themeCss = readFileSync(new URL("theme.css", import.meta.url), "utf8");
 
 const COLOR_TOKENS = [
@@ -137,5 +138,21 @@ describe("Tailwind v4 theme contract", () => {
     );
     expect(runtimeCss).not.toMatch(/#[0-9a-f]{3,8}\b/i);
     expect(runtimeCss).not.toContain("prefers-color-scheme");
+  });
+
+  it("keeps shell dimensions and colors on the shared token vocabulary", () => {
+    for (const token of [
+      "sidebar-expanded",
+      "sidebar-collapsed",
+      "statusbar-min-height",
+      "route-max-width",
+      "placeholder-min-height",
+    ]) {
+      expect(themeCss).toContain(`--spacing-${token}: var(--wl-${token});`);
+      expect(shellCss).toContain(`var(--wl-${token})`);
+    }
+    expect(shellCss).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+    expect(shellCss).not.toMatch(/letter-spacing:\s*-/);
+    expect(shellCss).not.toContain("prefers-color-scheme");
   });
 });

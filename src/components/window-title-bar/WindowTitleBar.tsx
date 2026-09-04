@@ -10,6 +10,7 @@ import { Copy, Minus, Square, X } from "../../icons/window-controls";
 interface WindowTitleBarProps {
   iconUrl: string;
   version: string;
+  pageTitle?: string;
   snapshot: WindowStateSnapshot | null;
   onControl: (intent: WindowControlIntent) => void;
 }
@@ -17,6 +18,7 @@ interface WindowTitleBarProps {
 export function WindowTitleBar({
   iconUrl,
   version,
+  pageTitle,
   snapshot,
   onControl,
 }: WindowTitleBarProps) {
@@ -38,6 +40,12 @@ export function WindowTitleBar({
         />
         <strong className="window-brand-name">WubiLex</strong>
         <span className="window-version">v{version}</span>
+        {pageTitle ? (
+          <>
+            <span className="window-title-separator" aria-hidden="true" />
+            <span className="window-page-title">{pageTitle}</span>
+          </>
+        ) : null}
       </div>
       <div className="window-controls" aria-label={t("controls")}>
         <WindowButton

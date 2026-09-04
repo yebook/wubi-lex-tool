@@ -32,6 +32,7 @@ describe("WindowTitleBar", () => {
       <WindowTitleBar
         iconUrl="/icon.ico"
         version="0.1.0"
+        pageTitle="设置"
         snapshot={visible}
         onControl={() => {}}
       />,
@@ -53,6 +54,7 @@ describe("WindowTitleBar", () => {
         ?.getAttribute("data-tauri-drag-region"),
     ).toBe("deep");
     expect(screen.getByText("v0.1.0")).toBeTruthy();
+    expect(screen.getByText("设置")).toBeTruthy();
   });
 
   it("submits all intents from keyboard-operable buttons", async () => {
